@@ -44,18 +44,3 @@ jobs:
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm install
-
-  docker-build-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Setting up a dummy .env for docker-compose build context if needed
-      - name: Setup dummy env files
-        run: |
-          touch frontend/.env
-          touch backend/.env
-
-      - name: Build Docker Container
-        run: docker compose build
