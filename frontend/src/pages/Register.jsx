@@ -1,29 +1,51 @@
-import { useState } from 'react';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import AuthLayout from '../components/layouts/AuthLayout';
-import GoogleAuthButton from '../components/auth/GoogleAuthButton';
+import { useState } from "react";
+import {
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthLayout from "../components/layouts/AuthLayout";
+import GoogleAuthButton from "../components/auth/GoogleAuthButton";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRegister = (e) => {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRegister = async (e) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+      setError("Passwords do not match.");
       return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API Call
-    setTimeout(() => {
-      console.log({ name, email, password });
+    setError("");
+
+    try {
+      await register({ name, email, password });
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError(
+        err.response?.data?.message ||
+          "An error occurred during registration. Please try again.",
+      );
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -34,9 +56,21 @@ export default function Register() {
       brandingSubtitle="Detailed tracking, intelligent forecasting, and simple insights that make managing your money feel effortless."
       reverse={true}
     >
+      {error && (
+        <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-100 flex items-start gap-3 text-red-600 text-sm animate-in fade-in slide-in-from-top-1">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
+
       <form onSubmit={handleRegister} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-[13px] font-medium text-zinc-700 block" htmlFor="name">Full Name</label>
+          <label
+            className="text-[13px] font-medium text-zinc-700 block"
+            htmlFor="name"
+          >
+            Full Name
+          </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
               <User className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
@@ -54,7 +88,12 @@ export default function Register() {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[13px] font-medium text-zinc-700 block" htmlFor="email">Email address</label>
+          <label
+            className="text-[13px] font-medium text-zinc-700 block"
+            htmlFor="email"
+          >
+            Email address
+          </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
               <Mail className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
@@ -73,7 +112,12 @@ export default function Register() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700 block" htmlFor="password">Password</label>
+            <label
+              className="text-[13px] font-medium text-zinc-700 block"
+              htmlFor="password"
+            >
+              Password
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                 <Lock className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
@@ -91,7 +135,12 @@ export default function Register() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700 block" htmlFor="confirmPassword">Confirm</label>
+            <label
+              className="text-[13px] font-medium text-zinc-700 block"
+              htmlFor="confirmPassword"
+            >
+              Confirm
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                 <Lock className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
@@ -132,7 +181,9 @@ export default function Register() {
           <div className="w-full border-t border-zinc-200"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="px-4 bg-white text-[13px] text-zinc-500">Or continue with</span>
+          <span className="px-4 bg-white text-[13px] text-zinc-500">
+            Or continue with
+          </span>
         </div>
       </div>
 
@@ -141,8 +192,11 @@ export default function Register() {
       </div>
 
       <div className="mt-8 text-center text-[13px] text-zinc-500">
-        Already have an account?{' '}
-        <Link to="/login" className="font-medium text-zinc-900 hover:underline underline-offset-4 transition-colors">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="font-medium text-zinc-900 hover:underline underline-offset-4 transition-colors"
+        >
           Sign in
         </Link>
       </div>

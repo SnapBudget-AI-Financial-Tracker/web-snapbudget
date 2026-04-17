@@ -26,6 +26,8 @@
     "redis": "^5.12.1"
   },
   "devDependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/config": "^7.7.0",
     "nodemon": "^3.1.14"
   }
 }
