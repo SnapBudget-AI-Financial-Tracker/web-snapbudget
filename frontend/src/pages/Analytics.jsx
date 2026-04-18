@@ -13,7 +13,8 @@ import {
   Cell,
 } from "recharts";
 import { Sparkles, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
-import { getCategoryIcon, FinancialStatusBadge } from "../utils/categoryIcons";
+import { getCategoryIcon } from "../utils/categoryIcons.js";
+import { FinancialStatusBadge } from "../utils/categoryIcons.jsx";
 import Skeleton from "../components/ui/Skeleton";
 
 // The mocked JSON response from the AI Engineer

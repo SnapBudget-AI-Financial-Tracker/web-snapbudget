@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { evaluatePasswordStrength } from '../pages/Register';
+import { evaluatePasswordStrength } from '../utils/passwordStrength';
 
 describe('PasswordStrengthIndicator — Property 4 & 5 (Validates: Requirements 10.4, 10.5)', () => {
 

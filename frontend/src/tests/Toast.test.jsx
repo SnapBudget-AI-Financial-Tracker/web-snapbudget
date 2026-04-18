@@ -10,8 +10,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
-import { ToastProvider, useToast } from '../context/ToastContext.jsx';
+import { render, screen, act, fireEvent } from '@testing-library/react';
+import { ToastProvider } from '../context/ToastContext.jsx';
+import { useToast } from '../context/ToastContext.js';
 
 // ---------------------------------------------------------------------------
 // Mock window.matchMedia (required by useReducedMotion hook)

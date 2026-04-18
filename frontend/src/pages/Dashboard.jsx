@@ -4,7 +4,8 @@ import DashboardLayout from "../components/dashboard/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
 import Button from "../components/ui/Button";
 import Skeleton from "../components/ui/Skeleton";
-import { getCategoryIcon, FinancialStatusBadge } from "../utils/categoryIcons";
+import { getCategoryIcon } from "../utils/categoryIcons.js";
+import { FinancialStatusBadge } from "../utils/categoryIcons.jsx";
 import {
   PieChart,
   Plus,

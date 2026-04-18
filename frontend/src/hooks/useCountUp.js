@@ -19,10 +19,11 @@ function useCountUp(target, duration = 1200) {
   const startTimeRef = useRef(null);
 
   useEffect(() => {
-    // Respect reduced motion — skip animation entirely
+    // Respect reduced motion — skip animation entirely, use ref to avoid
+    // calling setState synchronously inside the effect body
     if (prefersReducedMotion) {
-      setCount(target);
-      return;
+      const id = requestAnimationFrame(() => setCount(target));
+      return () => cancelAnimationFrame(id);
     }
 
     // Reset and start animation

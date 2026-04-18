@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import Button from "../components/ui/Button";
 import Skeleton from "../components/ui/Skeleton";
-import { getCategoryIcon } from "../utils/categoryIcons";
+import { getCategoryIcon } from "../utils/categoryIcons.js";
 import useReducedMotion from "../hooks/useReducedMotion";
 import { Search, Plus, X, ChevronDown } from "lucide-react";
 
