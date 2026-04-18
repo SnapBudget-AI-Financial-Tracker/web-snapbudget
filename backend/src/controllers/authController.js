@@ -46,6 +46,7 @@ export const register = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        avatarUrl: user.avatarUrl,
       },
       token,
     });
@@ -84,6 +85,7 @@ export const login = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        avatarUrl: user.avatarUrl,
       },
       token,
     });
@@ -139,6 +141,7 @@ export const googleLogin = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        avatarUrl: user.avatarUrl,
         picture, // Optional: frontend can use this
       },
       token,

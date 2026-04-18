@@ -30,6 +30,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    authService.updateCurrentUser(userData);
+    setUser(userData);
+  };
+
   const value = {
     user,
     loading,
@@ -37,6 +42,7 @@ export const AuthProvider = ({ children }) => {
     googleLogin,
     register,
     logout,
+    updateUser,
     isAuthenticated: !!user,
   };
 

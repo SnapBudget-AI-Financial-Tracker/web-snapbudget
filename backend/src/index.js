@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/users", userRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

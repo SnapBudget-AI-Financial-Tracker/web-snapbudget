@@ -71,12 +71,21 @@ const getCurrentUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
+/**
+ * Update current user data in local storage
+ * @param {Object} userData - User object data
+ */
+const updateCurrentUser = (userData) => {
+  localStorage.setItem('user', JSON.stringify(userData));
+};
+
 const authService = {
   register,
   login,
   googleLogin,
   logout,
   getCurrentUser,
+  updateCurrentUser,
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
 };
