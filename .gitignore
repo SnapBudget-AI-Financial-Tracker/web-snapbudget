@@ -22,3 +22,7 @@ Thumbs.db
 
 # Docker Compose
 docker-compose.yml
+
+# agent skills
+.agent/
+.kiro/
