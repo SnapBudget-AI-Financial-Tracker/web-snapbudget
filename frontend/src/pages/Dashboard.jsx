@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import transactionService from "../services/transactionService";
 import {
+  Menu,
+  X,
   LogOut,
   LayoutDashboard,
   Receipt,
@@ -22,6 +24,7 @@ export default function Dashboard() {
     totalBalance: 0,
     monthlySpending: 0,
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -55,16 +58,35 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex">
+    <div className="min-h-screen bg-zinc-50 flex overflow-x-hidden relative">
+      {/* Sidebar Backdrop for Mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] md:hidden transition-opacity animate-in fade-in"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200 hidden md:flex flex-col sticky top-0 h-screen">
-        <div className="p-6">
+      <aside
+        className={`fixed md:sticky top-0 left-0 z-[70] h-screen w-64 bg-white border-r border-zinc-200 flex flex-col transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
+        <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl text-zinc-900">
             <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">S</span>
             </div>
             SnapBudget
           </div>
+          {/* Close Menu Button (Mobile Only) */}
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-2 text-zinc-500 hover:bg-zinc-100 rounded-lg transition-colors"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 px-4 space-y-1">
@@ -113,9 +135,18 @@ export default function Dashboard() {
       <main className="flex-1 flex flex-col">
         {/* Header */}
         <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
-          <h1 className="text-lg font-semibold text-zinc-900">
-            Dashboard Overview
-          </h1>
+          <div className="flex items-center gap-4">
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 -ml-2 text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+            <h1 className="text-lg font-semibold text-zinc-900">
+              Dashboard Overview
+            </h1>
+          </div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-zinc-900">
