@@ -8,6 +8,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: [],
+  },
   server: {
     port: 5173,
     strictPort: true,

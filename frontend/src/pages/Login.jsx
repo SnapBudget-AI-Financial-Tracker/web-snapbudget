@@ -72,7 +72,7 @@ export default function Login() {
             </label>
             <Link
               to="/forgot-password"
-              className="text-[13px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
+              className="text-[13px] font-medium text-teal-600 hover:text-teal-800 transition-colors"
             >
               Forgot password?
             </Link>
@@ -107,6 +107,7 @@ export default function Login() {
           type="submit"
           isLoading={isLoading}
           icon={ArrowRight}
+          variant="shimmer"
         >
           Sign In
         </Button>
@@ -127,11 +128,11 @@ export default function Login() {
         <GoogleAuthButton actionText="Sign in" />
       </div>
 
-      <div className="mt-8 text-center text-[13px] text-zinc-500">
+      <div className="mt-8 text-center text-[13px] text-teal-600">
         Don't have an account?{" "}
         <Link
           to="/register"
-          className="font-medium text-zinc-900 hover:underline underline-offset-4 transition-colors"
+          className="font-medium text-teal-700 hover:underline underline-offset-4 transition-colors"
         >
           Sign up
         </Link>

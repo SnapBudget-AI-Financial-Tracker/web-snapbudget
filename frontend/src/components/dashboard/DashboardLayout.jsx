@@ -31,16 +31,16 @@ export default function DashboardLayout({ children }) {
     setIsSidebarOpen(false);
   }, [location.pathname]);
   return (
-    <div className="min-h-screen bg-zinc-50 flex overflow-x-hidden relative">
+    <div className="h-screen flex overflow-hidden" style={{ backgroundColor: "var(--color-bg-base)" }}>
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header onMenuClick={() => setIsSidebarOpen(true)} title={title} />
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </main>

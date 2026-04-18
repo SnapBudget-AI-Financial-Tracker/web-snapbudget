@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import {
   BarChart,
@@ -7,8 +8,13 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { TrendingDown, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Sparkles, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
+import { getCategoryIcon, FinancialStatusBadge } from "../utils/categoryIcons";
+import Skeleton from "../components/ui/Skeleton";
 
 // The mocked JSON response from the AI Engineer
 const aiPredictionData = {
@@ -93,7 +99,76 @@ const aiPredictionData = {
   },
 };
 
+/** Returns gradient classes for the AI banner based on recommendation status */
+function getBannerGradient(label) {
+  const normalized = (label || "").toUpperCase().trim();
+  if (normalized === "HEMAT") return "from-emerald-500 to-emerald-600";
+  if (normalized === "DARURAT") return "from-rose-500 to-rose-600";
+  if (normalized === "WASPADA") return "from-amber-500 to-amber-600";
+  return "from-indigo-500 to-violet-600";
+}
+
+/** Indigo/violet color palette for pie slices */
+const DONUT_COLORS = [
+  "#6366f1", // indigo-500
+  "#8b5cf6", // violet-500
+  "#a78bfa", // violet-400
+  "#818cf8", // indigo-400
+  "#c4b5fd", // violet-300
+  "#7c3aed", // violet-600
+  "#4f46e5", // indigo-600
+  "#ddd6fe", // violet-200
+];
+
+/** Custom tooltip for BarChart */
+function BarTooltip({ active, payload, totalAmount }) {
+  if (!active || !payload || !payload.length) return null;
+  const { name, amount } = payload[0].payload;
+  const pct = totalAmount > 0 ? ((amount / totalAmount) * 100).toFixed(1) : 0;
+  return (
+    <div className="bg-white border border-zinc-200 rounded-xl shadow-lg px-4 py-3 text-sm">
+      <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
+      <p className="text-zinc-700">
+        {new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(amount)}
+      </p>
+      <p className="text-zinc-500">{pct}% dari total</p>
+    </div>
+  );
+}
+
+/** Custom tooltip for Donut/Pie chart */
+function DonutTooltip({ active, payload, totalAmount }) {
+  if (!active || !payload || !payload.length) return null;
+  const { name, value } = payload[0];
+  const pct = totalAmount > 0 ? ((value / totalAmount) * 100).toFixed(1) : 0;
+  return (
+    <div className="bg-white border border-zinc-200 rounded-xl shadow-lg px-4 py-3 text-sm">
+      <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
+      <p className="text-zinc-700">
+        {new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(value)}
+      </p>
+      <p className="text-zinc-500">{pct}% dari total</p>
+    </div>
+  );
+}
+
 export default function Analytics() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate data fetch — replace with real API call when available
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
   const formatIDR = (value) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -110,6 +185,23 @@ export default function Analytics() {
     })
   );
 
+  // Compute summary stats from prediksi_7hari
+  const prediksiEntries = Object.entries(aiPredictionData.prediksi_7hari);
+  const totalPrediksi7Hari = prediksiEntries.reduce((sum, [, v]) => sum + v, 0);
+
+  const nonZeroEntries = prediksiEntries.filter(([, v]) => v > 0);
+  const sortedEntries = [...nonZeroEntries].sort(([, a], [, b]) => b - a);
+  const kategoriTertinggi = sortedEntries[0] ?? null;
+  const kategoriTerendah = sortedEntries[sortedEntries.length - 1] ?? null;
+
+  // Donut chart data — filter out zero-value categories
+  const donutData = nonZeroEntries.map(([key, value]) => ({
+    name: key.charAt(0).toUpperCase() + key.slice(1).replace("_", " "),
+    value,
+  }));
+
+  const bannerGradient = getBannerGradient(aiPredictionData.rekomendasi.label);
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-8 max-w-7xl mx-auto w-full overflow-x-hidden">
@@ -123,152 +215,356 @@ export default function Analytics() {
           </p>
         </div>
 
-        {/* AI Recommendation Banner */}
-        <div
-          className={`p-6 rounded-2xl border shadow-sm mb-8 flex items-start gap-4 ${
-            aiPredictionData.rekomendasi.label === "HEMAT"
-              ? "bg-emerald-50 border-emerald-200"
-              : "bg-red-50 border-red-200"
-          }`}
-        >
-          <div className="mt-1">
-            {aiPredictionData.rekomendasi.label === "HEMAT" ? (
-              <CheckCircle2 className="text-emerald-500 h-6 w-6" />
-            ) : (
-              <AlertCircle className="text-red-500 h-6 w-6" />
-            )}
-          </div>
-          <div>
-            <h3
-              className={`text-lg font-bold mb-1 ${
-                aiPredictionData.rekomendasi.label === "HEMAT"
-                  ? "text-emerald-900"
-                  : "text-red-900"
-              }`}
-            >
-              AI Status: {aiPredictionData.rekomendasi.label}
-            </h3>
-            <p
-              className={`text-sm mb-3 ${
-                aiPredictionData.rekomendasi.label === "HEMAT"
-                  ? "text-emerald-800"
-                  : "text-red-800"
-              }`}
-            >
-              {aiPredictionData.rekomendasi.pesan}
-            </p>
-            <div className="flex gap-6">
-               <div className="flex flex-col">
-                  <span className="text-xs uppercase tracking-wider font-semibold opacity-60">Proj. Savings</span>
-                  <span className="font-medium">{formatIDR(aiPredictionData.rekomendasi.saldo_rp)}</span>
-               </div>
-               <div className="flex flex-col">
-                  <span className="text-xs uppercase tracking-wider font-semibold opacity-60">Proj. Pct</span>
-                  <span className="font-medium">{aiPredictionData.rekomendasi.proj_pct}%</span>
-               </div>
-            </div>
-          </div>
-        </div>
+        {isLoading ? (
+          /* ── Skeleton state ── */
+          <>
+            {/* Banner skeleton */}
+            <Skeleton variant="card" className="mb-8 h-32" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Chart Column */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-              <h2 className="text-lg font-bold text-zinc-900 mb-6">
-                7-Day Spending Prediction
-              </h2>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    margin={{ top: 10, right: 10, left: 20, bottom: 20 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical={false}
-                      stroke="#e4e4e7"
-                    />
-                    <XAxis
-                      dataKey="name"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: "#71717a", fontSize: 12 }}
-                      dy={10}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: "#71717a", fontSize: 12 }}
-                      tickFormatter={(value) =>
-                        new Intl.NumberFormat("id-ID", {
-                          notation: "compact",
-                          compactDisplay: "short",
-                        }).format(value)
-                      }
-                    />
-                    <Tooltip
-                      cursor={{ fill: "#f4f4f5" }}
-                      contentStyle={{
-                        borderRadius: "12px",
-                        border: "1px solid #e4e4e7",
-                        boxShadow:
-                          "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-                      }}
-                       formatter={(value) => formatIDR(value)}
-                    />
-                    <Bar
-                      dataKey="amount"
-                      fill="#18181b"
-                      radius={[6, 6, 0, 0]}
-                      barSize={40}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Summary stat card skeletons */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              <Skeleton variant="card" />
+              <Skeleton variant="card" />
+              <Skeleton variant="card" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Chart area skeletons */}
+              <div className="lg:col-span-2 space-y-8">
+                <Skeleton variant="chart" className="h-[380px]" />
+                <Skeleton variant="chart" className="h-[320px]" />
+              </div>
+
+              {/* Category card skeletons */}
+              <div className="space-y-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} variant="card" />
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* Category Status Cards */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-zinc-900 mb-2">
-              Category Status
-            </h2>
-            {Object.entries(aiPredictionData.status_per_kategori).map(
-              ([categoryName, status]) => (
-                <div
-                  key={categoryName}
-                  className="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex items-center justify-between group hover:border-zinc-300 transition-colors"
-                >
-                  <div>
-                    <h4 className="font-semibold text-zinc-900 capitalize mb-1">
-                      {categoryName.replace("_", " ")}
-                    </h4>
-                    <div className="flex gap-3 text-xs">
-                       <span className="text-zinc-500">Actual: <span className="font-medium text-zinc-700">{formatIDR(status.aktual_rp)}</span></span>
-                       <span className="text-zinc-500">Pred: <span className="font-medium text-zinc-700">{formatIDR(status.pred_rp)}</span></span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                        status.label === "DARURAT"
-                          ? "bg-red-100 text-red-700"
-                          : status.label === "WASPADA"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-emerald-100 text-emerald-700"
-                      }`}
-                    >
-                      {status.label}
+          </>
+        ) : (
+          /* ── Real content with fade-in ── */
+          <div
+            style={{
+              animation: "fadeIn 200ms ease-out both",
+            }}
+          >
+            {/* AI Recommendation Banner */}
+            <div
+              className={`bg-gradient-to-r ${bannerGradient} p-6 rounded-2xl shadow-md mb-8 flex items-start gap-4`}
+            >
+              <div className="mt-0.5 shrink-0">
+                <Sparkles className="text-white h-6 w-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-bold text-white">
+                    AI Status: {aiPredictionData.rekomendasi.label}
+                  </h3>
+                  <span className="text-xs font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full">
+                    {aiPredictionData.rekomendasi.conf}% conf
+                  </span>
+                </div>
+                <p className="text-sm text-white/90 mb-4">
+                  {aiPredictionData.rekomendasi.pesan}
+                </p>
+                <div className="flex gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-xs uppercase tracking-wider font-semibold text-white/60">
+                      Proj. Savings
                     </span>
-                    <span className="text-xs font-medium text-zinc-400 mt-2">
-                       {status.pct_used}% Used
+                    <span className="font-semibold text-white">
+                      {formatIDR(aiPredictionData.rekomendasi.saldo_rp)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs uppercase tracking-wider font-semibold text-white/60">
+                      Proj. Pct
+                    </span>
+                    <span className="font-semibold text-white">
+                      {aiPredictionData.rekomendasi.proj_pct}%
                     </span>
                   </div>
                 </div>
-              )
-            )}
+              </div>
+            </div>
+
+            {/* Summary Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              {/* Total Prediksi 7 Hari */}
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-5 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                  <TrendingUp className="h-5 w-5 text-indigo-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide mb-0.5">
+                    Total Prediksi 7 Hari
+                  </p>
+                  <p className="text-lg font-bold text-zinc-900 truncate">
+                    {formatIDR(totalPrediksi7Hari)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Kategori Tertinggi */}
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-5 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+                  <ArrowUp className="h-5 w-5 text-rose-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide mb-0.5">
+                    Kategori Tertinggi
+                  </p>
+                  {kategoriTertinggi ? (
+                    <>
+                      <p className="text-base font-bold text-zinc-900 capitalize">
+                        {kategoriTertinggi[0].replace("_", " ")}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        {formatIDR(kategoriTertinggi[1])}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-zinc-400">—</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Kategori Terendah */}
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-5 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                  <ArrowDown className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide mb-0.5">
+                    Kategori Terendah
+                  </p>
+                  {kategoriTerendah ? (
+                    <>
+                      <p className="text-base font-bold text-zinc-900 capitalize">
+                        {kategoriTerendah[0].replace("_", " ")}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        {formatIDR(kategoriTerendah[1])}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-zinc-400">—</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
+                  <h2 className="text-lg font-bold text-zinc-900 mb-6">
+                    7-Day Spending Prediction
+                  </h2>
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={chartData}
+                        margin={{ top: 10, right: 10, left: 20, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="#e4e4e7"
+                        />
+                        <XAxis
+                          dataKey="name"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#71717a", fontSize: 12 }}
+                          dy={10}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#71717a", fontSize: 12 }}
+                          tickFormatter={(value) =>
+                            new Intl.NumberFormat("id-ID", {
+                              notation: "compact",
+                              compactDisplay: "short",
+                            }).format(value)
+                          }
+                        />
+                        <Tooltip
+                          cursor={{ fill: "#f4f4f5" }}
+                          content={
+                            <BarTooltip totalAmount={totalPrediksi7Hari} />
+                          }
+                        />
+                        <Bar
+                          dataKey="amount"
+                          fill="#6366f1"
+                          radius={[6, 6, 0, 0]}
+                          barSize={40}
+                          isAnimationActive={true}
+                          animationDuration={800}
+                          animationEasing="ease-out"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Donut Chart — Spending Proportions per Category */}
+                <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
+                  <h2 className="text-lg font-bold text-zinc-900 mb-6">
+                    Spending Proportions
+                  </h2>
+                  {donutData.length > 0 ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      <div className="h-[240px] w-full sm:w-[240px] shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={donutData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={65}
+                              outerRadius={100}
+                              paddingAngle={3}
+                              dataKey="value"
+                              isAnimationActive={true}
+                              animationDuration={800}
+                              animationEasing="ease-out"
+                            >
+                              {donutData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={
+                                    DONUT_COLORS[index % DONUT_COLORS.length]
+                                  }
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              content={
+                                <DonutTooltip totalAmount={totalPrediksi7Hari} />
+                              }
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      {/* Legend */}
+                      <ul className="flex flex-col gap-2 w-full">
+                        {donutData.map((entry, index) => {
+                          const pct =
+                            totalPrediksi7Hari > 0
+                              ? (
+                                  (entry.value / totalPrediksi7Hari) *
+                                  100
+                                ).toFixed(1)
+                              : 0;
+                          return (
+                            <li
+                              key={entry.name}
+                              className="flex items-center justify-between gap-3 text-sm"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span
+                                  className="w-3 h-3 rounded-full shrink-0"
+                                  style={{
+                                    backgroundColor:
+                                      DONUT_COLORS[
+                                        index % DONUT_COLORS.length
+                                      ],
+                                  }}
+                                />
+                                <span className="text-zinc-700 capitalize truncate">
+                                  {entry.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-zinc-500 text-xs">
+                                  {pct}%
+                                </span>
+                                <span className="font-medium text-zinc-900">
+                                  {formatIDR(entry.value)}
+                                </span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-zinc-400 text-center py-8">
+                      Tidak ada data prediksi untuk ditampilkan.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Category Status Cards */}
+              <div className="space-y-3">
+                <h2 className="text-lg font-bold text-zinc-900 mb-2">
+                  Category Status
+                </h2>
+                {Object.entries(aiPredictionData.status_per_kategori).map(
+                  ([categoryName, status]) => {
+                    const Icon = getCategoryIcon(categoryName);
+                    const clampedPct = Math.min(status.pct_used, 100);
+                    const progressColor =
+                      status.label === "DARURAT"
+                        ? "bg-rose-500"
+                        : status.label === "WASPADA"
+                        ? "bg-amber-500"
+                        : "bg-emerald-500";
+
+                    return (
+                      <div
+                        key={categoryName}
+                        className="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm hover:border-zinc-300 transition-colors cursor-default"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+                              <Icon className="h-4 w-4 text-zinc-600" />
+                            </div>
+                            <h4 className="font-semibold text-zinc-900 capitalize text-sm">
+                              {categoryName.replace("_", " ")}
+                            </h4>
+                          </div>
+                          <FinancialStatusBadge status={status.label} />
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="w-full bg-zinc-100 rounded-full h-1.5 mb-2">
+                          <div
+                            className={`h-1.5 rounded-full transition-all duration-500 ${progressColor}`}
+                            style={{ width: `${clampedPct}%` }}
+                            role="progressbar"
+                            aria-valuenow={status.pct_used}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${categoryName} usage ${status.pct_used}%`}
+                          />
+                        </div>
+
+                        <div className="flex justify-between text-xs text-zinc-500">
+                          <span>
+                            Actual:{" "}
+                            <span className="font-medium text-zinc-700">
+                              {formatIDR(status.aktual_rp)}
+                            </span>
+                          </span>
+                          <span className="font-medium text-zinc-600">
+                            {status.pct_used}% used
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );
