@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/layouts/AuthLayout";
 import GoogleAuthButton from "../components/auth/GoogleAuthButton";
 import { useAuth } from "../context/AuthContext";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -49,58 +51,41 @@ export default function Login() {
       )}
 
       <form onSubmit={handleLogin} className="space-y-4">
-        <div className="space-y-1.5">
-          <label
-            className="text-[13px] font-medium text-zinc-700 block"
-            htmlFor="email"
-          >
-            Email address
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Mail className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
-            </div>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2.5 border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white text-zinc-900 placeholder-zinc-400 transition-all outline-none text-sm"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-        </div>
+        <Input
+          label="Email address"
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          icon={Mail}
+          placeholder="you@example.com"
+          required
+        />
 
         <div className="space-y-1.5 pt-1">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-[-6px]">
             <label
               className="text-[13px] font-medium text-zinc-700 block"
               htmlFor="password"
             >
               Password
             </label>
-            <a
-              href="#"
+            <Link
+              to="/forgot-password"
               className="text-[13px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
             >
               Forgot password?
-            </a>
+            </Link>
           </div>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Lock className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
-            </div>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2.5 border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white text-zinc-900 placeholder-zinc-400 transition-all outline-none text-sm"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            icon={Lock}
+            placeholder="••••••••"
+            required
+          />
         </div>
 
         <div className="flex items-center pt-1 pb-3">
@@ -118,20 +103,13 @@ export default function Login() {
           </label>
         </div>
 
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 group"
+          isLoading={isLoading}
+          icon={ArrowRight}
         >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <>
-              Sign In
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </>
-          )}
-        </button>
+          Sign In
+        </Button>
       </form>
 
       <div className="mt-8 relative">

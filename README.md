@@ -1,56 +1,107 @@
-# SnapBudget
+# SnapBudget 💰
 
-SnapBudget is an AI-powered financial tracker.
+SnapBudget is a modern, AI-powered financial tracker designed to help you master your money with ease. It features intelligent tracking, predictive budgeting, and a sleek, premium user interface.
 
-## Prerequisites
+## 🚀 Quick Start
 
-Make sure you have the following installed on your machine:
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+### 1. Prerequisites
+Before you begin, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v18.x or later)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (for containerized environment)
+- [PostgreSQL](https://www.postgresql.org/) (if running locally without Docker)
 
-## Environment Setup
-
-Before running the application, you need to set up the environment variables for both the frontend and backend.
-
-1. **Backend Environment Variables**
-   Navigate to the `backend/` directory and copy the `.env.example` file to create a new `.env` file:
-   ```bash
-   cp backend/.env.example backend/.env
-   ```
-   Fill in the necessary values in `backend/.env`.
-
-2. **Frontend Environment Variables**
-   Navigate to the `frontend/` directory and copy the `.env.example` file to create a new `.env` file:
-   ```bash
-   cp frontend/.env.example frontend/.env
-   ```
-   Fill in the necessary values in `frontend/.env`.
-
-*(Note: The database configuration inside `docker-compose.yml` is used for connecting Postgres and Redis within the Docker network).*
-
-## Running the Project
-
-The easiest way to run the entire application (Frontend, Backend, PostgreSQL, and Redis) is by using Docker Compose.
-
-1. Open your terminal at the root directory of the project.
-2. Run the following command:
-   ```bash
-   docker compose up --build
-   ```
-
-## Services Access
-
-Once Docker finishes building and starting the containers, the services will be available at:
-
-- **Frontend**: [http://localhost:5173](http://localhost:5173)
-- **Backend API**: [http://localhost:5000](http://localhost:5000)
-- **PostgreSQL**: `localhost:5432` 
-- **Redis**: `localhost:6379`
-
-## Stopping the Services
-
-To stop all the running containers, press `Ctrl+C` in the terminal where Docker Compose is running, or run the following command in a new terminal at the root project directory:
-
+### 2. Cloning the Repository
 ```bash
-docker compose down
+git clone https://github.com/your-username/snapbudget.git
+cd snapbudget
 ```
+
+---
+
+## 🛠️ Project Setup
+
+The project is split into a **Frontend** (React + Vite) and a **Backend** (Node.js + Prisma).
+
+### 1. Backend Configuration
+Navigate to the backend directory:
+```bash
+cd backend
+npm install
+```
+
+Create your environment file:
+```bash
+cp .env.example .env
+```
+Fill in your `DATABASE_URL`, `JWT_SECRET`, and other credentials in the `.env` file.
+
+**Setup Database (Prisma):**
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 2. Frontend Configuration
+Navigate to the frontend directory:
+```bash
+cd ../frontend
+npm install
+```
+
+Create your environment file:
+```bash
+cp .env.example .env
+```
+Ensure `VITE_API_BASE_URL` matches your backend URL (default: `http://localhost:5000`).
+
+---
+
+## 🏃 Running the Project
+
+### Option A: Local Development (Recommended for Dev)
+Run the backend and frontend in separate terminals.
+
+**Backend:**
+```bash
+cd backend
+npm run dev
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+### Option B: Docker Compose (Full Stack)
+Run the entire stack (Frontend, Backend, Database, Redis) with one command from the project root:
+```bash
+docker compose up --build
+```
+
+---
+
+## 🏗️ Architecture & Tools
+
+- **Frontend**: React, Vite, Tailwind CSS, Lucide React, Axios.
+- **Backend**: Node.js, Express, Prisma ORM, JWT Authentication.
+- **Database**: PostgreSQL (Primary), Redis (Caching/Sessions).
+- **Icons**: Lucide React for consistent, high-quality iconography.
+- **Styling**: Vanilla CSS + Tailwind for a premium look and feel.
+
+## 🔑 Environment Variables
+
+### Backend (`/backend/.env`)
+- `PORT`: Server port (default: 5000)
+- `DATABASE_URL`: PostgreSQL connection string.
+- `JWT_SECRET`: Secret key for JWT signing.
+- `GOOGLE_CLIENT_ID`: (Optional) For Google OAuth integration.
+
+### Frontend (`/frontend/.env`)
+- `VITE_API_BASE_URL`: The URL of your backend API.
+
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
