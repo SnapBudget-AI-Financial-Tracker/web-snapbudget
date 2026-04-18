@@ -13,6 +13,12 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const googleLogin = async (credential) => {
+    const data = await authService.googleLogin(credential);
+    setUser(data.user);
+    return data;
+  };
+
   const register = async (userData) => {
     const data = await authService.register(userData);
     setUser(data.user);
@@ -28,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     login,
+    googleLogin,
     register,
     logout,
     isAuthenticated: !!user,
