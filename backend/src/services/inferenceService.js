@@ -1,7 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'https://aprizal543i--snapbudget-ai-fastapi-app.modal.run';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 /**
  * Scan struk via AI Modal service

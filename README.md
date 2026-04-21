@@ -263,8 +263,7 @@ Buka terminal baru:
 
 ```bash
 cd backend/ai
-
-# Jalankan AI inference server
+pip install -r requirements_ai.txt
 uvicorn inference_server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
