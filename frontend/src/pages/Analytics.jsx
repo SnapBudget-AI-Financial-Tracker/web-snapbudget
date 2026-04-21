@@ -100,7 +100,7 @@ export default function Analytics() {
   };
 
   useEffect(() => {
-    fetchAnalyticsData();
+    void fetchAnalyticsData();
   }, []);
 
   const formatIDR = (value) => {
@@ -123,7 +123,6 @@ export default function Analytics() {
   
   // Calculate recommendation data
   const totalActual = Object.values(actualPerKategori).reduce((sum, v) => sum + v, 0);
-  const totalPrediksi = Object.values(prediksi7hari).reduce((sum, v) => sum + v, 0);
   const budgetBulanan = 2000000; // Default, bisa diambil dari user data
   const sisaBudget = budgetBulanan - totalActual;
   const projectedPct = budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;

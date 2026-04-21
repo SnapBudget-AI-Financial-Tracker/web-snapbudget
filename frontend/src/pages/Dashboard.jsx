@@ -62,7 +62,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    void fetchDashboardData();
   }, []);
 
   const handleScanSuccess = () => {
