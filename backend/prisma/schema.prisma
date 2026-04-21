@@ -10,18 +10,29 @@ datasource db {
 }
 
 model User {
-  id              String        @id @default(uuid())
-  email           String        @unique
-  password        String?
-  googleId        String?       @unique
-  name            String?
-  avatarUrl       String?
-  budgetBulanan   Int           @default(2000000)
-  resetToken      String?       @unique
-  resetTokenExpiry DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  transactions    Transaction[]
+  id                    String        @id @default(uuid())
+  email                 String        @unique
+  password              String?
+  googleId              String?       @unique
+  name                  String?
+  avatarUrl             String?
+  budgetBulanan         Int           @default(2000000)
+  budgetMakanan         Int           @default(700000)
+  budgetMinuman         Int           @default(200000)
+  budgetTransportasi    Int           @default(300000)
+  budgetBelanja         Int           @default(200000)
+  budgetTagihan         Int           @default(240000)
+  budgetHiburan         Int           @default(160000)
+  budgetKesehatan       Int           @default(100000)
+  budgetLainLain        Int           @default(100000)
+  tanggalGajian         Int           @default(25)
+  targetTabungan        Int           @default(0)
+  isOnboardingComplete  Boolean       @default(false)
+  resetToken            String?       @unique
+  resetTokenExpiry      DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  transactions          Transaction[]
 }
 
 model Transaction {

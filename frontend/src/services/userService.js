@@ -1,41 +1,55 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-export const userService = {
-  uploadAvatar: async (file) => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      throw new Error('Not authenticated');
-    }
-
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    const response = await axios.post(`${API_URL}/users/avatar`, formData, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    return response.data;
-  },
-
-  updateProfile: async (name) => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      throw new Error('Not authenticated');
-    }
-
-    const response = await axios.put(`${API_URL}/users/profile`, { name }, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    return response.data;
-  }
+/**
+ * Get user budget settings
+ * @returns {Promise<Object>} Budget settings
+ */
+const getBudgetSettings = async () => {
+  const response = await api.get('/users/budget');
+  return response.data;
 };
+
+/**
+ * Update user budget settings
+ * @param {Object} budgetData Budget data
+ * @returns {Promise<Object>} Updated user
+ */
+const updateBudget = async (budgetData) => {
+  const response = await api.put('/users/budget', budgetData);
+  return response.data;
+};
+
+/**
+ * Update user profile
+ * @param {Object} profileData Profile data
+ * @returns {Promise<Object>} Updated user
+ */
+const updateProfile = async (profileData) => {
+  const response = await api.put('/users/profile', profileData);
+  return response.data;
+};
+
+/**
+ * Upload user avatar
+ * @param {File} file Avatar file
+ * @returns {Promise<Object>} Upload result
+ */
+const uploadAvatar = async (file) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await api.post('/users/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+const userService = {
+  getBudgetSettings,
+  updateBudget,
+  updateProfile,
+  uploadAvatar,
+};
+
+export default userService;

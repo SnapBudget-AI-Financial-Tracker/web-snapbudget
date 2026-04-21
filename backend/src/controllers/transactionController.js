@@ -121,10 +121,21 @@ export const getDashboard = async (req, res) => {
       day_of_month: now.getDate(),
     });
 
-    // Add missing fields for frontend compatibility
+    // Calculate actual total spending
+    const totalSpending = Object.values(actualHariIni).reduce((sum, val) => sum + val, 0);
+    const sisaSaldo = user.budgetBulanan - totalSpending;
+    const projectedPct = user.budgetBulanan > 0 ? ((totalSpending / user.budgetBulanan) * 100) : 0;
+
+    // Override AI saldo_rp with correct calculation
     if (aiResult.rekomendasi) {
       aiResult.rekomendasi.label_upper = aiResult.rekomendasi.label?.toUpperCase() || 'AMAN';
       aiResult.rekomendasi.days_remaining = new Date(tahun, bulan, 0).getDate() - now.getDate();
+      aiResult.rekomendasi.saldo_rp = sisaSaldo;
+      aiResult.rekomendasi.proj_overall_pct = Math.round(projectedPct * 10) / 10;
+      
+      // Recalculate est_saldo_7hari_rp
+      const totalPrediksi7Hari = Object.values(aiResult.prediksi_7hari || {}).reduce((sum, val) => sum + val, 0);
+      aiResult.rekomendasi.est_saldo_7hari_rp = sisaSaldo - totalPrediksi7Hari;
     }
 
     res.json({
@@ -133,6 +144,19 @@ export const getDashboard = async (req, res) => {
       prediksi_7hari: aiResult.prediksi_7hari,
       rekomendasi: aiResult.rekomendasi,
       status_per_kategori: aiResult.status_per_kategori,
+      user_budget: {
+        budgetBulanan: user.budgetBulanan,
+        budgetMakanan: user.budgetMakanan,
+        budgetMinuman: user.budgetMinuman,
+        budgetTransportasi: user.budgetTransportasi,
+        budgetBelanja: user.budgetBelanja,
+        budgetTagihan: user.budgetTagihan,
+        budgetHiburan: user.budgetHiburan,
+        budgetKesehatan: user.budgetKesehatan,
+        budgetLainLain: user.budgetLainLain,
+        tanggalGajian: user.tanggalGajian,
+        targetTabungan: user.targetTabungan,
+      },
     });
   } catch (error) {
     console.error('Dashboard error:', error);

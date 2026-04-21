@@ -70,3 +70,95 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: 'Error updating profile', error: error.message });
   }
 };
+
+export const updateBudget = async (req, res) => {
+  try {
+    const {
+      budgetBulanan,
+      budgetMakanan,
+      budgetMinuman,
+      budgetTransportasi,
+      budgetBelanja,
+      budgetTagihan,
+      budgetHiburan,
+      budgetKesehatan,
+      budgetLainLain,
+      tanggalGajian,
+      targetTabungan,
+      isOnboardingComplete,
+    } = req.body;
+
+    const updateData = {};
+    
+    if (budgetBulanan !== undefined) updateData.budgetBulanan = parseInt(budgetBulanan);
+    if (budgetMakanan !== undefined) updateData.budgetMakanan = parseInt(budgetMakanan);
+    if (budgetMinuman !== undefined) updateData.budgetMinuman = parseInt(budgetMinuman);
+    if (budgetTransportasi !== undefined) updateData.budgetTransportasi = parseInt(budgetTransportasi);
+    if (budgetBelanja !== undefined) updateData.budgetBelanja = parseInt(budgetBelanja);
+    if (budgetTagihan !== undefined) updateData.budgetTagihan = parseInt(budgetTagihan);
+    if (budgetHiburan !== undefined) updateData.budgetHiburan = parseInt(budgetHiburan);
+    if (budgetKesehatan !== undefined) updateData.budgetKesehatan = parseInt(budgetKesehatan);
+    if (budgetLainLain !== undefined) updateData.budgetLainLain = parseInt(budgetLainLain);
+    if (tanggalGajian !== undefined) updateData.tanggalGajian = parseInt(tanggalGajian);
+    if (targetTabungan !== undefined) updateData.targetTabungan = parseInt(targetTabungan);
+    if (isOnboardingComplete !== undefined) updateData.isOnboardingComplete = Boolean(isOnboardingComplete);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatarUrl: true,
+        budgetBulanan: true,
+        budgetMakanan: true,
+        budgetMinuman: true,
+        budgetTransportasi: true,
+        budgetBelanja: true,
+        budgetTagihan: true,
+        budgetHiburan: true,
+        budgetKesehatan: true,
+        budgetLainLain: true,
+        tanggalGajian: true,
+        targetTabungan: true,
+        isOnboardingComplete: true,
+      }
+    });
+
+    res.json({
+      message: 'Budget updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating budget:', error);
+    res.status(500).json({ message: 'Error updating budget', error: error.message });
+  }
+};
+
+export const getBudgetSettings = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        budgetBulanan: true,
+        budgetMakanan: true,
+        budgetMinuman: true,
+        budgetTransportasi: true,
+        budgetBelanja: true,
+        budgetTagihan: true,
+        budgetHiburan: true,
+        budgetKesehatan: true,
+        budgetLainLain: true,
+        tanggalGajian: true,
+        targetTabungan: true,
+        isOnboardingComplete: true,
+      }
+    });
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error getting budget settings:', error);
+    res.status(500).json({ message: 'Error getting budget settings', error: error.message });
+  }
+};

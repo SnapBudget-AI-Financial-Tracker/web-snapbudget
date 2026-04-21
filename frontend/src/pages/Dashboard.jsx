@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import transactionService from "../services/transactionService";
+import userService from "../services/userService";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
 import ScanStrukUpload from "../components/dashboard/ScanStrukUpload";
 import AIPredictionCard from "../components/dashboard/AIPredictionCard";
 import AddTransactionModal from "../components/dashboard/AddTransactionModal";
+import OnboardingModal from "../components/onboarding/OnboardingModal";
 import Button from "../components/ui/Button";
 import Skeleton from "../components/ui/Skeleton";
 import { getCategoryIcon } from "../utils/categoryIcons.js";
@@ -16,6 +18,7 @@ import {
   TrendingDown,
   AlertCircle,
   Scan,
+  Settings as SettingsIcon,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -25,6 +28,8 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [showScanUpload, setShowScanUpload] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(true);
   const [summary, setSummary] = useState({
     totalBalance: 0,
     monthlySpending: 0,
@@ -67,6 +72,15 @@ export default function Dashboard() {
         setIsLoading(true);
         setError(null);
 
+        // Check onboarding status
+        const budgetSettings = await userService.getBudgetSettings();
+        setIsOnboardingComplete(budgetSettings.isOnboardingComplete);
+        
+        // Show onboarding if not complete
+        if (!budgetSettings.isOnboardingComplete) {
+          setShowOnboarding(true);
+        }
+
         const data = await transactionService.getDashboardData();
         setDashboardData(data);
         setTransactions(data.transaksi_bulan_ini || []);
@@ -106,6 +120,12 @@ export default function Dashboard() {
     fetchDashboardData();
   };
 
+  const handleOnboardingComplete = () => {
+    setIsOnboardingComplete(true);
+    setShowOnboarding(false);
+    fetchDashboardData();
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -122,7 +142,48 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={handleOnboardingComplete}
+      />
+
       <div className="p-4 md:p-8 max-w-7xl mx-auto w-full">
+        {/* Setup Reminder Banner */}
+        {!isOnboardingComplete && !showOnboarding && (
+          <div className="mb-6 bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-200 rounded-xl p-4 animate-fadeIn">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-teal-900 mb-1">
+                  Personalisasi Budget Anda
+                </h3>
+                <p className="text-sm text-teal-700 mb-3">
+                  Dapatkan prediksi AI yang lebih akurat dengan mengatur budget
+                  bulanan dan alokasi per kategori.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setShowOnboarding(true)}
+                    variant="gradient"
+                    className="w-auto px-4 py-2 text-sm"
+                  >
+                    Setup Sekarang
+                  </Button>
+                  <Button
+                    onClick={() => window.location.href = '/settings'}
+                    variant="outline"
+                    className="w-auto px-4 py-2 text-sm"
+                    icon={SettingsIcon}
+                  >
+                    Buka Settings
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
           {isLoading ? (

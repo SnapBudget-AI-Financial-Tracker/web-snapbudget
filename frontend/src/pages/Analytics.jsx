@@ -129,6 +129,7 @@ export default function Analytics() {
   const prediksi7hari = dashboardData?.prediksi_7hari || {};
   const statusPerKategori = dashboardData?.status_per_kategori || {};
   const actualPerKategori = dashboardData?.actual_per_kategori || {};
+  const userBudget = dashboardData?.user_budget || {};
   
   // Only process if we have data
   if (!dashboardData) {
@@ -137,7 +138,7 @@ export default function Analytics() {
   
   // Calculate recommendation data
   const totalActual = Object.values(actualPerKategori).reduce((sum, v) => sum + v, 0);
-  const budgetBulanan = 2000000; // Default, bisa diambil dari user data
+  const budgetBulanan = userBudget.budgetBulanan || 2000000;
   const sisaBudget = budgetBulanan - totalActual;
   const projectedPct = budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;
   

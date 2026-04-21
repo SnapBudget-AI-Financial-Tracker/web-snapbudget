@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { uploadAvatar, updateProfile } from '../controllers/userController.js';
+import { uploadAvatar, updateProfile, updateBudget, getBudgetSettings } from '../controllers/userController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -14,5 +14,7 @@ const upload = multer({
 
 router.post('/avatar', authMiddleware, upload.single('avatar'), uploadAvatar);
 router.put('/profile', authMiddleware, updateProfile);
+router.put('/budget', authMiddleware, updateBudget);
+router.get('/budget', authMiddleware, getBudgetSettings);
 
 export default router;

@@ -1,231 +1,307 @@
-import { useState, useRef } from "react";
-import DashboardLayout from "../components/dashboard/DashboardLayout";
-import Button from "../components/ui/Button";
-import {
-  User, Bell, Shield, Wallet, CreditCard,
-  ChevronRight, Settings as SettingsIcon, LoaderCircle,
-} from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { userService } from "../services/userService";
-
-const inputClass =
-  "w-full px-3 py-2.5 border border-teal-200 rounded-[var(--radius-md)] text-sm " +
-  "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow " +
-  "bg-white text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]";
-
-const labelClass = "block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5";
+import { useState, useEffect } from 'react';
+import { Save, Loader2, User, Wallet, Calendar, Target } from 'lucide-react';
+import DashboardLayout from '../components/dashboard/DashboardLayout';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Skeleton from '../components/ui/Skeleton';
+import userService from '../services/userService';
+import { useToast } from '../context/ToastContext';
 
 export default function Settings() {
-  const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [name, setName] = useState(user?.name || "");
-  const fileInputRef = useRef(null);
+  const { showToast } = useToast();
 
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setIsUploading(true);
-      const data = await userService.uploadAvatar(file);
-      if (data.user) updateUser(data.user);
-    } catch (error) {
-      console.error("Failed to upload avatar", error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const [formData, setFormData] = useState({
+    budgetBulanan: 2000000,
+    budgetMakanan: 700000,
+    budgetMinuman: 200000,
+    budgetTransportasi: 300000,
+    budgetBelanja: 200000,
+    budgetTagihan: 240000,
+    budgetHiburan: 160000,
+    budgetKesehatan: 100000,
+    budgetLainLain: 100000,
+    tanggalGajian: 25,
+    targetTabungan: 0,
+  });
 
-  const handleProfileSubmit = async (e) => {
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setIsLoading(true);
+        const data = await userService.getBudgetSettings();
+        setFormData({
+          budgetBulanan: data.budgetBulanan,
+          budgetMakanan: data.budgetMakanan,
+          budgetMinuman: data.budgetMinuman,
+          budgetTransportasi: data.budgetTransportasi,
+          budgetBelanja: data.budgetBelanja,
+          budgetTagihan: data.budgetTagihan,
+          budgetHiburan: data.budgetHiburan,
+          budgetKesehatan: data.budgetKesehatan,
+          budgetLainLain: data.budgetLainLain,
+          tanggalGajian: data.tanggalGajian,
+          targetTabungan: data.targetTabungan,
+        });
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        showToast('Gagal memuat pengaturan', 'error');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [showToast]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    setIsSaving(true);
+
     try {
-      setIsSaving(true);
-      const data = await userService.updateProfile(name);
-      if (data.user) updateUser(data.user);
+      await userService.updateBudget(formData);
+      showToast('Pengaturan berhasil disimpan', 'success');
     } catch (error) {
-      console.error("Failed to update profile", error);
+      console.error('Error saving settings:', error);
+      showToast(
+        error.response?.data?.message || 'Gagal menyimpan pengaturan',
+        'error'
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
-  const tabs = [
-    { id: "profile",    label: "Profile Information",    icon: User       },
-    { id: "preferences",label: "Preferences",            icon: Bell       },
-    { id: "security",   label: "Security",               icon: Shield     },
-    { id: "billing",    label: "Subscription & Billing", icon: CreditCard },
-    { id: "connected",  label: "Connected Accounts",     icon: Wallet     },
-  ];
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID').format(value);
+  };
+
+  const totalAllocated =
+    formData.budgetMakanan +
+    formData.budgetMinuman +
+    formData.budgetTransportasi +
+    formData.budgetBelanja +
+    formData.budgetTagihan +
+    formData.budgetHiburan +
+    formData.budgetKesehatan +
+    formData.budgetLainLain;
+
+  const difference = formData.budgetBulanan - totalAllocated;
 
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-8 max-w-5xl mx-auto w-full">
+      <div className="p-4 md:p-8 max-w-4xl mx-auto w-full">
         <div className="mb-8">
-          <h1
-            className="text-2xl font-bold text-[var(--color-text-primary)] mb-1"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            Settings
+          <h1 className="text-2xl font-bold text-zinc-900 mb-2">
+            Pengaturan Budget
           </h1>
-          <p className="text-sm text-[var(--color-text-muted)]">
-            Manage your account settings and preferences.
+          <p className="text-zinc-600">
+            Kelola budget bulanan dan alokasi per kategori
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar nav */}
-          <div className="w-full md:w-64 shrink-0">
-            <nav className="space-y-1" aria-label="Settings navigation">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-[var(--radius-lg)] text-sm font-medium transition-colors duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-1 ${
-                      isActive
-                        ? "bg-teal-50 text-teal-700 border border-teal-200"
-                        : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text-primary)]"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon
-                        size={18}
-                        className={isActive ? "text-teal-600" : "text-[var(--color-text-muted)]"}
-                      />
-                      {tab.label}
-                    </div>
-                    {isActive && <ChevronRight size={16} className="text-teal-400" />}
-                  </button>
-                );
-              })}
-            </nav>
+        {isLoading ? (
+          <div className="space-y-6">
+            <Skeleton variant="card" />
+            <Skeleton variant="card" />
+            <Skeleton variant="card" />
           </div>
-
-          {/* Content area */}
-          <div className="flex-1">
-            {activeTab === "profile" && (
-              <div
-                className="bg-[var(--color-bg-surface)] rounded-[var(--radius-2xl)] border border-[var(--color-border-default)] shadow-[var(--shadow-sm)] overflow-hidden"
-                style={{ animation: "fadeIn 200ms ease both" }}
-              >
-                <div className="p-6 border-b border-[var(--color-border-muted)]">
-                  <h2
-                    className="text-lg font-semibold text-[var(--color-text-primary)] mb-1"
-                    style={{ fontFamily: "var(--font-heading)" }}
-                  >
-                    Profile Information
-                  </h2>
-                  <p className="text-sm text-[var(--color-text-muted)]">
-                    Update your account profile details and email address.
-                  </p>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Budget Bulanan */}
+            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-teal-50 rounded-lg">
+                  <Wallet className="h-5 w-5 text-teal-600" />
                 </div>
-
-                <div className="p-6">
-                  {/* Avatar */}
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="w-20 h-20 bg-[var(--color-bg-muted)] rounded-full flex items-center justify-center border-2 border-dashed border-[var(--color-border-strong)] overflow-hidden relative">
-                      {isUploading && (
-                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                          <LoaderCircle size={24} className="text-indigo-600 animate-spin" />
-                        </div>
-                      )}
-                      {user?.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <User size={32} className="text-[var(--color-text-muted)]" />
-                      )}
-                    </div>
-                    <div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        className="hidden"
-                        onChange={handleAvatarChange}
-                        aria-label="Upload avatar image"
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="mb-2 w-auto px-4"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                      >
-                        {isUploading ? "Uploading..." : "Change Avatar"}
-                      </Button>
-                      <p className="text-xs text-[var(--color-text-muted)]">JPG, GIF or PNG. Max 2MB.</p>
-                    </div>
-                  </div>
-
-                  {/* Profile form */}
-                  <form className="space-y-4 max-w-md" onSubmit={handleProfileSubmit}>
-                    <div>
-                      <label htmlFor="settings-name" className={labelClass}>Full Name</label>
-                      <input
-                        id="settings-name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className={inputClass}
-                        placeholder="Your full name"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="settings-email" className={labelClass}>Email Address</label>
-                      <input
-                        id="settings-email"
-                        type="email"
-                        className={`${inputClass} bg-[var(--color-bg-muted)] cursor-not-allowed`}
-                        defaultValue={user?.email || ""}
-                        readOnly
-                        aria-readonly="true"
-                      />
-                      <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                        Email cannot be changed here.
-                      </p>
-                    </div>
-
-                    <div className="pt-2">
-                      <Button
-                        type="submit"
-                        variant="gradient"
-                        isLoading={isSaving}
-                        className="w-auto px-6"
-                      >
-                        {isSaving ? "Saving..." : "Save Changes"}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
+                <h2 className="text-lg font-bold text-zinc-900">
+                  Budget Bulanan
+                </h2>
               </div>
-            )}
 
-            {activeTab !== "profile" && (
-              <div
-                className="bg-[var(--color-bg-surface)] rounded-[var(--radius-2xl)] border border-[var(--color-border-default)] shadow-[var(--shadow-sm)] p-12 flex flex-col items-center justify-center text-center"
-                style={{ animation: "fadeIn 200ms ease both" }}
-              >
-                <div className="w-16 h-16 bg-[var(--color-bg-muted)] rounded-full flex items-center justify-center mb-4">
-                  <SettingsIcon size={32} className="text-[var(--color-text-muted)]" />
-                </div>
-                <h3
-                  className="text-lg font-semibold text-[var(--color-text-primary)] mb-2 capitalize"
-                  style={{ fontFamily: "var(--font-heading)" }}
-                >
-                  {activeTab} Settings
-                </h3>
-                <p className="text-[var(--color-text-muted)] text-sm max-w-sm">
-                  The {activeTab} settings panel is coming soon.
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Total Budget per Bulan
+                </label>
+                <Input
+                  type="number"
+                  value={formData.budgetBulanan}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      budgetBulanan: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  min="0"
+                  step="100000"
+                  required
+                />
+                <p className="text-xs text-zinc-500 mt-1">
+                  Rp {formatCurrency(formData.budgetBulanan)}
                 </p>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+
+            {/* Alokasi per Kategori */}
+            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-bold text-zinc-900">
+                  Alokasi per Kategori
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { key: 'budgetMakanan', label: 'Makanan' },
+                  { key: 'budgetMinuman', label: 'Minuman' },
+                  { key: 'budgetTransportasi', label: 'Transportasi' },
+                  { key: 'budgetBelanja', label: 'Belanja' },
+                  { key: 'budgetTagihan', label: 'Tagihan' },
+                  { key: 'budgetHiburan', label: 'Hiburan' },
+                  { key: 'budgetKesehatan', label: 'Kesehatan' },
+                  { key: 'budgetLainLain', label: 'Lain-lain' },
+                ].map((item) => (
+                  <div key={item.key}>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      {item.label}
+                    </label>
+                    <Input
+                      type="number"
+                      value={formData[item.key]}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [item.key]: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      min="0"
+                      step="10000"
+                      required
+                    />
+                    <p className="text-xs text-zinc-500 mt-1">
+                      Rp {formatCurrency(formData[item.key])}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary */}
+              <div className="mt-6 pt-6 border-t border-zinc-200">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600">Total Dialokasikan:</span>
+                    <span className="font-semibold text-zinc-900">
+                      Rp {formatCurrency(totalAllocated)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600">Budget Bulanan:</span>
+                    <span className="font-semibold text-zinc-900">
+                      Rp {formatCurrency(formData.budgetBulanan)}
+                    </span>
+                  </div>
+                  <div
+                    className={`flex justify-between pt-2 border-t border-zinc-200 ${
+                      difference < 0 ? 'text-rose-600' : 'text-emerald-600'
+                    }`}
+                  >
+                    <span className="font-semibold">
+                      {difference < 0 ? 'Kelebihan:' : 'Sisa:'}
+                    </span>
+                    <span className="font-bold">
+                      Rp {formatCurrency(Math.abs(difference))}
+                    </span>
+                  </div>
+                </div>
+
+                {difference < 0 && (
+                  <div className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-lg">
+                    <p className="text-sm text-rose-800">
+                      Total alokasi melebihi budget bulanan. Sesuaikan alokasi
+                      agar tidak melebihi budget.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tanggal Gajian & Target */}
+            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-orange-50 rounded-lg">
+                  <Calendar className="h-5 w-5 text-orange-600" />
+                </div>
+                <h2 className="text-lg font-bold text-zinc-900">
+                  Informasi Tambahan
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
+                    Tanggal Gajian
+                  </label>
+                  <select
+                    value={formData.tanggalGajian}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        tanggalGajian: parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  >
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                      <option key={day} value={day}>
+                        Setiap tanggal {day}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
+                    Target Tabungan per Bulan
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.targetTabungan}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        targetTabungan: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    placeholder="500000"
+                    min="0"
+                    step="100000"
+                  />
+                  <p className="text-xs text-zinc-500 mt-1">
+                    {formData.targetTabungan > 0
+                      ? `Rp ${formatCurrency(formData.targetTabungan)}`
+                      : 'Kosongkan jika tidak ada target'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end gap-3">
+              <Button
+                type="submit"
+                disabled={isSaving || difference < 0}
+                variant="gradient"
+                icon={isSaving ? Loader2 : Save}
+              >
+                {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
     </DashboardLayout>
   );
