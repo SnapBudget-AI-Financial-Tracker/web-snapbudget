@@ -74,7 +74,8 @@ export default function Settings() {
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('id-ID').format(value);
+    const absValue = Math.abs(Math.round(value));
+    return absValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   };
 
   const totalAllocated =

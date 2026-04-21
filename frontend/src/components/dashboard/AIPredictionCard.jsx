@@ -2,11 +2,9 @@ import { TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight } from 'lucide
 
 export default function AIPredictionCard({ prediksi, rekomendasi, statusPerKategori }) {
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
+    const absAmount = Math.abs(Math.round(amount));
+    const formatted = absAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `Rp ${formatted}`;
   };
 
   const getStatusColor = (label) => {

@@ -3,23 +3,57 @@ import useCountUp from '../../hooks/useCountUp';
 
 /**
  * Extracts the numeric part from a formatted value string.
- * e.g. "$1,234.56" → 1234.56, "Rp 5.000" → 5000, "42" → 42
+ * e.g. "$1,234.56" → 1234.56, "Rp 5.000.000" → 5000000, "42" → 42
  * Returns null if no numeric content found.
  */
 function extractNumber(value) {
   if (typeof value === 'number') return value;
   if (typeof value !== 'string') return null;
-  // Remove currency symbols, spaces, and thousand separators (dots/commas before 3 digits)
+  
+  // Remove currency symbols and spaces
   const cleaned = value.replace(/[^0-9.,]/g, '');
   if (!cleaned) return null;
-  // Handle formats: "1,234.56" (EN) or "1.234,56" (ID)
-  // If last separator is a comma followed by 1-2 digits → decimal comma
-  const idFormat = cleaned.match(/^[\d.]+,\d{1,2}$/);
-  if (idFormat) {
+  
+  // Count dots and commas to determine format
+  const dotCount = (cleaned.match(/\./g) || []).length;
+  const commaCount = (cleaned.match(/,/g) || []).length;
+  
+  // Indonesian format: "5.000.000" (multiple dots as thousand separator)
+  if (dotCount > 1) {
+    return parseFloat(cleaned.replace(/\./g, ''));
+  }
+  
+  // Indonesian format with decimal: "5.000.000,50" (dots for thousands, comma for decimal)
+  if (dotCount >= 1 && commaCount === 1) {
     return parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
   }
-  // Otherwise treat comma as thousand separator
-  return parseFloat(cleaned.replace(/,/g, ''));
+  
+  // English format with decimal: "5,000,000.50" (commas for thousands, dot for decimal)
+  if (commaCount >= 1 && dotCount === 1) {
+    return parseFloat(cleaned.replace(/,/g, ''));
+  }
+  
+  // Single separator - determine if it's decimal or thousand
+  if (dotCount === 1 && commaCount === 0) {
+    // If followed by 1-2 digits, it's decimal
+    if (cleaned.match(/\.\d{1,2}$/)) {
+      return parseFloat(cleaned);
+    }
+    // Otherwise it's thousand separator (Indonesian)
+    return parseFloat(cleaned.replace(/\./g, ''));
+  }
+  
+  if (commaCount === 1 && dotCount === 0) {
+    // If followed by 1-2 digits, it's decimal
+    if (cleaned.match(/,\d{1,2}$/)) {
+      return parseFloat(cleaned.replace(',', '.'));
+    }
+    // Otherwise it's thousand separator
+    return parseFloat(cleaned.replace(/,/g, ''));
+  }
+  
+  // No separators
+  return parseFloat(cleaned);
 }
 
 /**
@@ -41,9 +75,17 @@ function reformat(original, animatedCount) {
   const suffixMatch = original.match(/([^0-9]*)$/);
   const suffix = suffixMatch ? suffixMatch[1] : '';
 
-  // Detect decimal places in original
+  // Detect decimal places in original (but ignore if all zeros like ",000" or ",00")
   const decimalMatch = original.match(/[.,](\d+)(?:[^0-9]*)$/);
-  const decimalPlaces = decimalMatch ? decimalMatch[1].length : 0;
+  let decimalPlaces = 0;
+  
+  if (decimalMatch) {
+    const decimalPart = decimalMatch[1];
+    // Only preserve decimal if it's not all zeros
+    if (!/^0+$/.test(decimalPart)) {
+      decimalPlaces = decimalPart.length;
+    }
+  }
 
   // Format the animated number with same decimal places
   const formatted = animatedCount.toFixed(decimalPlaces);
@@ -55,7 +97,7 @@ function reformat(original, animatedCount) {
     ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
     : intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  const decFormatted = decPart !== undefined
+  const decFormatted = decPart !== undefined && decPart !== '0'.repeat(decPart.length)
     ? (idStyle ? ',' : '.') + decPart
     : '';
 

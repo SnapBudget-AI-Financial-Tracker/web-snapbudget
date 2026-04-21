@@ -4,6 +4,7 @@ import Button from "../components/ui/Button";
 import Skeleton from "../components/ui/Skeleton";
 import { getCategoryIcon } from "../utils/categoryIcons.js";
 import useReducedMotion from "../hooks/useReducedMotion";
+import transactionService from "../services/transactionService";
 import { Search, Plus, X, ChevronDown } from "lucide-react";
 
 /* ─── Constants ─────────────────────────────────────────────── */
@@ -26,11 +27,7 @@ const TRANSACTION_TYPES = [
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 const formatIDR = (amount) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(Math.abs(amount));
+  new Intl.NumberFormat("id-ID").format(Math.abs(amount));
 
 /* ─── Empty State SVG ────────────────────────────────────────── */
 function EmptyIllustration() {
@@ -251,12 +248,29 @@ export default function Transactions() {
   const [searchTerm, setSearchTerm]         = useState("");
   const [activeCategory, setActiveCategory] = useState("semua");
   const [showModal, setShowModal]           = useState(false);
-  const [transactions]                      = useState([]);
-  const [isLoading]                         = useState(false);
+  const [transactions, setTransactions]     = useState([]);
+  const [isLoading, setIsLoading]           = useState(true);
   const reducedMotion                       = useReducedMotion();
 
   const openModal  = useCallback(() => setShowModal(true),  []);
   const closeModal = useCallback(() => setShowModal(false), []);
+
+  // Fetch transactions from API
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setIsLoading(true);
+        const data = await transactionService.getTransactions();
+        setTransactions(data);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const filtered = transactions.filter((t) => {
     const matchSearch =

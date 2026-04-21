@@ -41,6 +41,15 @@ export default function Dashboard() {
       setIsLoading(true);
       setError(null);
 
+      // Check onboarding status
+      const budgetSettings = await userService.getBudgetSettings();
+      setIsOnboardingComplete(budgetSettings.isOnboardingComplete);
+      
+      // Show onboarding if not complete
+      if (!budgetSettings.isOnboardingComplete) {
+        setShowOnboarding(true);
+      }
+
       const data = await transactionService.getDashboardData();
       setDashboardData(data);
       setTransactions(data.transaksi_bulan_ini || []);
@@ -68,7 +77,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadData = async () => {
       try {
         setIsLoading(true);
         setError(null);
@@ -108,7 +117,7 @@ export default function Dashboard() {
       }
     };
 
-    loadDashboardData();
+    loadData();
   }, []);
 
   const handleScanSuccess = () => {
@@ -128,11 +137,9 @@ export default function Dashboard() {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
+    const absAmount = Math.abs(Math.round(amount));
+    const formatted = absAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `Rp ${formatted}`;
   };
 
   // Calculate budget metrics

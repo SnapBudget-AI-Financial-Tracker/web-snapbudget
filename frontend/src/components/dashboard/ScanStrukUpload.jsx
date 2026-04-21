@@ -72,11 +72,9 @@ export default function ScanStrukUpload({ onSuccess }) {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
+    const absAmount = Math.abs(Math.round(amount));
+    const formatted = absAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `Rp ${formatted}`;
   };
 
   return (

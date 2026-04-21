@@ -49,11 +49,7 @@ function BarTooltip({ active, payload, totalAmount }) {
     <div className="bg-white border border-zinc-200 rounded-xl shadow-lg px-4 py-3 text-sm">
       <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
       <p className="text-zinc-700">
-        {new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(amount)}
+        Rp {Math.abs(Math.round(amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
       </p>
       <p className="text-zinc-500">{pct}% dari total</p>
     </div>
@@ -69,11 +65,7 @@ function DonutTooltip({ active, payload, totalAmount }) {
     <div className="bg-white border border-zinc-200 rounded-xl shadow-lg px-4 py-3 text-sm">
       <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
       <p className="text-zinc-700">
-        {new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(value)}
+        Rp {Math.abs(Math.round(value)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
       </p>
       <p className="text-zinc-500">{pct}% dari total</p>
     </div>
@@ -118,11 +110,9 @@ export default function Analytics() {
   }, []);
 
   const formatIDR = (value) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
+    const absValue = Math.abs(Math.round(value));
+    const formatted = absValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `Rp ${formatted}`;
   };
 
   // Transform data from API - with null checks
