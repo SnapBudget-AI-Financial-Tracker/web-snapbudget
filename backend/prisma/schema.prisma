@@ -10,17 +10,18 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  password     String?
-  googleId     String?       @unique
-  name         String?
-  avatarUrl    String?
-  resetToken   String?       @unique
+  id              String        @id @default(uuid())
+  email           String        @unique
+  password        String?
+  googleId        String?       @unique
+  name            String?
+  avatarUrl       String?
+  budgetBulanan   Int           @default(2000000)
+  resetToken      String?       @unique
   resetTokenExpiry DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  transactions Transaction[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  transactions    Transaction[]
 }
 
 model Transaction {

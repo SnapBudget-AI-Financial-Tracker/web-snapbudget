@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
+import transactionService from "../services/transactionService";
 import {
   BarChart,
   Bar,
@@ -12,93 +13,11 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Sparkles, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
+import { Sparkles, TrendingUp, ArrowUp, ArrowDown, AlertCircle } from "lucide-react";
 import { getCategoryIcon } from "../utils/categoryIcons.js";
 import { FinancialStatusBadge } from "../utils/categoryIcons.jsx";
 import Skeleton from "../components/ui/Skeleton";
-
-// The mocked JSON response from the AI Engineer
-const aiPredictionData = {
-  store_name: "Tidak terdeteksi",
-  date: "2026-04-18",
-  items: [
-    {
-      item_name: "Tahu Ikan Oma Giok",
-      harga: 20000,
-      kategori: "makanan",
-      confidence: 65.8,
-    },
-  ],
-  total_struk_rp: 20000,
-  prediksi_7hari: {
-    makanan: 106000,
-    minuman: 45000,
-    transportasi: 45000,
-    belanja: 127000,
-    tagihan: 0,
-    hiburan: 0,
-    kesehatan: 0,
-    lain_lain: 17000,
-  },
-  rekomendasi: {
-    label: "HEMAT",
-    conf: 68.4,
-    pesan:
-      "Pengeluaran sangat terkontrol! Pertahankan kebiasaan ini dan alokasikan sisa ke tabungan.",
-    saldo_rp: 1640000,
-    proj_pct: 30.0,
-  },
-  status_per_kategori: {
-    makanan: {
-      label: "DARURAT",
-      aktual_rp: 360000,
-      pred_rp: 106000,
-      pct_used: 144.0,
-    },
-    minuman: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 45000,
-      pct_used: 0.0,
-    },
-    transportasi: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 45000,
-      pct_used: 0.0,
-    },
-    belanja: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 127000,
-      pct_used: 0.0,
-    },
-    tagihan: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 0,
-      pct_used: 0.0,
-    },
-    hiburan: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 0,
-      pct_used: 0.0,
-    },
-    kesehatan: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 0,
-      pct_used: 0.0,
-    },
-    lain_lain: {
-      label: "HEMAT",
-      aktual_rp: 0,
-      pred_rp: 17000,
-      pct_used: 0.0,
-    },
-  },
-};
+import Button from "../components/ui/Button";
 
 /** Returns gradient classes for the AI banner based on recommendation status */
 function getBannerGradient(label) {
@@ -163,11 +82,25 @@ function DonutTooltip({ active, payload, totalAmount }) {
 
 export default function Analytics() {
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
 
-  // Simulate data fetch — replace with real API call when available
+  const fetchAnalyticsData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await transactionService.getDashboardData();
+      setDashboardData(data);
+    } catch (err) {
+      console.error("Error fetching analytics:", err);
+      setError("Gagal memuat data analytics. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1200);
-    return () => clearTimeout(timer);
+    fetchAnalyticsData();
   }, []);
 
   const formatIDR = (value) => {
@@ -178,16 +111,55 @@ export default function Analytics() {
     }).format(value);
   };
 
+  // Transform data from API - with null checks
+  const prediksi7hari = dashboardData?.prediksi_7hari || {};
+  const statusPerKategori = dashboardData?.status_per_kategori || {};
+  const actualPerKategori = dashboardData?.actual_per_kategori || {};
+  
+  // Only process if we have data
+  if (!dashboardData) {
+    return null; // Let loading state handle it
+  }
+  
+  // Calculate recommendation data
+  const totalActual = Object.values(actualPerKategori).reduce((sum, v) => sum + v, 0);
+  const totalPrediksi = Object.values(prediksi7hari).reduce((sum, v) => sum + v, 0);
+  const budgetBulanan = 2000000; // Default, bisa diambil dari user data
+  const sisaBudget = budgetBulanan - totalActual;
+  const projectedPct = budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;
+  
+  // Determine recommendation label
+  let rekomendasi = {
+    label: "HEMAT",
+    pesan: "Pengeluaran sangat terkontrol! Pertahankan kebiasaan ini dan alokasikan sisa ke tabungan.",
+    saldo_rp: sisaBudget,
+    proj_pct: projectedPct,
+  };
+  
+  if (projectedPct > 90) {
+    rekomendasi = {
+      label: "DARURAT",
+      pesan: "Pengeluaran sudah melebihi 90% budget! Segera kurangi pengeluaran tidak penting.",
+      saldo_rp: sisaBudget,
+      proj_pct: projectedPct,
+    };
+  } else if (projectedPct > 70) {
+    rekomendasi = {
+      label: "WASPADA",
+      pesan: "Pengeluaran sudah 70% dari budget. Pertimbangkan untuk lebih hemat.",
+      saldo_rp: sisaBudget,
+      proj_pct: projectedPct,
+    };
+  }
+
   // Transform prediksi_7hari object into an array suitable for Recharts
-  const chartData = Object.entries(aiPredictionData.prediksi_7hari).map(
-    ([key, value]) => ({
-      name: key.charAt(0).toUpperCase() + key.slice(1).replace("_", " "),
-      amount: value,
-    })
-  );
+  const chartData = Object.entries(prediksi7hari).map(([key, value]) => ({
+    name: key.charAt(0).toUpperCase() + key.slice(1).replace("_", " "),
+    amount: value,
+  }));
 
   // Compute summary stats from prediksi_7hari
-  const prediksiEntries = Object.entries(aiPredictionData.prediksi_7hari);
+  const prediksiEntries = Object.entries(prediksi7hari);
   const totalPrediksi7Hari = prediksiEntries.reduce((sum, [, v]) => sum + v, 0);
 
   const nonZeroEntries = prediksiEntries.filter(([, v]) => v > 0);
@@ -201,7 +173,31 @@ export default function Analytics() {
     value,
   }));
 
-  const bannerGradient = getBannerGradient(aiPredictionData.rekomendasi.label);
+  const bannerGradient = getBannerGradient(rekomendasi.label);
+  
+  // Transform status per kategori for display
+  const CATEGORIES = ['makanan', 'minuman', 'transportasi', 'belanja', 'tagihan', 'hiburan', 'kesehatan', 'lain_lain'];
+  const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
+    const actual = actualPerKategori[key] || 0;
+    const pred = prediksi7hari[key] || 0;
+    const pct = pred > 0 ? ((actual / pred) * 100).toFixed(1) : 0;
+    
+    let label = "HEMAT";
+    if (pct > 90) label = "DARURAT";
+    else if (pct > 70) label = "WASPADA";
+    
+    // Get status from API or use calculated
+    const apiStatus = statusPerKategori[key];
+    const finalLabel = typeof apiStatus === 'string' ? apiStatus : label;
+    
+    acc[key] = {
+      label: finalLabel,
+      aktual_rp: actual,
+      pred_rp: pred,
+      pct_used: parseFloat(pct),
+    };
+    return acc;
+  }, {});
 
   return (
     <DashboardLayout>
@@ -216,7 +212,25 @@ export default function Analytics() {
           </p>
         </div>
 
-        {isLoading ? (
+        {error ? (
+          /* ── Error state ── */
+          <div className="bg-white rounded-xl border border-rose-200 shadow-sm p-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-50">
+              <AlertCircle className="h-6 w-6 text-rose-500" />
+            </div>
+            <h3 className="text-base font-semibold text-zinc-900 mb-1">
+              Gagal memuat data
+            </h3>
+            <p className="text-sm text-zinc-500 mb-6">{error}</p>
+            <Button
+              variant="outline"
+              className="w-auto px-4 py-2"
+              onClick={fetchAnalyticsData}
+            >
+              Coba Lagi
+            </Button>
+          </div>
+        ) : isLoading ? (
           /* ── Skeleton state ── */
           <>
             {/* Banner skeleton */}
@@ -261,30 +275,27 @@ export default function Analytics() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="text-lg font-bold text-white">
-                    AI Status: {aiPredictionData.rekomendasi.label}
+                    AI Status: {rekomendasi.label}
                   </h3>
-                  <span className="text-xs font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full">
-                    {aiPredictionData.rekomendasi.conf}% conf
-                  </span>
                 </div>
                 <p className="text-sm text-white/90 mb-4">
-                  {aiPredictionData.rekomendasi.pesan}
+                  {rekomendasi.pesan}
                 </p>
                 <div className="flex gap-6">
                   <div className="flex flex-col">
                     <span className="text-xs uppercase tracking-wider font-semibold text-white/60">
-                      Proj. Savings
+                      Sisa Budget
                     </span>
                     <span className="font-semibold text-white">
-                      {formatIDR(aiPredictionData.rekomendasi.saldo_rp)}
+                      {formatIDR(rekomendasi.saldo_rp)}
                     </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs uppercase tracking-wider font-semibold text-white/60">
-                      Proj. Pct
+                      Terpakai
                     </span>
                     <span className="font-semibold text-white">
-                      {aiPredictionData.rekomendasi.proj_pct}%
+                      {rekomendasi.proj_pct}%
                     </span>
                   </div>
                 </div>
@@ -363,53 +374,59 @@ export default function Analytics() {
                   <h2 className="text-lg font-bold text-zinc-900 mb-6">
                     7-Day Spending Prediction
                   </h2>
-                  <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={chartData}
-                        margin={{ top: 10, right: 10, left: 20, bottom: 20 }}
-                      >
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          vertical={false}
-                          stroke="#e4e4e7"
-                        />
-                        <XAxis
-                          dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: "#71717a", fontSize: 12 }}
-                          dy={10}
-                        />
-                        <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: "#71717a", fontSize: 12 }}
-                          tickFormatter={(value) =>
-                            new Intl.NumberFormat("id-ID", {
-                              notation: "compact",
-                              compactDisplay: "short",
-                            }).format(value)
-                          }
-                        />
-                        <Tooltip
-                          cursor={{ fill: "#f4f4f5" }}
-                          content={
-                            <BarTooltip totalAmount={totalPrediksi7Hari} />
-                          }
-                        />
-                        <Bar
-                          dataKey="amount"
-                          fill="#6366f1"
-                          radius={[6, 6, 0, 0]}
-                          barSize={40}
-                          isAnimationActive={true}
-                          animationDuration={800}
-                          animationEasing="ease-out"
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                  {chartData.length > 0 ? (
+                    <div className="h-[300px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={chartData}
+                          margin={{ top: 10, right: 10, left: 20, bottom: 20 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#e4e4e7"
+                          />
+                          <XAxis
+                            dataKey="name"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#71717a", fontSize: 12 }}
+                            dy={10}
+                          />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#71717a", fontSize: 12 }}
+                            tickFormatter={(value) =>
+                              new Intl.NumberFormat("id-ID", {
+                                notation: "compact",
+                                compactDisplay: "short",
+                              }).format(value)
+                            }
+                          />
+                          <Tooltip
+                            cursor={{ fill: "#f4f4f5" }}
+                            content={
+                              <BarTooltip totalAmount={totalPrediksi7Hari} />
+                            }
+                          />
+                          <Bar
+                            dataKey="amount"
+                            fill="#6366f1"
+                            radius={[6, 6, 0, 0]}
+                            barSize={40}
+                            isAnimationActive={true}
+                            animationDuration={800}
+                            animationEasing="ease-out"
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-zinc-400 text-center py-8">
+                      Belum ada data prediksi. Tambahkan transaksi untuk mendapatkan prediksi AI.
+                    </p>
+                  )}
                 </div>
 
                 {/* Donut Chart — Spending Proportions per Category */}
@@ -506,7 +523,7 @@ export default function Analytics() {
                 <h2 className="text-lg font-bold text-zinc-900 mb-2">
                   Category Status
                 </h2>
-                {Object.entries(aiPredictionData.status_per_kategori).map(
+                {Object.entries(displayStatusPerKategori).map(
                   ([categoryName, status]) => {
                     const Icon = getCategoryIcon(categoryName);
                     const clampedPct = Math.min(status.pct_used, 100);

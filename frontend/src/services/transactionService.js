@@ -50,12 +50,39 @@ const deleteTransaction = async (id) => {
   return response.data;
 };
 
+/**
+ * Scan struk via AI
+ * @param {File} file Image file of receipt
+ * @returns {Promise<Object>} Scan result with items, predictions, and recommendations
+ */
+const scanStruk = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/transactions/scan-struk', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Get dashboard data with AI predictions
+ * @returns {Promise<Object>} Dashboard data with transactions, predictions, and recommendations
+ */
+const getDashboardData = async () => {
+  const response = await api.get('/transactions/dashboard');
+  return response.data;
+};
+
 const transactionService = {
   getTransactions,
   getTransactionById,
   createTransaction,
   updateTransaction,
   deleteTransaction,
+  scanStruk,
+  getDashboardData,
 };
 
 export default transactionService;

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import transactionService from "../services/transactionService";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
+import ScanStrukUpload from "../components/dashboard/ScanStrukUpload";
+import AIPredictionCard from "../components/dashboard/AIPredictionCard";
+import AddTransactionModal from "../components/dashboard/AddTransactionModal";
 import Button from "../components/ui/Button";
 import Skeleton from "../components/ui/Skeleton";
 import { getCategoryIcon } from "../utils/categoryIcons.js";
@@ -12,62 +15,78 @@ import {
   TrendingUp,
   TrendingDown,
   AlertCircle,
+  Scan,
 } from "lucide-react";
 
 export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showScanUpload, setShowScanUpload] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [summary, setSummary] = useState({
     totalBalance: 0,
     monthlySpending: 0,
   });
 
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = await transactionService.getDashboardData();
+      setDashboardData(data);
+      setTransactions(data.transaksi_bulan_ini || []);
+
+      // Calculate summary
+      const total = (data.transaksi_bulan_ini || []).reduce(
+        (acc, curr) => acc + curr.amount,
+        0
+      );
+      const spending = Object.values(data.actual_per_kategori || {}).reduce(
+        (acc, curr) => acc + curr,
+        0
+      );
+
+      setSummary({
+        totalBalance: total,
+        monthlySpending: spending,
+      });
+    } catch (err) {
+      console.error("Error fetching dashboard:", err);
+      setError("Data gagal dimuat. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let timeoutId;
-
-    const fetchTransactions = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // 10-second timeout: if fetch hasn't resolved, show error
-        timeoutId = setTimeout(() => {
-          setError("Data gagal dimuat. Silakan coba lagi.");
-          setIsLoading(false);
-        }, 10000);
-
-        const data = await transactionService.getTransactions();
-        clearTimeout(timeoutId);
-
-        setTransactions(data);
-
-        // Calculate basic summary
-        const total = data.reduce((acc, curr) => acc + curr.amount, 0);
-        setSummary({
-          totalBalance: total,
-          monthlySpending: total > 0 ? total : 0,
-        });
-      } catch (err) {
-        clearTimeout(timeoutId);
-        console.error("Error fetching transactions:", err);
-        setError("Data gagal dimuat. Silakan coba lagi.");
-      } finally {
-        clearTimeout(timeoutId);
-        setIsLoading(false);
-      }
-    };
-
-    fetchTransactions();
-
-    return () => clearTimeout(timeoutId);
+    fetchDashboardData();
   }, []);
 
+  const handleScanSuccess = () => {
+    setShowScanUpload(false);
+    fetchDashboardData();
+  };
+
+  const handleAddSuccess = () => {
+    setShowAddModal(false);
+    fetchDashboardData();
+  };
+
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("id-ID", {
       style: "currency",
-      currency: "USD",
+      currency: "IDR",
+      minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  // Determine overall budget status
+  const getOverallStatus = () => {
+    if (!dashboardData?.rekomendasi) return "AMAN";
+    return dashboardData.rekomendasi.label_upper || "AMAN";
   };
 
   return (
@@ -99,7 +118,7 @@ export default function Dashboard() {
               />
               <StatCard
                 title="Budget Status"
-                value={<FinancialStatusBadge status="AMAN" />}
+                value={<FinancialStatusBadge status={getOverallStatus()} />}
                 icon={<PieChart className="h-5 w-5" />}
                 iconBg="bg-blue-50"
                 iconColor="text-blue-600"
@@ -108,15 +127,56 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* AI Prediction Card */}
+        {!isLoading && dashboardData && (
+          <div className="mb-8 animate-fadeIn">
+            <AIPredictionCard
+              prediksi={dashboardData.prediksi_7hari}
+              rekomendasi={dashboardData.rekomendasi}
+              statusPerKategori={dashboardData.status_per_kategori}
+            />
+          </div>
+        )}
+
+        {/* Scan Struk Section */}
+        <div className="mb-8">
+          {showScanUpload ? (
+            <div className="animate-fadeIn">
+              <ScanStrukUpload onSuccess={handleScanSuccess} />
+            </div>
+          ) : (
+            <Button
+              onClick={() => setShowScanUpload(true)}
+              variant="outline"
+              className="w-full sm:w-auto"
+              icon={Scan}
+            >
+              Scan Struk Belanja
+            </Button>
+          )}
+        </div>
+
         {/* Transactions Section */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-zinc-900">
             Recent Transactions
           </h2>
-          <Button variant="gradient" className="w-auto px-4 py-2" icon={Plus}>
+          <Button 
+            variant="gradient" 
+            className="w-auto px-4 py-2" 
+            icon={Plus}
+            onClick={() => setShowAddModal(true)}
+          >
             Add Transaction
           </Button>
         </div>
+
+        {/* Add Transaction Modal */}
+        <AddTransactionModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={handleAddSuccess}
+        />
 
         {isLoading ? (
           <div className="bg-white rounded-xl border border-zinc-200 shadow-sm divide-y divide-zinc-200 px-6">
@@ -136,7 +196,7 @@ export default function Dashboard() {
             <Button
               variant="outline"
               className="w-auto px-4 py-2"
-              onClick={() => window.location.reload()}
+              onClick={fetchDashboardData}
             >
               Coba Lagi
             </Button>
@@ -183,7 +243,7 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-bold text-zinc-900 text-right">
-                        {formatCurrency(t.amount)}
+                        {formatCurrency(Math.abs(t.amount))}
                       </td>
                     </tr>
                   ))}
@@ -279,7 +339,12 @@ export default function Dashboard() {
               Stay on top of your spending and savings in one place.
             </p>
             <div className="flex justify-center">
-              <Button variant="gradient" className="w-auto px-6" icon={Plus}>
+              <Button 
+                variant="gradient" 
+                className="w-auto px-6" 
+                icon={Plus}
+                onClick={() => setShowAddModal(true)}
+              >
                 Add Your First Transaction
               </Button>
             </div>

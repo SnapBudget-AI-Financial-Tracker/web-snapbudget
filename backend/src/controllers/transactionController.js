@@ -1,4 +1,144 @@
 import prisma from '../config/prisma.js';
+import { scanStruk as aiScanStruk, getPrediksi } from '../services/inferenceService.js';
+
+/**
+ * Scan struk via AI
+ */
+export const scanStruk = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'File struk diperlukan' });
+    }
+
+    // Ambil budget user dari DB
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    // Kirim ke AI server Modal
+    const aiResult = await aiScanStruk(
+      req.file.buffer,
+      req.file.originalname,
+      {
+        budget_bulanan: user.budgetBulanan || 2000000,
+        day_of_month: new Date().getDate(),
+        saldo_sisa: 0,
+      }
+    );
+
+    if (aiResult.status !== 'success') {
+      return res.status(422).json({ message: 'Struk tidak terbaca' });
+    }
+
+    // Simpan semua item ke DB
+    const transaksiList = aiResult.scan_result.items.map(item => ({
+      userId,
+      amount: -item.harga, // negatif = pengeluaran
+      category: item.kategori,
+      description: item.item_name,
+      date: new Date(),
+      receiptUrl: null,
+    }));
+
+    await prisma.transaction.createMany({ data: transaksiList });
+
+    // Add missing fields for frontend compatibility
+    if (aiResult.rekomendasi) {
+      aiResult.rekomendasi.label_upper = aiResult.rekomendasi.label?.toUpperCase() || 'AMAN';
+      const now = new Date();
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      aiResult.rekomendasi.days_remaining = lastDayOfMonth - now.getDate();
+    }
+
+    // Return hasil lengkap ke frontend
+    res.json({
+      success: true,
+      scan_result: aiResult.scan_result,
+      prediksi_7hari: aiResult.prediksi_7hari,
+      rekomendasi: aiResult.rekomendasi,
+      status_per_kategori: aiResult.status_per_kategori,
+      transaksi_disimpan: transaksiList.length,
+    });
+  } catch (error) {
+    console.error('Scan struk error:', error);
+    res.status(500).json({ message: 'Gagal memproses struk' });
+  }
+};
+
+/**
+ * Get dashboard data + AI prediction
+ */
+export const getDashboard = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const now = new Date();
+    const bulan = now.getMonth() + 1;
+    const tahun = now.getFullYear();
+
+    // Ambil semua transaksi bulan ini
+    const transaksi = await prisma.transaction.findMany({
+      where: {
+        userId,
+        date: {
+          gte: new Date(tahun, bulan - 1, 1),
+          lte: new Date(tahun, bulan, 0),
+        }
+      }
+    });
+
+    // Hitung actual per kategori
+    const CATEGORIES = [
+      'makanan',
+      'minuman',
+      'transportasi',
+      'belanja',
+      'tagihan',
+      'hiburan',
+      'kesehatan',
+      'lain_lain'
+    ];
+
+    const actualHariIni = {};
+    CATEGORIES.forEach(cat => { actualHariIni[cat] = 0; });
+
+    transaksi.forEach(t => {
+      const cat = t.category.replace('-', '_');
+      if (CATEGORIES.includes(cat)) {
+        actualHariIni[cat] += Math.abs(t.amount);
+      }
+    });
+
+    // Ambil user untuk budget
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    // Ambil prediksi + rekomendasi dari AI
+    const aiResult = await getPrediksi(actualHariIni, {
+      budget_bulanan: user.budgetBulanan || 2000000,
+      day_of_month: now.getDate(),
+    });
+
+    // Add missing fields for frontend compatibility
+    if (aiResult.rekomendasi) {
+      aiResult.rekomendasi.label_upper = aiResult.rekomendasi.label?.toUpperCase() || 'AMAN';
+      aiResult.rekomendasi.days_remaining = new Date(tahun, bulan, 0).getDate() - now.getDate();
+    }
+
+    res.json({
+      transaksi_bulan_ini: transaksi,
+      actual_per_kategori: actualHariIni,
+      prediksi_7hari: aiResult.prediksi_7hari,
+      rekomendasi: aiResult.rekomendasi,
+      status_per_kategori: aiResult.status_per_kategori,
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ message: 'Gagal memuat dashboard' });
+  }
+};
 
 /**
  * Create a new transaction

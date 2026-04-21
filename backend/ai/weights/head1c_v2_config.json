@@ -1,0 +1,20 @@
+{
+  "vocab_size": 35,
+  "embed_dim": 64,
+  "lstm_units": 128,
+  "n_classes": 8,
+  "dropout": 0.3,
+  "max_len": 30,
+  "categories": [
+    "makanan",
+    "minuman",
+    "transportasi",
+    "belanja",
+    "tagihan",
+    "hiburan",
+    "kesehatan",
+    "lain_lain"
+  ],
+  "best_val_f1": 0.9965274839312198,
+  "version": "v2"
+}

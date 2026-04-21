@@ -1,0 +1,35 @@
+# SnapBudget — AI Inference Server Requirements
+# Versi dikonfirmasi dari Google Colab (April 2026)
+# Python 3.12.13
+
+# ── Web Framework ──────────────────────────────────────────
+fastapi==0.135.3
+uvicorn[standard]==0.44.0
+python-multipart==0.0.20
+
+# ── AI: Donut (Head 1) — PyTorch ─────────────────────────
+# CPU server:
+torch==2.10.0
+torchvision==0.25.0
+# GPU server (uncomment jika ada CUDA 12.8):
+# torch==2.10.0+cu128
+# torchvision==0.25.0+cu128
+# --extra-index-url https://download.pytorch.org/whl/cu128
+
+transformers==5.0.0
+sentencepiece==0.2.1
+
+# ── AI: Head 1C, Head 2, Head 3 — TensorFlow ─────────────
+tensorflow==2.20.0
+
+# ── Data Processing ───────────────────────────────────────
+numpy==2.1.0
+Pillow==11.3.0
+scikit-learn==1.6.1
+
+# ── HuggingFace Hub (download model) ─────────────────────
+huggingface_hub>=0.23.4
+
+# ── Utils ─────────────────────────────────────────────────
+python-dotenv==1.0.1
+httpx==0.27.0
