@@ -68,13 +68,14 @@ function reformat(original, animatedCount) {
  * Props:
  *   title       {string}      — label shown below the value
  *   value       {string|node} — formatted value to display
+ *   subtitle    {string}      — optional subtitle below value
  *   icon        {ReactNode}   — icon element (e.g. from lucide-react)
  *   iconBg      {string}      — Tailwind bg class for icon container (e.g. "bg-emerald-50")
  *   iconColor   {string}      — Tailwind text class for icon (e.g. "text-emerald-600")
  *
  * Requirements: 3.4, 7.1, 7.2, 12.1, 12.2
  */
-export default function StatCard({ title, value, icon, iconBg = 'bg-primary-50', iconColor = 'text-primary-600' }) {
+export default function StatCard({ title, value, subtitle, icon, iconBg = 'bg-primary-50', iconColor = 'text-primary-600' }) {
   const reducedMotion = useReducedMotion();
 
   // Extract numeric target for animation; fall back to null for non-numeric values
@@ -128,6 +129,11 @@ export default function StatCard({ title, value, icon, iconBg = 'bg-primary-50',
       <h3 className="relative text-2xl font-bold text-[var(--color-text-primary)] font-[var(--font-heading)]">
         {displayValue}
       </h3>
+      {subtitle && (
+        <p className="relative text-xs text-[var(--color-text-muted)] mt-1">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }

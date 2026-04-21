@@ -1,4 +1,4 @@
-import { TrendingUp, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight } from 'lucide-react';
 
 export default function AIPredictionCard({ prediksi, rekomendasi, statusPerKategori }) {
   const formatCurrency = (amount) => {
@@ -13,17 +13,17 @@ export default function AIPredictionCard({ prediksi, rekomendasi, statusPerKateg
     const status = label?.toLowerCase();
     switch (status) {
       case 'hemat':
-        return 'text-emerald-600 bg-emerald-50 border-emerald-200';
+        return 'bg-emerald-50 border-emerald-200 text-emerald-900';
       case 'aman':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
+        return 'bg-blue-50 border-blue-200 text-blue-900';
       case 'waspada':
-        return 'text-amber-600 bg-amber-50 border-amber-200';
+        return 'bg-amber-50 border-amber-200 text-amber-900';
       case 'boros':
-        return 'text-orange-600 bg-orange-50 border-orange-200';
+        return 'bg-orange-50 border-orange-200 text-orange-900';
       case 'darurat':
-        return 'text-rose-600 bg-rose-50 border-rose-200';
+        return 'bg-rose-50 border-rose-200 text-rose-900';
       default:
-        return 'text-zinc-600 bg-zinc-50 border-zinc-200';
+        return 'bg-zinc-50 border-zinc-200 text-zinc-900';
     }
   };
 
@@ -32,78 +32,113 @@ export default function AIPredictionCard({ prediksi, rekomendasi, statusPerKateg
     switch (status) {
       case 'hemat':
       case 'aman':
-        return <CheckCircle className="h-4 w-4" />;
+        return <CheckCircle className="h-5 w-5" />;
       case 'waspada':
       case 'boros':
       case 'darurat':
-        return <AlertTriangle className="h-4 w-4" />;
+        return <AlertTriangle className="h-5 w-5" />;
       default:
-        return <Info className="h-4 w-4" />;
+        return <Info className="h-5 w-5" />;
     }
   };
 
+  // Calculate total prediction
+  const totalPrediksi = Object.values(prediksi || {}).reduce((sum, val) => sum + val, 0);
+
   return (
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-6">
         <TrendingUp className="h-5 w-5 text-blue-600" />
-        <h3 className="text-lg font-bold text-zinc-900">Prediksi AI - 7 Hari Ke Depan</h3>
+        <h3 className="text-lg font-bold text-zinc-900">Prediksi & Rekomendasi AI</h3>
       </div>
 
-      {/* Predictions Grid */}
-      {prediksi && Object.keys(prediksi).length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          {Object.entries(prediksi).map(([kategori, amount]) => {
-            const statusData = statusPerKategori?.[kategori];
-            const label = statusData?.label || 'aman';
-            return (
-              <div
-                key={kategori}
-                className={`rounded-lg border p-3 ${getStatusColor(label)}`}
-              >
-                <div className="flex items-center gap-1.5 mb-1">
-                  {getStatusIcon(label)}
-                  <span className="text-xs font-semibold uppercase">
-                    {kategori.replace('_', ' ')}
-                  </span>
-                </div>
-                <p className="text-sm font-bold">{formatCurrency(amount)}</p>
-                {statusData && (
-                  <p className="text-xs mt-1 opacity-80">
-                    {Math.round(statusData.confidence)}% confidence
-                  </p>
-                )}
+      {/* Status & Recommendation */}
+      {rekomendasi && (
+        <div className={`rounded-lg border p-4 mb-6 ${getStatusColor(rekomendasi.label)}`}>
+          <div className="flex items-start gap-3 mb-3">
+            {getStatusIcon(rekomendasi.label)}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="text-sm font-bold">Status: {rekomendasi.label_upper}</h4>
+                <span className="text-xs opacity-75">
+                  ({Math.round(rekomendasi.confidence)}% confidence)
+                </span>
               </div>
-            );
-          })}
+              <p className="text-sm">{rekomendasi.pesan}</p>
+            </div>
+          </div>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-current/20">
+            <div>
+              <p className="text-xs opacity-75 mb-1">Sisa Budget</p>
+              <p className="text-sm font-bold">{formatCurrency(rekomendasi.saldo_rp)}</p>
+            </div>
+            <div>
+              <p className="text-xs opacity-75 mb-1">Hari Tersisa</p>
+              <p className="text-sm font-bold">{rekomendasi.days_remaining} hari</p>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Recommendations */}
-      {rekomendasi && (
-        <div className={`rounded-lg border p-4 ${getStatusColor(rekomendasi.label)}`}>
-          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-            {getStatusIcon(rekomendasi.label)}
-            Status: {rekomendasi.label_upper}
-          </h4>
-          <p className="text-sm mb-3">{rekomendasi.pesan}</p>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span className="opacity-75">Sisa Saldo:</span>
-              <p className="font-bold">{formatCurrency(rekomendasi.saldo_rp)}</p>
-            </div>
-            <div>
-              <span className="opacity-75">Hari Tersisa:</span>
-              <p className="font-bold">{rekomendasi.days_remaining} hari</p>
-            </div>
-            <div>
-              <span className="opacity-75">Proyeksi Penggunaan:</span>
-              <p className="font-bold">{Math.round(rekomendasi.proj_overall_pct)}%</p>
-            </div>
-            <div>
-              <span className="opacity-75">Est. Saldo 7 Hari:</span>
-              <p className="font-bold">{formatCurrency(rekomendasi.est_saldo_7hari_rp)}</p>
+      {/* 7-Day Prediction */}
+      {prediksi && Object.keys(prediksi).length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-2 mb-3">
+            <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-blue-900 mb-1">
+                Prediksi 7 Hari Ke Depan
+              </h4>
+              <p className="text-xs text-blue-700 mb-3">
+                Berdasarkan pola pengeluaran Anda, estimasi total pengeluaran dalam 7 hari ke depan:
+              </p>
+              
+              <div className="flex items-center justify-between bg-white rounded-lg p-3 mb-3">
+                <span className="text-sm font-medium text-blue-900">Total Estimasi</span>
+                <span className="text-lg font-bold text-blue-900">{formatCurrency(totalPrediksi)}</span>
+              </div>
+
+              {rekomendasi?.est_saldo_7hari_rp !== undefined && (
+                <div className="flex items-center gap-2 text-xs text-blue-700">
+                  <ArrowRight className="h-3 w-3" />
+                  <span>
+                    Sisa budget setelah 7 hari: <strong>{formatCurrency(rekomendasi.est_saldo_7hari_rp)}</strong>
+                  </span>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Category Breakdown - Collapsible */}
+          <details className="mt-3">
+            <summary className="text-xs font-medium text-blue-900 cursor-pointer hover:text-blue-700 transition-colors">
+              Lihat detail per kategori
+            </summary>
+            <div className="mt-3 space-y-2">
+              {Object.entries(prediksi).map(([kategori, amount]) => {
+                const statusData = statusPerKategori?.[kategori];
+                const label = statusData?.label || 'aman';
+                const labelColor = label === 'darurat' || label === 'boros' ? 'text-rose-600' : 
+                                   label === 'waspada' ? 'text-amber-600' : 'text-emerald-600';
+                
+                return (
+                  <div key={kategori} className="flex items-center justify-between text-xs bg-white rounded px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-zinc-700 capitalize">{kategori.replace('_', ' ')}</span>
+                      {statusData && (
+                        <span className={`text-xs font-medium ${labelColor}`}>
+                          ({label})
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-semibold text-zinc-900">{formatCurrency(amount)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </details>
         </div>
       )}
 

@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Scan,
   Settings as SettingsIcon,
+  Wallet,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -134,11 +135,12 @@ export default function Dashboard() {
     }).format(amount);
   };
 
-  // Determine overall budget status
-  const getOverallStatus = () => {
-    if (!dashboardData?.rekomendasi) return "AMAN";
-    return dashboardData.rekomendasi.label_upper || "AMAN";
-  };
+  // Calculate budget metrics
+  const budgetBulanan = dashboardData?.user_budget?.budgetBulanan || 0;
+  const totalSpending = summary.monthlySpending;
+  const sisaBudget = budgetBulanan - totalSpending;
+  const percentageUsed = budgetBulanan > 0 ? (totalSpending / budgetBulanan) * 100 : 0;
+  const daysRemaining = dashboardData?.rekomendasi?.days_remaining || 0;
 
   return (
     <DashboardLayout>
@@ -195,25 +197,28 @@ export default function Dashboard() {
           ) : (
             <div className="contents animate-fadeIn">
               <StatCard
-                title="Total Balance"
-                value={formatCurrency(summary.totalBalance)}
-                icon={<TrendingUp className="h-5 w-5" />}
-                iconBg="bg-emerald-50"
-                iconColor="text-emerald-600"
+                title="Budget Bulanan"
+                value={formatCurrency(budgetBulanan)}
+                subtitle="Total budget yang tersedia"
+                icon={<Wallet className="h-5 w-5" />}
+                iconBg="bg-blue-50"
+                iconColor="text-blue-600"
               />
               <StatCard
-                title="Monthly Spending"
-                value={formatCurrency(summary.monthlySpending)}
+                title="Total Pengeluaran"
+                value={formatCurrency(totalSpending)}
+                subtitle={`${percentageUsed.toFixed(1)}% dari budget`}
                 icon={<TrendingDown className="h-5 w-5" />}
                 iconBg="bg-orange-50"
                 iconColor="text-orange-600"
               />
               <StatCard
-                title="Budget Status"
-                value={<FinancialStatusBadge status={getOverallStatus()} />}
+                title="Sisa Budget"
+                value={formatCurrency(sisaBudget)}
+                subtitle={`${daysRemaining} hari lagi`}
                 icon={<PieChart className="h-5 w-5" />}
-                iconBg="bg-blue-50"
-                iconColor="text-blue-600"
+                iconBg="bg-emerald-50"
+                iconColor="text-emerald-600"
               />
             </div>
           )}
