@@ -62,7 +62,38 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    void fetchDashboardData();
+    const loadDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const data = await transactionService.getDashboardData();
+        setDashboardData(data);
+        setTransactions(data.transaksi_bulan_ini || []);
+
+        // Calculate summary
+        const total = (data.transaksi_bulan_ini || []).reduce(
+          (acc, curr) => acc + curr.amount,
+          0
+        );
+        const spending = Object.values(data.actual_per_kategori || {}).reduce(
+          (acc, curr) => acc + curr,
+          0
+        );
+
+        setSummary({
+          totalBalance: total,
+          monthlySpending: spending,
+        });
+      } catch (err) {
+        console.error("Error fetching dashboard:", err);
+        setError("Data gagal dimuat. Silakan coba lagi.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, []);
 
   const handleScanSuccess = () => {

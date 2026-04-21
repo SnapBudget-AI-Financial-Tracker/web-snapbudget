@@ -100,7 +100,21 @@ export default function Analytics() {
   };
 
   useEffect(() => {
-    void fetchAnalyticsData();
+    const loadAnalyticsData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await transactionService.getDashboardData();
+        setDashboardData(data);
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+        setError("Gagal memuat data analytics. Silakan coba lagi.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAnalyticsData();
   }, []);
 
   const formatIDR = (value) => {
