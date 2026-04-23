@@ -17,8 +17,8 @@ import useReducedMotion from "../../hooks/useReducedMotion";
 const navLinks = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/analytics", label: "Analytics", icon: BarChart2 },
-  { path: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
+  { path: "/settings", label: "Pengaturan", icon: Settings },
 ];
 
 function getUserInitials(user) {
@@ -43,54 +43,87 @@ export default function Sidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* ── Mobile backdrop ── */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] md:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] md:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
+      {/* ── Sidebar panel ── */}
       <aside
         style={{ width: sidebarWidth, ...transitionStyle }}
-        className={`fixed md:relative top-0 left-0 z-[70] h-screen md:h-full bg-white border-r border-teal-100 flex flex-col overflow-hidden ${
-          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        } transition-transform duration-300 ease-in-out md:transition-none`}
-        aria-label="Main navigation"
+        className={[
+          "fixed md:relative top-0 left-0 z-[70]",
+          "h-screen md:h-full flex flex-col overflow-hidden",
+          // Dark teal gradient background
+          "bg-gradient-to-b from-teal-900 to-teal-800",
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          "transition-transform duration-300 ease-in-out md:transition-none",
+        ].join(" ")}
+        aria-label="Navigasi utama"
       >
-        {/* Logo */}
-        <div className="p-4 flex items-center justify-between min-h-[72px]">
-          <div className="flex items-center gap-2 min-w-0">
-            {/* Wallet icon with gradient */}
-            <div className="relative flex-shrink-0 w-8 h-8">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-md">
-                <Wallet size={16} className="text-white" />
+        {/* ══ Logo area ══ */}
+        <div className="flex items-center justify-between min-h-[72px] px-4 border-b border-teal-700/40">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Icon badge */}
+            <div className="relative flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 flex items-center justify-center shadow-[var(--shadow-primary)]">
+                <Wallet size={17} className="text-white" />
               </div>
+              {/* Soft glow ring */}
+              <div
+                className="absolute inset-0 rounded-xl opacity-30 blur-sm -z-10"
+                style={{ background: "rgba(20,184,166,0.6)" }}
+                aria-hidden="true"
+              />
             </div>
+
             {!collapsed && (
-              <span className="font-bold text-lg bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent whitespace-nowrap overflow-hidden">
-                SnapBudget
-              </span>
+              <div className="min-w-0">
+                <span
+                  className="font-bold text-[17px] text-white leading-tight block truncate"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
+                  SnapBudget
+                </span>
+                <p className="text-[10px] text-teal-300/80 leading-tight">
+                  AI Financial Tracker
+                </p>
+              </div>
             )}
           </div>
 
           {/* Mobile close button */}
           <button
             onClick={onClose}
-            className="md:hidden p-1.5 text-teal-500 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
-            aria-label="Close sidebar"
+            className="md:hidden p-1.5 text-teal-300 hover:bg-teal-700/50 hover:text-white rounded-lg transition-colors cursor-pointer"
+            aria-label="Tutup sidebar"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 px-2 space-y-1 overflow-y-auto" role="navigation">
+        {/* ══ Section label ══ */}
+        {!collapsed && (
+          <div className="px-4 pt-4 pb-1">
+            <p className="text-[10px] font-bold text-teal-400/60 uppercase tracking-widest">
+              Menu
+            </p>
+          </div>
+        )}
+
+        {/* ══ Navigation ══ */}
+        <nav
+          className="flex-1 px-2 py-1 space-y-0.5 overflow-y-auto"
+          role="navigation"
+        >
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = location.pathname === link.path;
+
             return (
               <Link
                 key={link.path}
@@ -99,77 +132,124 @@ export default function Sidebar({ isOpen, onClose }) {
                 aria-label={link.label}
                 aria-current={isActive ? "page" : undefined}
                 onClick={() => onClose()}
-                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer
-                  transition-colors duration-150
-                  ${isActive
-                    ? "bg-teal-700 text-white shadow-[var(--shadow-primary)]"
-                    : "text-teal-700 hover:bg-teal-50 hover:text-teal-900"
-                  }
-                  ${collapsed ? "justify-center" : ""}
-                `}
+                className={[
+                  "relative flex items-center gap-3 px-3 py-2.5",
+                  "rounded-[var(--radius-md)] text-sm font-medium cursor-pointer",
+                  "transition-all duration-150",
+                  isActive
+                    ? "bg-white/15 text-white"
+                    : "text-teal-100/70 hover:bg-white/10 hover:text-white",
+                  collapsed ? "justify-center" : "",
+                ].join(" ")}
               >
-                {/* Active left border indicator */}
+                {/* Active left-edge indicator */}
                 {isActive && (
                   <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-teal-300 rounded-r-full"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-teal-300 rounded-r-full"
                     aria-hidden="true"
                   />
                 )}
-                <Icon size={18} className="flex-shrink-0" />
-                {!collapsed && (
-                  <span className="truncate">{link.label}</span>
+
+                <Icon
+                  size={17}
+                  className={[
+                    "flex-shrink-0",
+                    isActive ? "text-teal-300" : "text-teal-400/70",
+                  ].join(" ")}
+                />
+
+                {!collapsed && <span className="truncate">{link.label}</span>}
+
+                {/* Active dot at the far right */}
+                {isActive && !collapsed && (
+                  <span
+                    className="ml-auto w-1.5 h-1.5 rounded-full bg-teal-300 flex-shrink-0"
+                    aria-hidden="true"
+                  />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom section */}
-        <div className="border-t border-teal-100 p-2 space-y-1">
-          {/* User avatar + name (expanded only) */}
+        {/* ══ Bottom: user card + sign-out + collapse ══ */}
+        <div className="border-t border-teal-700/40 p-3 space-y-1">
+          {/* User profile card */}
           {!collapsed && user && (
-            <div className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)]">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <div className="flex items-center gap-2.5 px-3 py-2.5 mb-1 rounded-[var(--radius-md)] bg-teal-800/70 border border-teal-700/40">
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <span className="text-white text-xs font-bold">
                   {getUserInitials(user)}
                 </span>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-teal-900 truncate">
-                  {user.name || user.username || "User"}
+
+              <div className="min-w-0 flex-1">
+                {/* Name + PRO badge */}
+                <div className="flex items-center gap-1.5">
+                  <p
+                    className="text-sm font-semibold text-white truncate leading-tight"
+                    style={{ fontFamily: "var(--font-heading)" }}
+                  >
+                    {user.name || user.username || "User"}
+                  </p>
+                  <span className="flex-shrink-0 text-[9px] font-bold bg-teal-400/25 text-teal-200 px-1.5 py-0.5 rounded-full leading-tight tracking-wide">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-[11px] text-teal-300/60 truncate leading-tight mt-0.5">
+                  {user.email}
                 </p>
-                <p className="text-xs text-teal-500 truncate">{user.email}</p>
               </div>
             </div>
           )}
 
-          {/* Sign out */}
+          {/* Collapsed avatar (no text) */}
+          {collapsed && user && (
+            <div className="flex justify-center mb-1">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-sm">
+                <span className="text-white text-xs font-bold">
+                  {getUserInitials(user)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Sign-out */}
           <button
             onClick={logout}
-            title={collapsed ? "Sign Out" : undefined}
-            aria-label="Sign Out"
-            className={`flex items-center gap-3 w-full px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-[var(--radius-md)] text-sm font-medium transition-colors duration-150 cursor-pointer
-              ${collapsed ? "justify-center" : ""}
-            `}
+            title={collapsed ? "Keluar" : undefined}
+            aria-label="Keluar"
+            className={[
+              "flex items-center gap-3 w-full px-3 py-2.5",
+              "text-rose-300/80 hover:bg-rose-500/15 hover:text-rose-200",
+              "rounded-[var(--radius-md)] text-sm font-medium",
+              "transition-colors duration-150 cursor-pointer",
+              collapsed ? "justify-center" : "",
+            ].join(" ")}
           >
-            <LogOut size={18} className="flex-shrink-0" />
-            {!collapsed && <span>Sign Out</span>}
+            <LogOut size={16} className="flex-shrink-0" />
+            {!collapsed && <span>Keluar</span>}
           </button>
 
-          {/* Collapse toggle (desktop only) */}
+          {/* Collapse toggle — desktop only */}
           <button
             onClick={() => setCollapsed((c) => !c)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={`hidden md:flex items-center gap-3 w-full px-3 py-2 text-teal-500 hover:bg-teal-50 hover:text-teal-700 rounded-[var(--radius-md)] text-sm font-medium transition-colors duration-150 cursor-pointer
-              ${collapsed ? "justify-center" : ""}
-            `}
+            aria-label={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
+            className={[
+              "hidden md:flex items-center gap-3 w-full px-3 py-2",
+              "text-teal-300/50 hover:bg-white/10 hover:text-teal-200",
+              "rounded-[var(--radius-md)] text-sm font-medium",
+              "transition-colors duration-150 cursor-pointer",
+              collapsed ? "justify-center" : "",
+            ].join(" ")}
           >
             {collapsed ? (
-              <ChevronRight size={18} className="flex-shrink-0" />
+              <ChevronRight size={16} className="flex-shrink-0" />
             ) : (
               <>
-                <ChevronLeft size={18} className="flex-shrink-0" />
-                <span>Collapse</span>
+                <ChevronLeft size={16} className="flex-shrink-0" />
+                <span className="text-xs">Ciutkan</span>
               </>
             )}
           </button>

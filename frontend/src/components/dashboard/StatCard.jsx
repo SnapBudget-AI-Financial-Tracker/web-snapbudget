@@ -1,178 +1,216 @@
-import useReducedMotion from '../../hooks/useReducedMotion';
-import useCountUp from '../../hooks/useCountUp';
+import useReducedMotion from "../../hooks/useReducedMotion";
+import useCountUp from "../../hooks/useCountUp";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 /**
  * Extracts the numeric part from a formatted value string.
- * e.g. "$1,234.56" → 1234.56, "Rp 5.000.000" → 5000000, "42" → 42
+ * e.g. "Rp 5.000.000" → 5000000, "42%" → 42
  * Returns null if no numeric content found.
  */
 function extractNumber(value) {
-  if (typeof value === 'number') return value;
-  if (typeof value !== 'string') return null;
-  
-  // Remove currency symbols and spaces
-  const cleaned = value.replace(/[^0-9.,]/g, '');
+  if (typeof value === "number") return value;
+  if (typeof value !== "string") return null;
+
+  const cleaned = value.replace(/[^0-9.,]/g, "");
   if (!cleaned) return null;
-  
-  // Count dots and commas to determine format
+
   const dotCount = (cleaned.match(/\./g) || []).length;
   const commaCount = (cleaned.match(/,/g) || []).length;
-  
+
   // Indonesian format: "5.000.000" (multiple dots as thousand separator)
-  if (dotCount > 1) {
-    return parseFloat(cleaned.replace(/\./g, ''));
-  }
-  
-  // Indonesian format with decimal: "5.000.000,50" (dots for thousands, comma for decimal)
-  if (dotCount >= 1 && commaCount === 1) {
-    return parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
-  }
-  
-  // English format with decimal: "5,000,000.50" (commas for thousands, dot for decimal)
-  if (commaCount >= 1 && dotCount === 1) {
-    return parseFloat(cleaned.replace(/,/g, ''));
-  }
-  
-  // Single separator - determine if it's decimal or thousand
+  if (dotCount > 1) return parseFloat(cleaned.replace(/\./g, ""));
+
+  // Indonesian format with decimal: "5.000.000,50"
+  if (dotCount >= 1 && commaCount === 1)
+    return parseFloat(cleaned.replace(/\./g, "").replace(",", "."));
+
+  // English format: "5,000,000.50"
+  if (commaCount >= 1 && dotCount === 1)
+    return parseFloat(cleaned.replace(/,/g, ""));
+
+  // Single dot — decimal or thousands?
   if (dotCount === 1 && commaCount === 0) {
-    // If followed by 1-2 digits, it's decimal
-    if (cleaned.match(/\.\d{1,2}$/)) {
-      return parseFloat(cleaned);
-    }
-    // Otherwise it's thousand separator (Indonesian)
-    return parseFloat(cleaned.replace(/\./g, ''));
+    if (cleaned.match(/\.\d{1,2}$/)) return parseFloat(cleaned);
+    return parseFloat(cleaned.replace(/\./g, ""));
   }
-  
+
+  // Single comma — decimal or thousands?
   if (commaCount === 1 && dotCount === 0) {
-    // If followed by 1-2 digits, it's decimal
-    if (cleaned.match(/,\d{1,2}$/)) {
-      return parseFloat(cleaned.replace(',', '.'));
-    }
-    // Otherwise it's thousand separator
-    return parseFloat(cleaned.replace(/,/g, ''));
+    if (cleaned.match(/,\d{1,2}$/))
+      return parseFloat(cleaned.replace(",", "."));
+    return parseFloat(cleaned.replace(/,/g, ""));
   }
-  
-  // No separators
+
   return parseFloat(cleaned);
 }
 
 /**
- * Reformats an animated count back to the original value's format.
- * Preserves prefix/suffix (currency symbols, etc.) from the original string.
+ * Re-applies the original string's prefix / suffix / thousands style
+ * to an animated numeric count.
  */
 function reformat(original, animatedCount) {
-  if (typeof original === 'number') return animatedCount;
-  if (typeof original !== 'string') return original;
+  if (typeof original === "number") return animatedCount;
+  if (typeof original !== "string") return original;
 
   const num = extractNumber(original);
   if (num === null) return original;
 
-  // Detect prefix: everything before the first digit
   const prefixMatch = original.match(/^([^0-9]*)/);
-  const prefix = prefixMatch ? prefixMatch[1] : '';
+  const prefix = prefixMatch ? prefixMatch[1] : "";
 
-  // Detect suffix: everything after the last digit
   const suffixMatch = original.match(/([^0-9]*)$/);
-  const suffix = suffixMatch ? suffixMatch[1] : '';
+  const suffix = suffixMatch ? suffixMatch[1] : "";
 
-  // Detect decimal places in original (but ignore if all zeros like ",000" or ",00")
   const decimalMatch = original.match(/[.,](\d+)(?:[^0-9]*)$/);
   let decimalPlaces = 0;
-  
   if (decimalMatch) {
-    const decimalPart = decimalMatch[1];
-    // Only preserve decimal if it's not all zeros
-    if (!/^0+$/.test(decimalPart)) {
-      decimalPlaces = decimalPart.length;
-    }
+    const dp = decimalMatch[1];
+    if (!/^0+$/.test(dp)) decimalPlaces = dp.length;
   }
 
-  // Format the animated number with same decimal places
   const formatted = animatedCount.toFixed(decimalPlaces);
-
-  // Re-apply thousand separators matching original style
-  const [intPart, decPart] = formatted.split('.');
-  const idStyle = original.match(/\d{1,3}(\.\d{3})+(,\d+)?/); // e.g. "1.234,56"
+  const [intPart, decPart] = formatted.split(".");
+  const idStyle = original.match(/\d{1,3}(\.\d{3})+(,\d+)?/);
   const intFormatted = idStyle
-    ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-    : intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+    : intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-  const decFormatted = decPart !== undefined && decPart !== '0'.repeat(decPart.length)
-    ? (idStyle ? ',' : '.') + decPart
-    : '';
+  const decFormatted =
+    decPart !== undefined && decPart !== "0".repeat(decPart.length)
+      ? (idStyle ? "," : ".") + decPart
+      : "";
 
   return prefix + intFormatted + decFormatted + suffix;
 }
 
 /**
- * StatCard — glassmorphism stat card for Dashboard
+ * Returns an inline-style gradient for the card based on the iconBg colour.
+ * Uses inline style to avoid Tailwind JIT purge issues with dynamic class names.
+ */
+function getCardGradient(iconBg) {
+  const palette = {
+    orange: "rgba(255, 237, 213, 0.55)",
+    amber: "rgba(254, 243, 199, 0.55)",
+    emerald: "rgba(209, 250, 229, 0.55)",
+    green: "rgba(220, 252, 231, 0.55)",
+    blue: "rgba(219, 234, 254, 0.55)",
+    sky: "rgba(224, 242, 254, 0.55)",
+    teal: "rgba(204, 251, 241, 0.55)",
+    rose: "rgba(255, 228, 230, 0.55)",
+    red: "rgba(254, 226, 226, 0.55)",
+    purple: "rgba(233, 213, 255, 0.55)",
+    pink: "rgba(253, 242, 248, 0.55)",
+    primary: "rgba(204, 251, 241, 0.55)",
+    zinc: "rgba(244, 244, 245, 0.55)",
+  };
+  const colorName = iconBg?.match(/bg-([a-z]+)-\d+/)?.[1] || "teal";
+  const color = palette[colorName] ?? palette.teal;
+  return {
+    background: `linear-gradient(140deg, ${color} 0%, rgba(255,255,255,1) 62%)`,
+  };
+}
+
+/**
+ * StatCard — premium fintech stat card for the Dashboard.
  *
  * Props:
- *   title       {string}      — label shown below the value
- *   value       {string|node} — formatted value to display
- *   subtitle    {string}      — optional subtitle below value
- *   icon        {ReactNode}   — icon element (e.g. from lucide-react)
- *   iconBg      {string}      — Tailwind bg class for icon container (e.g. "bg-emerald-50")
- *   iconColor   {string}      — Tailwind text class for icon (e.g. "text-emerald-600")
- *
- * Requirements: 3.4, 7.1, 7.2, 12.1, 12.2
+ *   title       {string}      — label text (shown above value)
+ *   value       {string|node} — formatted value, e.g. "Rp 3.000.000"
+ *   subtitle    {string}      — optional helper text below value
+ *   icon        {ReactNode}   — lucide-react icon element
+ *   iconBg      {string}      — Tailwind bg class for icon badge (e.g. "bg-orange-50")
+ *   iconColor   {string}      — Tailwind text class for icon (e.g. "text-orange-600")
+ *   trend       {string}      — optional: "up" | "down" — shows trend arrow badge
+ *   trendLabel  {string}      — optional: text shown next to trend arrow
  */
-export default function StatCard({ title, value, subtitle, icon, iconBg = 'bg-primary-50', iconColor = 'text-primary-600' }) {
+export default function StatCard({
+  title,
+  value,
+  subtitle,
+  icon,
+  iconBg = "bg-primary-50",
+  iconColor = "text-primary-600",
+  trend,
+  trendLabel,
+}) {
   const reducedMotion = useReducedMotion();
 
-  // Extract numeric target for animation; fall back to null for non-numeric values
   const numericTarget = extractNumber(value);
   const animatedCount = useCountUp(numericTarget ?? 0, 1200);
-
-  // Build the displayed value: animated number reformatted, or raw value if non-numeric
-  const displayValue = numericTarget !== null
-    ? reformat(value, animatedCount)
-    : value;
+  const displayValue =
+    numericTarget !== null ? reformat(value, animatedCount) : value;
 
   return (
     <div
       className={[
-        // Glassmorphism base — Requirement 7.1
-        'relative overflow-hidden',
-        'bg-white/80 backdrop-blur-sm',
-        'border border-white/60',
-        'rounded-[var(--radius-lg)]',
-        'p-6',
-        // Shadow — deeper than plain shadow-sm
-        'shadow-[var(--shadow-md)]',
-        // Hover shadow boost — always applied
-        'hover:shadow-[var(--shadow-xl)]',
-        // Hover lift — Requirement 3.4 (skip transform if reduced-motion)
+        "relative overflow-hidden",
+        "border border-teal-100/60",
+        "rounded-[var(--radius-xl)]",
+        "p-5",
+        "shadow-[var(--shadow-md)]",
+        "hover:shadow-[var(--shadow-xl)]",
         !reducedMotion
-          ? 'hover:-translate-y-0.5 transition-[transform,box-shadow] duration-200 ease-out'
-          : 'transition-[box-shadow] duration-200 ease-out',
-        'cursor-default',
-      ].join(' ')}
+          ? "hover:-translate-y-1 transition-all duration-200 ease-out"
+          : "transition-shadow duration-200 ease-out",
+        "cursor-default",
+      ].join(" ")}
+      style={getCardGradient(iconBg)}
     >
-      {/* Subtle inner gradient overlay for glass depth */}
+      {/* Glass-sheen inner overlay */}
       <div
-        className="absolute inset-0 rounded-[var(--radius-lg)] pointer-events-none"
+        className="absolute inset-0 pointer-events-none rounded-[var(--radius-xl)]"
         style={{
           background:
-            'linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 60%)',
+            "linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0) 55%)",
         }}
         aria-hidden="true"
       />
 
-      <div className="relative flex justify-between items-start mb-4">
-        <div className={`p-2 ${iconBg} rounded-[var(--radius-md)]`}>
+      {/* Decorative corner circle */}
+      <div
+        className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-[0.06] pointer-events-none"
+        style={{ background: "currentColor" }}
+        aria-hidden="true"
+      />
+
+      {/* ── Top row: icon badge + optional trend badge ── */}
+      <div className="relative flex items-start justify-between mb-4">
+        <div className={`p-2.5 ${iconBg} rounded-[var(--radius-md)] shadow-sm`}>
           <span className={iconColor}>{icon}</span>
         </div>
+
+        {trend && (
+          <div
+            className={[
+              "flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full",
+              trend === "up"
+                ? "bg-rose-50 text-rose-600"
+                : "bg-emerald-50 text-emerald-600",
+            ].join(" ")}
+          >
+            {trend === "up" ? (
+              <TrendingUp className="h-3 w-3" />
+            ) : (
+              <TrendingDown className="h-3 w-3" />
+            )}
+            {trendLabel}
+          </div>
+        )}
       </div>
 
-      <p className="relative text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+      {/* ── Label ── */}
+      <p className="relative text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 font-[var(--font-body)]">
         {title}
       </p>
-      <h3 className="relative text-2xl font-bold text-[var(--color-text-primary)] font-[var(--font-heading)]">
+
+      {/* ── Animated value ── */}
+      <h3 className="relative text-2xl font-bold text-zinc-900 leading-tight font-[var(--font-heading)]">
         {displayValue}
       </h3>
+
+      {/* ── Subtitle ── */}
       {subtitle && (
-        <p className="relative text-xs text-[var(--color-text-muted)] mt-1">
+        <p className="relative text-xs text-zinc-400 mt-2 font-[var(--font-body)]">
           {subtitle}
         </p>
       )}

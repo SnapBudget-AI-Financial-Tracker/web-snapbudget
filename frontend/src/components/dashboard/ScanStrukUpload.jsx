@@ -17,14 +17,14 @@ export default function ScanStrukUpload({ onSuccess }) {
     if (!selectedFile) return;
 
     // Validate file type
-    if (!selectedFile.type.startsWith('image/')) {
-      showToast('Hanya file gambar yang diperbolehkan', 'error');
+    if (!selectedFile.type.startsWith("image/")) {
+      showToast("Hanya file gambar yang diperbolehkan", "error");
       return;
     }
 
     // Validate file size (max 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
-      showToast('Ukuran file maksimal 5MB', 'error');
+      showToast("Ukuran file maksimal 5MB", "error");
       return;
     }
 
@@ -48,14 +48,14 @@ export default function ScanStrukUpload({ onSuccess }) {
       setScanResult(result);
       showToast(
         `Berhasil scan ${result.transaksi_disimpan} item dari struk`,
-        'success'
+        "success",
       );
       if (onSuccess) onSuccess(result);
     } catch (error) {
-      console.error('Scan error:', error);
+      console.error("Scan error:", error);
       showToast(
-        error.response?.data?.message || 'Gagal memproses struk',
-        'error'
+        error.response?.data?.message || "Gagal memproses struk",
+        "error",
       );
     } finally {
       setIsUploading(false);
@@ -67,13 +67,15 @@ export default function ScanStrukUpload({ onSuccess }) {
     setPreview(null);
     setScanResult(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const formatCurrency = (amount) => {
     const absAmount = Math.abs(Math.round(amount));
-    const formatted = absAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const formatted = absAmount
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return `Rp ${formatted}`;
   };
 

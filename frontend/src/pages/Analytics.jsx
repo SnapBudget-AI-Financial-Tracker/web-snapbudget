@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
+import AIPredictionCard from "../components/dashboard/AIPredictionCard";
 import transactionService from "../services/transactionService";
 import {
   BarChart,
@@ -13,7 +14,13 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Sparkles, TrendingUp, ArrowUp, ArrowDown, AlertCircle } from "lucide-react";
+import {
+  Sparkles,
+  TrendingUp,
+  ArrowUp,
+  ArrowDown,
+  AlertCircle,
+} from "lucide-react";
 import { getCategoryIcon } from "../utils/categoryIcons.js";
 import { FinancialStatusBadge } from "../utils/categoryIcons.jsx";
 import Skeleton from "../components/ui/Skeleton";
@@ -49,7 +56,10 @@ function BarTooltip({ active, payload, totalAmount }) {
     <div className="bg-white border border-zinc-200 rounded-xl shadow-lg px-4 py-3 text-sm">
       <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
       <p className="text-zinc-700">
-        Rp {Math.abs(Math.round(amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+        Rp{" "}
+        {Math.abs(Math.round(amount))
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
       </p>
       <p className="text-zinc-500">{pct}% dari total</p>
     </div>
@@ -65,7 +75,10 @@ function DonutTooltip({ active, payload, totalAmount }) {
     <div className="bg-white border border-zinc-200 rounded-xl shadow-lg px-4 py-3 text-sm">
       <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
       <p className="text-zinc-700">
-        Rp {Math.abs(Math.round(value)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+        Rp{" "}
+        {Math.abs(Math.round(value))
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
       </p>
       <p className="text-zinc-500">{pct}% dari total</p>
     </div>
@@ -111,7 +124,7 @@ export default function Analytics() {
 
   const formatIDR = (value) => {
     const absValue = Math.abs(Math.round(value));
-    const formatted = absValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const formatted = absValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return `Rp ${formatted}`;
   };
 
@@ -120,37 +133,44 @@ export default function Analytics() {
   const statusPerKategori = dashboardData?.status_per_kategori || {};
   const actualPerKategori = dashboardData?.actual_per_kategori || {};
   const userBudget = dashboardData?.user_budget || {};
-  
+
   // Only process if we have data
   if (!dashboardData) {
     return null; // Let loading state handle it
   }
-  
+
   // Calculate recommendation data
-  const totalActual = Object.values(actualPerKategori).reduce((sum, v) => sum + v, 0);
+  const totalActual = Object.values(actualPerKategori).reduce(
+    (sum, v) => sum + v,
+    0,
+  );
   const budgetBulanan = userBudget.budgetBulanan || 2000000;
   const sisaBudget = budgetBulanan - totalActual;
-  const projectedPct = budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;
-  
+  const projectedPct =
+    budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;
+
   // Determine recommendation label
   let rekomendasi = {
     label: "HEMAT",
-    pesan: "Pengeluaran sangat terkontrol! Pertahankan kebiasaan ini dan alokasikan sisa ke tabungan.",
+    pesan:
+      "Pengeluaran sangat terkontrol! Pertahankan kebiasaan ini dan alokasikan sisa ke tabungan.",
     saldo_rp: sisaBudget,
     proj_pct: projectedPct,
   };
-  
+
   if (projectedPct > 90) {
     rekomendasi = {
       label: "DARURAT",
-      pesan: "Pengeluaran sudah melebihi 90% budget! Segera kurangi pengeluaran tidak penting.",
+      pesan:
+        "Pengeluaran sudah melebihi 90% budget! Segera kurangi pengeluaran tidak penting.",
       saldo_rp: sisaBudget,
       proj_pct: projectedPct,
     };
   } else if (projectedPct > 70) {
     rekomendasi = {
       label: "WASPADA",
-      pesan: "Pengeluaran sudah 70% dari budget. Pertimbangkan untuk lebih hemat.",
+      pesan:
+        "Pengeluaran sudah 70% dari budget. Pertimbangkan untuk lebih hemat.",
       saldo_rp: sisaBudget,
       proj_pct: projectedPct,
     };
@@ -178,22 +198,31 @@ export default function Analytics() {
   }));
 
   const bannerGradient = getBannerGradient(rekomendasi.label);
-  
+
   // Transform status per kategori for display
-  const CATEGORIES = ['makanan', 'minuman', 'transportasi', 'belanja', 'tagihan', 'hiburan', 'kesehatan', 'lain_lain'];
+  const CATEGORIES = [
+    "makanan",
+    "minuman",
+    "transportasi",
+    "belanja",
+    "tagihan",
+    "hiburan",
+    "kesehatan",
+    "lain_lain",
+  ];
   const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
     const actual = actualPerKategori[key] || 0;
     const pred = prediksi7hari[key] || 0;
     const pct = pred > 0 ? ((actual / pred) * 100).toFixed(1) : 0;
-    
+
     let label = "HEMAT";
     if (pct > 90) label = "DARURAT";
     else if (pct > 70) label = "WASPADA";
-    
+
     // Get status from API or use calculated
     const apiStatus = statusPerKategori[key];
-    const finalLabel = typeof apiStatus === 'string' ? apiStatus : label;
-    
+    const finalLabel = typeof apiStatus === "string" ? apiStatus : label;
+
     acc[key] = {
       label: finalLabel,
       aktual_rp: actual,
@@ -269,41 +298,13 @@ export default function Analytics() {
               animation: "fadeIn 200ms ease-out both",
             }}
           >
-            {/* AI Recommendation Banner */}
-            <div
-              className={`bg-gradient-to-r ${bannerGradient} p-6 rounded-2xl shadow-md mb-8 flex items-start gap-4`}
-            >
-              <div className="mt-0.5 shrink-0">
-                <Sparkles className="text-white h-6 w-6" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-white">
-                    AI Status: {rekomendasi.label}
-                  </h3>
-                </div>
-                <p className="text-sm text-white/90 mb-4">
-                  {rekomendasi.pesan}
-                </p>
-                <div className="flex gap-6">
-                  <div className="flex flex-col">
-                    <span className="text-xs uppercase tracking-wider font-semibold text-white/60">
-                      Sisa Budget
-                    </span>
-                    <span className="font-semibold text-white">
-                      {formatIDR(rekomendasi.saldo_rp)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs uppercase tracking-wider font-semibold text-white/60">
-                      Terpakai
-                    </span>
-                    <span className="font-semibold text-white">
-                      {rekomendasi.proj_pct}%
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* AI Prediction Card — menggunakan data real dari API */}
+            <div className="mb-8">
+              <AIPredictionCard
+                prediksi={prediksi7hari}
+                rekomendasi={dashboardData.rekomendasi}
+                statusPerKategori={statusPerKategori}
+              />
             </div>
 
             {/* Summary Stats Cards */}
@@ -428,7 +429,8 @@ export default function Analytics() {
                     </div>
                   ) : (
                     <p className="text-sm text-zinc-400 text-center py-8">
-                      Belum ada data prediksi. Tambahkan transaksi untuk mendapatkan prediksi AI.
+                      Belum ada data prediksi. Tambahkan transaksi untuk
+                      mendapatkan prediksi AI.
                     </p>
                   )}
                 </div>
@@ -466,7 +468,9 @@ export default function Analytics() {
                             </Pie>
                             <Tooltip
                               content={
-                                <DonutTooltip totalAmount={totalPrediksi7Hari} />
+                                <DonutTooltip
+                                  totalAmount={totalPrediksi7Hari}
+                                />
                               }
                             />
                           </PieChart>
@@ -492,9 +496,7 @@ export default function Analytics() {
                                   className="w-3 h-3 rounded-full shrink-0"
                                   style={{
                                     backgroundColor:
-                                      DONUT_COLORS[
-                                        index % DONUT_COLORS.length
-                                      ],
+                                      DONUT_COLORS[index % DONUT_COLORS.length],
                                   }}
                                 />
                                 <span className="text-zinc-700 capitalize truncate">
@@ -535,8 +537,8 @@ export default function Analytics() {
                       status.label === "DARURAT"
                         ? "bg-rose-500"
                         : status.label === "WASPADA"
-                        ? "bg-amber-500"
-                        : "bg-emerald-500";
+                          ? "bg-amber-500"
+                          : "bg-emerald-500";
 
                     return (
                       <div
@@ -581,7 +583,7 @@ export default function Analytics() {
                         </div>
                       </div>
                     );
-                  }
+                  },
                 )}
               </div>
             </div>

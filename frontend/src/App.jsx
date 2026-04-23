@@ -51,9 +51,7 @@ function PageTransitionWrapper({ children }) {
     <div
       key={location.pathname}
       style={
-        reducedMotion
-          ? undefined
-          : { animation: "fadeIn 250ms ease both" }
+        reducedMotion ? undefined : { animation: "fadeIn 250ms ease both" }
       }
     >
       {children}

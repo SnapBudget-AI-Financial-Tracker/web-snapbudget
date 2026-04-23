@@ -3,11 +3,11 @@ import { Bell, Menu, User } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const PAGE_TITLES = {
-  "/dashboard":    "Dashboard",
-  "/analytics":   "Analytics",
-  "/transactions": "Transactions",
-  "/settings":    "Settings",
+const PAGE_META = {
+  "/dashboard": { title: "Dashboard", subtitle: "Overview keuangan Anda" },
+  "/analytics": { title: "Analytics", subtitle: "Analisis pengeluaran" },
+  "/transactions": { title: "Transaksi", subtitle: "Riwayat transaksi" },
+  "/settings": { title: "Pengaturan", subtitle: "Kelola akun Anda" },
 };
 
 function getInitials(name) {
@@ -20,6 +20,14 @@ function getInitials(name) {
     .toUpperCase();
 }
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour >= 4 && hour < 11) return "Selamat pagi";
+  if (hour >= 11 && hour < 15) return "Selamat siang";
+  if (hour >= 15 && hour < 18) return "Selamat sore";
+  return "Selamat malam";
+}
+
 export default function Header({ onMenuClick }) {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -27,8 +35,12 @@ export default function Header({ onMenuClick }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const title = PAGE_TITLES[location.pathname] ?? "SnapBudget";
+  const meta = PAGE_META[location.pathname] ?? {
+    title: "SnapBudget",
+    subtitle: "",
+  };
   const initials = getInitials(user?.name);
+  const firstName = user?.name?.split(" ")[0] || "Pengguna";
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -48,52 +60,65 @@ export default function Header({ onMenuClick }) {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-teal-100 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
-      {/* Left: hamburger + page title */}
-      <div className="flex items-center gap-4">
+    <header className="h-16 bg-white/90 backdrop-blur-md border-b border-teal-100/60 flex items-center justify-between px-4 md:px-6 sticky top-0 z-10 shadow-[var(--shadow-xs)]">
+      {/* ── Left: hamburger + page title ── */}
+      <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 -ml-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
-          aria-label="Open menu"
+          className="md:hidden p-2 -ml-1 text-teal-600 hover:bg-teal-50 rounded-xl transition-colors cursor-pointer"
+          aria-label="Buka menu"
         >
           <Menu size={20} />
         </button>
-        <h1
-          className="text-zinc-900"
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontWeight: 600,
-            fontSize: "18px",
-          }}
-        >
-          {title}
-        </h1>
+
+        <div>
+          <h1
+            className="text-teal-900 font-semibold text-[17px] leading-tight"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            {meta.title}
+          </h1>
+          {meta.subtitle && (
+            <p className="text-xs text-teal-400 hidden sm:block leading-tight mt-0.5">
+              {meta.subtitle}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Right: notification bell + avatar */}
-      <div className="flex items-center gap-3">
-        {/* Notification button */}
+      {/* ── Right: greeting + bell + avatar ── */}
+      <div className="flex items-center gap-1.5">
+        {/* Greeting — desktop only */}
+        <span className="hidden lg:block text-sm text-zinc-400 mr-2 select-none">
+          {getGreeting()},{" "}
+          <span className="font-medium text-teal-700">{firstName}</span>!
+        </span>
+
+        {/* Notification bell */}
         <button
-          aria-label="Notifications"
-          className="relative p-2 text-teal-500 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
+          aria-label="Notifikasi"
+          className="relative p-2 text-zinc-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-colors cursor-pointer"
         >
-          <Bell size={20} />
-          {/* Red badge dot */}
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />
+          <Bell size={19} />
+          {/* Red dot badge */}
+          <span
+            className="absolute top-[7px] right-[7px] w-2 h-2 bg-rose-500 rounded-full border-2 border-white"
+            aria-hidden="true"
+          />
         </button>
 
         {/* Avatar + dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative ml-1" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            aria-label="User menu"
+            aria-label="Menu pengguna"
             aria-expanded={dropdownOpen}
             aria-haspopup="true"
-            className="cursor-pointer focus:outline-none"
+            className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-1 rounded-full"
           >
             {/* Gradient ring */}
-            <div className="p-[2px] rounded-full bg-gradient-to-br from-teal-400 via-teal-500 to-teal-700">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center overflow-hidden">
+            <div className="p-[2px] rounded-full bg-gradient-to-br from-teal-400 to-teal-600">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center overflow-hidden">
                 {user?.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
@@ -102,7 +127,7 @@ export default function Header({ onMenuClick }) {
                   />
                 ) : (
                   <span
-                    className="text-white text-sm font-semibold select-none"
+                    className="text-white text-xs font-semibold select-none"
                     style={{ fontFamily: "var(--font-heading)" }}
                   >
                     {initials}
@@ -115,15 +140,20 @@ export default function Header({ onMenuClick }) {
           {/* Dropdown menu */}
           {dropdownOpen && (
             <div
-              className="absolute right-0 mt-2 w-44 bg-white border border-teal-100 rounded-xl shadow-[var(--shadow-lg)] animate-slideDown overflow-hidden z-50"
+              className="absolute right-0 mt-2 w-52 bg-white border border-teal-100 rounded-2xl shadow-[var(--shadow-xl)] animate-slideDown overflow-hidden z-50"
               role="menu"
             >
-              {/* User info */}
-              <div className="px-4 py-3 border-b border-teal-50">
-                <p className="text-sm font-semibold text-teal-900 truncate" style={{ fontFamily: "var(--font-heading)" }}>
-                  {user?.name ?? "User"}
+              {/* User info header */}
+              <div className="px-4 py-3 bg-gradient-to-br from-teal-50 to-white border-b border-teal-50">
+                <p
+                  className="text-sm font-semibold text-teal-900 truncate leading-tight"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
+                  {user?.name ?? "Pengguna"}
                 </p>
-                <p className="text-xs text-teal-500 truncate">{user?.email}</p>
+                <p className="text-xs text-teal-400 truncate mt-0.5">
+                  {user?.email}
+                </p>
               </div>
 
               {/* Profile link */}
@@ -131,36 +161,39 @@ export default function Header({ onMenuClick }) {
                 to="/settings"
                 role="menuitem"
                 onClick={() => setDropdownOpen(false)}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-teal-700 hover:bg-teal-50 transition-colors cursor-pointer"
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-teal-700 hover:bg-teal-50 transition-colors cursor-pointer"
               >
-                <User size={15} className="text-teal-400" />
-                Profile
+                <User size={14} className="text-teal-400" />
+                Profil &amp; Pengaturan
               </Link>
 
-              {/* Sign out */}
-              <button
-                role="menuitem"
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+              {/* Divider + sign-out */}
+              <div className="border-t border-teal-50">
+                <button
+                  role="menuitem"
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
                 >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                Sign Out
-              </button>
+                  {/* Inline logout SVG to avoid re-importing LogOut */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Keluar
+                </button>
+              </div>
             </div>
           )}
         </div>
