@@ -26,3 +26,7 @@ docker-compose.yml
 # agent skills
 .agent/
 .kiro/
+
+venv_ai/
+__pycache__/
+*.pyc
