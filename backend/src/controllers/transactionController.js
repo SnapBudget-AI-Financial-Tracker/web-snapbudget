@@ -73,7 +73,9 @@ export const scanStruk = async (req, res) => {
 export const getDashboard = async (req, res) => {
   try {
     const userId = req.user.id;
-    const now = new Date();
+
+    // now harus dideklarasikan DULU sebelum dipakai
+    const now   = new Date();
     const bulan = now.getMonth() + 1;
     const tahun = now.getFullYear();
 
@@ -90,14 +92,8 @@ export const getDashboard = async (req, res) => {
 
     // Hitung actual per kategori
     const CATEGORIES = [
-      'makanan',
-      'minuman',
-      'transportasi',
-      'belanja',
-      'tagihan',
-      'hiburan',
-      'kesehatan',
-      'lain_lain'
+      'makanan','minuman','transportasi','belanja',
+      'tagihan','hiburan','kesehatan','lain_lain'
     ];
 
     const actualHariIni = {};
@@ -115,49 +111,61 @@ export const getDashboard = async (req, res) => {
       where: { id: userId }
     });
 
+    const totalSpending  = Object.values(actualHariIni).reduce((s, v) => s + v, 0);
+    const budgetBulanan  = user.budgetBulanan || 2000000;
+    const sisaSaldo      = budgetBulanan - totalSpending;
+    const projectedPct   = budgetBulanan > 0
+      ? Math.round((totalSpending / budgetBulanan) * 1000) / 10
+      : 0;
+
+    // DEBUG — posisi yang benar (setelah semua variabel dideklarasikan)
+    console.log('=== DEBUG DASHBOARD ===')
+    console.log('day_of_month :', now.getDate())
+    console.log('total_aktual :', totalSpending)
+    console.log('actual_dict  :', actualHariIni)
+    console.log('saldo_sisa   :', sisaSaldo)
+    console.log('budget       :', budgetBulanan)
+
     // Ambil prediksi + rekomendasi dari AI
     const aiResult = await getPrediksi(actualHariIni, {
-      budget_bulanan: user.budgetBulanan || 2000000,
-      day_of_month: now.getDate(),
+      budget_bulanan: budgetBulanan,
+      day_of_month  : now.getDate(),
+      saldo_sisa    : sisaSaldo,      // ← TAMBAH INI
     });
 
-    // Calculate actual total spending
-    const totalSpending = Object.values(actualHariIni).reduce((sum, val) => sum + val, 0);
-    const sisaSaldo = user.budgetBulanan - totalSpending;
-    const projectedPct = user.budgetBulanan > 0 ? ((totalSpending / user.budgetBulanan) * 100) : 0;
-
-    // Override AI saldo_rp with correct calculation
+    // Override AI saldo_rp dengan kalkulasi yang benar
     if (aiResult.rekomendasi) {
-      aiResult.rekomendasi.label_upper = aiResult.rekomendasi.label?.toUpperCase() || 'AMAN';
-      aiResult.rekomendasi.days_remaining = new Date(tahun, bulan, 0).getDate() - now.getDate();
-      aiResult.rekomendasi.saldo_rp = sisaSaldo;
-      aiResult.rekomendasi.proj_overall_pct = Math.round(projectedPct * 10) / 10;
-      
-      // Recalculate est_saldo_7hari_rp
-      const totalPrediksi7Hari = Object.values(aiResult.prediksi_7hari || {}).reduce((sum, val) => sum + val, 0);
+      aiResult.rekomendasi.label_upper      = aiResult.rekomendasi.label?.toUpperCase() || 'AMAN';
+      aiResult.rekomendasi.days_remaining   = new Date(tahun, bulan, 0).getDate() - now.getDate();
+      aiResult.rekomendasi.saldo_rp         = sisaSaldo;
+      aiResult.rekomendasi.proj_overall_pct = projectedPct;
+
+      const totalPrediksi7Hari = Object.values(aiResult.prediksi_7hari || {})
+        .reduce((s, v) => s + v, 0);
       aiResult.rekomendasi.est_saldo_7hari_rp = sisaSaldo - totalPrediksi7Hari;
     }
 
     res.json({
-      transaksi_bulan_ini: transaksi,
-      actual_per_kategori: actualHariIni,
-      prediksi_7hari: aiResult.prediksi_7hari,
-      rekomendasi: aiResult.rekomendasi,
-      status_per_kategori: aiResult.status_per_kategori,
+      transaksi_bulan_ini : transaksi,
+      actual_per_kategori : actualHariIni,
+      prediksi_7hari      : aiResult.prediksi_7hari,
+      rekomendasi         : aiResult.rekomendasi,
+      status_per_kategori : aiResult.status_per_kategori,
       user_budget: {
-        budgetBulanan: user.budgetBulanan,
-        budgetMakanan: user.budgetMakanan,
-        budgetMinuman: user.budgetMinuman,
-        budgetTransportasi: user.budgetTransportasi,
-        budgetBelanja: user.budgetBelanja,
-        budgetTagihan: user.budgetTagihan,
-        budgetHiburan: user.budgetHiburan,
-        budgetKesehatan: user.budgetKesehatan,
-        budgetLainLain: user.budgetLainLain,
-        tanggalGajian: user.tanggalGajian,
-        targetTabungan: user.targetTabungan,
+        budgetBulanan      : user.budgetBulanan,
+        budgetMakanan      : user.budgetMakanan,
+        budgetMinuman      : user.budgetMinuman,
+        budgetTransportasi : user.budgetTransportasi,
+        budgetBelanja      : user.budgetBelanja,
+        budgetTagihan      : user.budgetTagihan,
+        budgetHiburan      : user.budgetHiburan,
+        budgetKesehatan    : user.budgetKesehatan,
+        budgetLainLain     : user.budgetLainLain,
+        tanggalGajian      : user.tanggalGajian,
+        targetTabungan     : user.targetTabungan,
       },
     });
+
   } catch (error) {
     console.error('Dashboard error:', error);
     res.status(500).json({ message: 'Gagal memuat dashboard' });

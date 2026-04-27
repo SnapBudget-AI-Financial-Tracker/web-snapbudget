@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useLocation } from "react-router-dom";
+import ChatbotWidget from "./ChatbotWidget";
 
 export default function DashboardLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,19 +32,20 @@ export default function DashboardLayout({ children }) {
     setIsSidebarOpen(false);
   }, [location.pathname]);
   return (
-    <div className="h-screen flex overflow-hidden" style={{ backgroundColor: "var(--color-bg-base)" }}>
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "var(--color-bg-base)" }}>
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuClick={() => setIsSidebarOpen(true)} title={title} />
         <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </main>
+      <ChatbotWidget />
     </div>
   );
 }

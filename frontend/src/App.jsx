@@ -15,6 +15,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import useReducedMotion from "./hooks/useReducedMotion";
+import Chatbot from "./pages/Chatbot";
 
 // Component to protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -127,6 +128,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chatbot"
+              element={
+                <ProtectedRoute>
+                  <Chatbot />
                 </ProtectedRoute>
               }
             />

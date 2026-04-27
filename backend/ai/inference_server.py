@@ -167,23 +167,24 @@ async def scan_struk(
 
 @app.post("/prediksi")
 async def prediksi(req: PrediksiRequest):
-    """
-    Prediksi + rekomendasi dari data DB (tanpa foto).
-    Dipanggil Express untuk hitung ulang dashboard.
-    """
-    if not MODELS:
-        raise HTTPException(503, "Model belum siap")
-
     day        = req.day_of_month or datetime.now().day
     saldo_sisa = req.saldo_sisa or max(
         0, req.budget_bulanan - sum(req.actual_hari_ini.values()) * day
     )
 
-    pred_7d       = run_head2(req.actual_hari_ini, MODELS, day)
+    # FIX: actual_hari_ini dalam Rupiah → konversi ke ribuan untuk Head 2
+    actual_hari_rb = {
+        cat: req.actual_hari_ini.get(cat, 0) / 1000
+        for cat in CATEGORIES
+    }
+
+    pred_7d       = run_head2(actual_hari_rb, MODELS, day)
     pred_7d_clean = {cat: pred_7d.get(cat, 0) for cat in CATEGORIES}
 
+    # FIX: actual_bulan_rb = total bulan ini dalam ribuan
+    # Bukan dikali day lagi karena sudah total bulan ini
     actual_bulan_rb = {
-        cat: (req.actual_hari_ini.get(cat, 0) * day) / 1000
+        cat: req.actual_hari_ini.get(cat, 0) / 1000
         for cat in CATEGORIES
     }
 

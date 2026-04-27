@@ -66,15 +66,15 @@ function BarTooltip({ active, payload, totalAmount }) {
   const { name, amount } = payload[0].payload;
   const pct = totalAmount > 0 ? ((amount / totalAmount) * 100).toFixed(1) : 0;
   return (
-    <div className="bg-white border border-teal-100 rounded-xl shadow-lg px-4 py-3 text-sm">
-      <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
-      <p className="text-teal-700 font-medium">
+    <div className="px-4 py-3 text-sm bg-white border border-teal-100 shadow-lg rounded-xl">
+      <p className="mb-1 font-semibold capitalize text-zinc-900">{name}</p>
+      <p className="font-medium text-teal-700">
         Rp{" "}
         {Math.abs(Math.round(amount))
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
       </p>
-      <p className="text-zinc-400 text-xs">{pct}% dari total</p>
+      <p className="text-xs text-zinc-400">{pct}% dari total</p>
     </div>
   );
 }
@@ -85,15 +85,15 @@ function DonutTooltip({ active, payload, totalAmount }) {
   const { name, value } = payload[0];
   const pct = totalAmount > 0 ? ((value / totalAmount) * 100).toFixed(1) : 0;
   return (
-    <div className="bg-white border border-teal-100 rounded-xl shadow-lg px-4 py-3 text-sm">
-      <p className="font-semibold text-zinc-900 capitalize mb-1">{name}</p>
-      <p className="text-teal-700 font-medium">
+    <div className="px-4 py-3 text-sm bg-white border border-teal-100 shadow-lg rounded-xl">
+      <p className="mb-1 font-semibold capitalize text-zinc-900">{name}</p>
+      <p className="font-medium text-teal-700">
         Rp{" "}
         {Math.abs(Math.round(value))
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
       </p>
-      <p className="text-zinc-400 text-xs">{pct}% dari total</p>
+      <p className="text-xs text-zinc-400">{pct}% dari total</p>
     </div>
   );
 }
@@ -158,11 +158,11 @@ function AnalyticsSummary({ totalActual, budgetBulanan, projectedPct, kategoriTe
 
   return (
     <div className={`rounded-xl ${style.bg} border ${style.border} px-4 py-3 mb-6 animate-fadeIn`}>
-      <div className="flex gap-3 items-start">
+      <div className="flex items-start gap-3">
         <div className={`w-8 h-8 rounded-lg ${style.accent} flex items-center justify-center flex-shrink-0 mt-0.5`}>
           <Lightbulb size={15} className="text-white" />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className={`text-sm font-semibold ${style.color}`}>Ringkasan Analytics</h3>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.accent} text-white uppercase tracking-wide`}>
@@ -296,33 +296,45 @@ export default function Analytics() {
     "lain_lain",
   ];
 
-  const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
-    const actual = actualPerKategori[key] || 0;
-    const pred = prediksi7hari[key] || 0;
-    const pct = pred > 0 ? ((actual / pred) * 100).toFixed(1) : 0;
-
-    let label = "HEMAT";
-    if (pct > 90) label = "DARURAT";
-    else if (pct > 70) label = "WASPADA";
-
+    const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
+    const actual   = actualPerKategori[key] || 0;
+    const pred     = prediksi7hari[key] || 0;
     const apiStatus = statusPerKategori[key];
-    const finalLabel = typeof apiStatus === "string" ? apiStatus : label;
+
+    // Gunakan budget per kategori kalau ada, fallback ke budget rata
+    const budgetPerKat = budgetBulanan / CATEGORIES.length;
+    const pct = budgetPerKat > 0
+        ? ((actual / budgetPerKat) * 100).toFixed(1)
+        : 0;
+
+    // Gunakan label dari API (sudah dihitung model AI)
+    // Fallback ke rule-based kalau API tidak ada
+    let finalLabel = "HEMAT";
+    if (typeof apiStatus === "object" && apiStatus?.label) {
+        finalLabel = apiStatus.label.toUpperCase();
+    } else if (typeof apiStatus === "string") {
+        finalLabel = apiStatus.toUpperCase();
+    } else {
+        if (parseFloat(pct) > 100) finalLabel = "DARURAT";
+        else if (parseFloat(pct) > 80) finalLabel = "WASPADA";
+        else finalLabel = "HEMAT";
+    }
 
     acc[key] = {
-      label: finalLabel,
-      aktual_rp: actual,
-      pred_rp: pred,
-      pct_used: parseFloat(pct),
+        label    : finalLabel,
+        aktual_rp: actual,
+        pred_rp  : pred,
+        pct_used : parseFloat(pct),
     };
     return acc;
-  }, {});
+}, {});
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-6 max-w-7xl mx-auto w-full overflow-x-hidden">
+      <div className="w-full p-4 mx-auto overflow-x-hidden md:p-6 max-w-7xl">
         {/* ══ Page Header ══════════════════════════════════════════════════════ */}
-        <div className="mb-6 flex items-center justify-between animate-fadeIn">
+        <div className="flex items-center justify-between mb-6 animate-fadeIn">
           <div>
             <h1
               style={{ fontFamily: "var(--font-heading)" }}
@@ -336,7 +348,7 @@ export default function Analytics() {
           </div>
           <button
             onClick={fetchAnalyticsData}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-teal-100 text-teal-700 hover:bg-teal-50 rounded-xl text-sm font-medium shadow-sm transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 transition-colors bg-white border border-teal-100 shadow-sm hover:bg-teal-50 rounded-xl"
           >
             <RefreshCw size={14} />
             <span className="hidden sm:inline">Refresh</span>
@@ -345,14 +357,14 @@ export default function Analytics() {
 
         {/* ══ Error state ══════════════════════════════════════════════════════ */}
         {error ? (
-          <div className="bg-white rounded-xl border border-rose-200 shadow-sm p-12 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-50">
-              <AlertCircle className="h-6 w-6 text-rose-500" />
+          <div className="p-12 text-center bg-white border shadow-sm rounded-xl border-rose-200">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-rose-50">
+              <AlertCircle className="w-6 h-6 text-rose-500" />
             </div>
-            <h3 className="text-base font-semibold text-zinc-900 mb-1">
+            <h3 className="mb-1 text-base font-semibold text-zinc-900">
               Gagal memuat data
             </h3>
-            <p className="text-sm text-zinc-500 mb-6">{error}</p>
+            <p className="mb-6 text-sm text-zinc-500">{error}</p>
             <Button
               variant="outline"
               className="w-auto px-4 py-2"
@@ -365,7 +377,7 @@ export default function Analytics() {
         isLoading ? (
           <>
             {/* Top section: AI card + 2×2 stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-2">
               <Skeleton variant="card" className="min-h-[280px]" />
               <div className="grid grid-cols-2 gap-4">
                 {[...Array(4)].map((_, i) => (
@@ -375,13 +387,13 @@ export default function Analytics() {
             </div>
 
             {/* Charts: 3/5 + 2/5 */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-5">
               <Skeleton variant="chart" className="lg:col-span-3 h-72" />
               <Skeleton variant="chart" className="lg:col-span-2 h-72" />
             </div>
 
             {/* Category 2×4 grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[...Array(8)].map((_, i) => (
                 <Skeleton key={i} variant="card" className="h-32" />
               ))}
@@ -391,7 +403,7 @@ export default function Analytics() {
           /* ══ Main content ════════════════════════════════════════════════════ */
           <div className="animate-fadeIn">
             {/* ── Section 1: AI Prediction Card + 2×2 Stat Grid ─────────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-2">
               {/* Left — AIPredictionCard */}
               <AIPredictionCard
                 prediksi={prediksi7hari}
@@ -465,11 +477,11 @@ export default function Analytics() {
             />
 
             {/* ── Section 2: Charts (3/5 + 2/5) ─────────────────────────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-5">
               {/* Bar Chart — Prediksi 7 Hari */}
               <div className="lg:col-span-3 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
                 <div className="flex items-center gap-2 mb-5">
-                  <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center justify-center flex-shrink-0 rounded-lg w-7 h-7 bg-teal-50">
                     <BarChart3 size={14} className="text-teal-600" />
                   </div>
                   <h2
@@ -541,7 +553,7 @@ export default function Analytics() {
               {/* Donut Chart — Proporsi per Kategori */}
               <div className="lg:col-span-2 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
                 <div className="flex items-center gap-2 mb-5">
-                  <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center justify-center flex-shrink-0 rounded-lg w-7 h-7 bg-teal-50">
                     <TrendingUp size={14} className="text-teal-600" />
                   </div>
                   <h2
@@ -609,11 +621,11 @@ export default function Analytics() {
                                     DONUT_COLORS[index % DONUT_COLORS.length],
                                 }}
                               />
-                              <span className="text-zinc-600 capitalize truncate">
+                              <span className="capitalize truncate text-zinc-600">
                                 {entry.name}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center flex-shrink-0 gap-2">
                               <span className="text-zinc-400">{pct}%</span>
                               <span className="font-semibold text-zinc-800">
                                 {formatIDR(entry.value)}
@@ -626,7 +638,7 @@ export default function Analytics() {
                   </div>
                 ) : (
                   <div className="h-[240px] flex items-center justify-center">
-                    <p className="text-sm text-zinc-400 text-center">
+                    <p className="text-sm text-center text-zinc-400">
                       Tidak ada data prediksi untuk ditampilkan.
                     </p>
                   </div>
@@ -643,12 +655,12 @@ export default function Analytics() {
                 >
                   Status per Kategori
                 </h2>
-                <span className="text-xs text-zinc-400 font-normal">
+                <span className="text-xs font-normal text-zinc-400">
                   ({CATEGORIES.length} kategori)
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {Object.entries(displayStatusPerKategori).map(
                   ([categoryName, status]) => {
                     const Icon = getCategoryIcon(categoryName);
@@ -678,13 +690,13 @@ export default function Analytics() {
                         </div>
 
                         {/* Category name */}
-                        <p className="text-sm font-semibold text-zinc-800 capitalize mb-1 truncate">
+                        <p className="mb-1 text-sm font-semibold capitalize truncate text-zinc-800">
                           {categoryName.replace(/_/g, " ")}
                         </p>
 
                         {/* Amount */}
                         <p
-                          className="text-base font-bold text-zinc-900 mb-2 truncate"
+                          className="mb-2 text-base font-bold truncate text-zinc-900"
                           style={{ fontFamily: "var(--font-heading)" }}
                         >
                           {formatIDR(status.aktual_rp)}
@@ -708,7 +720,7 @@ export default function Analytics() {
 
                         {/* Footer */}
                         <p className="text-xs text-zinc-400 mt-1.5">
-                          {status.pct_used}% dari prediksi
+                          {status.pct_used}% dari budget
                         </p>
                       </div>
                     );

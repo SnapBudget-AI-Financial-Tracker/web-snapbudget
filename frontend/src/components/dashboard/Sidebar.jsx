@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Wallet,
+  Bot,
 } from "lucide-react";
 import useReducedMotion from "../../hooks/useReducedMotion";
 
@@ -18,6 +19,7 @@ const navLinks = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/analytics", label: "Analytics", icon: BarChart2 },
   { path: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
+  { path: "/chatbot", label: "AI Chat", icon: Bot },
   { path: "/settings", label: "Pengaturan", icon: Settings },
 ];
 
