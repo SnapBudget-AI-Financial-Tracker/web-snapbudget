@@ -79,7 +79,7 @@ JWT_SECRET=your-secret-key-here
 JWT_EXPIRES_IN=7d
 
 # AI Service
-AI_SERVICE_URL=https://aprizal543i--snapbudget-ai-fastapi-app.modal.run
+AI_SERVICE_URL=http://ai-service:8000
 ```
 
 > **Generate JWT Secret:**
