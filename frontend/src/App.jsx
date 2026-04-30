@@ -16,7 +16,8 @@ import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import useReducedMotion from "./hooks/useReducedMotion";
 import Chatbot from "./pages/Chatbot";
-
+import SavingGoals from "./pages/SavingGoals";
+import Gamification from "./pages/Gamification";
 // Component to protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -139,6 +140,20 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/saving-goals"
+              element={
+                <ProtectedRoute>
+                  <SavingGoals />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/gamification" 
+            element={<ProtectedRoute>
+              <Gamification />
+              </ProtectedRoute>}
+               />
+               
           </Routes>
         </PageTransitionWrapper>
       </Router>

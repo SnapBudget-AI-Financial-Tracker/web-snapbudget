@@ -28,5 +28,3 @@ docker-compose.yml
 .kiro/
 
 venv_ai/
-__pycache__/
-*.pyc

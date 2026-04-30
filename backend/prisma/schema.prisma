@@ -33,6 +33,9 @@ model User {
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
   transactions          Transaction[]
+  savingGoals  SavingGoal[]
+  gameStats    UserGameStats?
+  badges       UserBadge[]
 }
 
 model Transaction {
@@ -46,4 +49,42 @@ model Transaction {
   user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model SavingGoal {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  nama          String
+  targetAmount  Float
+  currentAmount Float    @default(0)
+  deadline      DateTime
+  kategori      String   @default("umum")
+  icon          String   @default("🎯")
+  status        String   @default("aktif")  // aktif, tercapai, dibatalkan
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model UserGameStats {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  totalPoin       Int      @default(0)
+  streakHarian    Int      @default(0)
+  streakTerpanjang Int     @default(0)
+  lastActiveDate  DateTime?
+  level           Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model UserBadge {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  badgeId     String
+  earnedAt    DateTime @default(now())
+  
+  @@unique([userId, badgeId])
 }

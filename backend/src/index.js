@@ -5,6 +5,8 @@ import authRoutes from "./routes/authRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import chatbotRoutes from './routes/chatbotRoutes.js';
+import savingGoalRoutes from './routes/savingGoalRoutes.js';
+import gamificationRoutes from './routes/gamificationRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,8 +17,9 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/users", userRoutes);
+app.use('/api/saving-goals', savingGoalRoutes);
 app.use('/api/chatbot', chatbotRoutes);
-
+app.use('/api/gamification', gamificationRoutes);
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "snapbudget-backend" });

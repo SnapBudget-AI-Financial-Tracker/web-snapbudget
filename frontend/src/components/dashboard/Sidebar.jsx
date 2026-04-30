@@ -13,13 +13,18 @@ import {
   Wallet,
   Bot,
 } from "lucide-react";
-import useReducedMotion from "../../hooks/useReducedMotion";
+import { Trophy } from "lucide-react";
 
+
+import useReducedMotion from "../../hooks/useReducedMotion";
+import { PiggyBank } from "lucide-react";
 const navLinks = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/analytics", label: "Analytics", icon: BarChart2 },
   { path: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
   { path: "/chatbot", label: "AI Chat", icon: Bot },
+  { path: "/saving-goals", label: "Goals", icon: PiggyBank },
+  { path: "/gamification", label: "Gamifikasi", icon: Trophy },
   { path: "/settings", label: "Pengaturan", icon: Settings },
 ];
 
@@ -175,22 +180,22 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         {/* ══ Bottom: user card + sign-out + collapse ══ */}
-        <div className="border-t border-teal-700/40 p-3 space-y-1">
+        <div className="p-3 space-y-1 border-t border-teal-700/40">
           {/* User profile card */}
           {!collapsed && user && (
             <div className="flex items-center gap-2.5 px-3 py-2.5 mb-1 rounded-[var(--radius-md)] bg-teal-800/70 border border-teal-700/40">
               {/* Avatar */}
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                <span className="text-white text-xs font-bold">
+              <div className="flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full shadow-sm bg-gradient-to-br from-teal-400 to-teal-600">
+                <span className="text-xs font-bold text-white">
                   {getUserInitials(user)}
                 </span>
               </div>
 
-              <div className="min-w-0 flex-1">
+              <div className="flex-1 min-w-0">
                 {/* Name + PRO badge */}
                 <div className="flex items-center gap-1.5">
                   <p
-                    className="text-sm font-semibold text-white truncate leading-tight"
+                    className="text-sm font-semibold leading-tight text-white truncate"
                     style={{ fontFamily: "var(--font-heading)" }}
                   >
                     {user.name || user.username || "User"}
@@ -209,8 +214,8 @@ export default function Sidebar({ isOpen, onClose }) {
           {/* Collapsed avatar (no text) */}
           {collapsed && user && (
             <div className="flex justify-center mb-1">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-sm">
-                <span className="text-white text-xs font-bold">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full shadow-sm bg-gradient-to-br from-teal-400 to-teal-600">
+                <span className="text-xs font-bold text-white">
                   {getUserInitials(user)}
                 </span>
               </div>

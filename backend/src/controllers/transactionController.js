@@ -1,6 +1,10 @@
 import prisma from '../config/prisma.js';
 import { scanStruk as aiScanStruk, getPrediksi } from '../services/inferenceService.js';
-
+import {
+  updateStreak,
+  checkTransaksiBadges,
+  checkGoalBadges,
+} from '../services/gamificationService.js';
 /**
  * Scan struk via AI
  */
@@ -43,6 +47,9 @@ export const scanStruk = async (req, res) => {
     }));
 
     await prisma.transaction.createMany({ data: transaksiList });
+    // Update streak harian
+    await updateStreak(userId);
+    await checkTransaksiBadges(userId); 
 
     // Add missing fields for frontend compatibility
     if (aiResult.rekomendasi) {
@@ -194,6 +201,12 @@ export const createTransaction = async (req, res) => {
         userId,
       },
     });
+    // Update streak harian
+    await updateStreak(userId);
+    const newBadges = await checkTransaksiBadges(userId);
+
+    
+    
 
     res.status(201).json(transaction);
   } catch (error) {
@@ -219,6 +232,7 @@ export const getTransactions = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 /**
  * Get a single transaction by ID

@@ -86,3 +86,31 @@ const transactionService = {
 };
 
 export default transactionService;
+
+// ── Saving Goals ──────────────────────────────────────────────────
+const getSavingGoals = async () => {
+  const response = await api.get('/saving-goals');
+  return response.data;
+};
+
+const createSavingGoal = async (data) => {
+  const response = await api.post('/saving-goals', data);
+  return response.data;
+};
+
+const addToSavingGoal = async (id, amount) => {
+  const response = await api.post(`/saving-goals/${id}/add`, { amount });
+  return response.data;
+};
+
+const deleteSavingGoal = async (id) => {
+  const response = await api.delete(`/saving-goals/${id}`);
+  return response.data;
+};
+
+export const savingGoalService = {
+  getSavingGoals,
+  createSavingGoal,
+  addToSavingGoal,
+  deleteSavingGoal,
+};
