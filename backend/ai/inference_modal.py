@@ -68,7 +68,7 @@ MODEL_CACHE_DIR = "/cache/weights"
     gpu           = "T4",         # GPU T4 gratis
     memory        = 8192,                   # 8GB RAM
     timeout       = 300,                    # 5 menit timeout per request
-    scaledown_window = 300,           # sleep setelah 5 menit idle
+    scaledown_window = 60,            # sleep setelah 1 menit idle
     volumes       = {MODEL_CACHE_DIR: model_volume},
     secrets       = [modal.Secret.from_name("snapbudget-secrets")],
 
@@ -216,7 +216,12 @@ class SnapBudgetAI:
             0, budget_bulanan - sum(actual_hari_ini.values()) * day
         )
 
-        pred_7d       = run_head2(actual_hari_ini, self.models, day)
+        actual_hari_rb = {
+            cat: actual_hari_ini.get(cat, 0) / 1000
+            for cat in CATEGORIES
+        }
+
+        pred_7d       = run_head2(actual_hari_rb, self.models, day)
         pred_7d_clean = {cat: pred_7d.get(cat, 0) for cat in CATEGORIES}
 
         actual_bulan_rb = {
@@ -257,7 +262,7 @@ class SnapBudgetAI:
     gpu     = "T4",
     memory  = 8192,
     timeout = 300,
-    scaledown_window = 300,
+    scaledown_window = 60,
     volumes = {MODEL_CACHE_DIR: model_volume},
     secrets = [modal.Secret.from_name("snapbudget-secrets")],
     
@@ -398,7 +403,12 @@ def fastapi_app():
             0, req.budget_bulanan - sum(req.actual_hari_ini.values()) * day
         )
 
-        pred_7d       = run_head2(req.actual_hari_ini, MODELS, day)
+        actual_hari_rb = {
+            cat: req.actual_hari_ini.get(cat, 0) / 1000
+            for cat in CATEGORIES
+        }
+
+        pred_7d       = run_head2(actual_hari_rb, MODELS, day)
         pred_7d_clean = {cat: pred_7d.get(cat, 0) for cat in CATEGORIES}
 
         actual_bulan_rb = {

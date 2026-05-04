@@ -238,6 +238,8 @@ export default function Analytics() {
   const sisaBudget = budgetBulanan - totalActual;
   const projectedPct =
     budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;
+    // Cek apakah sudah ada transaksi
+  const hasPengeluaran = totalActual > 0;
 
   // ── Rule-based fallback recommendation ─────────────────────────────────────
   let rekomendasi = {
@@ -276,8 +278,10 @@ export default function Analytics() {
 
   const nonZeroEntries = prediksiEntries.filter(([, v]) => v > 0);
   const sortedEntries = [...nonZeroEntries].sort(([, a], [, b]) => b - a);
-  const kategoriTertinggi = sortedEntries[0] ?? null;
-  const kategoriTerendah = sortedEntries[sortedEntries.length - 1] ?? null;
+  const actualEntries = Object.entries(actualPerKategori).filter(([, v]) => v > 0);
+  const sortedActual  = [...actualEntries].sort(([, a], [, b]) => b - a);
+  const kategoriTertinggi = sortedActual[0] ?? null;
+  const kategoriTerendah  = sortedActual[sortedActual.length - 1] ?? null;
 
   const donutData = nonZeroEntries.map(([key, value]) => ({
     name: key.charAt(0).toUpperCase() + key.slice(1).replace("_", " "),
@@ -299,16 +303,27 @@ export default function Analytics() {
     const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
     const actual   = actualPerKategori[key] || 0;
     const pred     = prediksi7hari[key] || 0;
-    const apiStatus = statusPerKategori[key];
+    
 
     // Gunakan budget per kategori kalau ada, fallback ke budget rata
-    const budgetPerKat = budgetBulanan / CATEGORIES.length;
+    const BUDGET_MAP = {
+  makanan      : userBudget.budgetMakanan      || budgetBulanan * 0.35,
+  minuman      : userBudget.budgetMinuman      || budgetBulanan * 0.10,
+  transportasi : userBudget.budgetTransportasi || budgetBulanan * 0.15,
+  belanja      : userBudget.budgetBelanja      || budgetBulanan * 0.10,
+  tagihan      : userBudget.budgetTagihan      || budgetBulanan * 0.12,
+  hiburan      : userBudget.budgetHiburan      || budgetBulanan * 0.08,
+  kesehatan    : userBudget.budgetKesehatan    || budgetBulanan * 0.05,
+  lain_lain    : userBudget.budgetLainLain     || budgetBulanan * 0.05,
+};
+const budgetPerKat = BUDGET_MAP[key] || budgetBulanan / CATEGORIES.length;
     const pct = budgetPerKat > 0
         ? ((actual / budgetPerKat) * 100).toFixed(1)
         : 0;
 
     // Gunakan label dari API (sudah dihitung model AI)
     // Fallback ke rule-based kalau API tidak ada
+    const apiStatus  = statusPerKategori[key];
     let finalLabel = "HEMAT";
     if (typeof apiStatus === "object" && apiStatus?.label) {
         finalLabel = apiStatus.label.toUpperCase();
@@ -403,6 +418,7 @@ export default function Analytics() {
           /* ══ Main content ════════════════════════════════════════════════════ */
           <div className="animate-fadeIn">
             {/* ── Section 1: AI Prediction Card + 2×2 Stat Grid ─────────────── */}
+            
             <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-2">
               {/* Left — AIPredictionCard */}
               <AIPredictionCard
@@ -464,8 +480,9 @@ export default function Analytics() {
                 />
               </div>
             </div>
-
+            
             {/* ── Analytics Summary Note ──────────────────────────────────── */}
+            
             <AnalyticsSummary
               totalActual={totalActual}
               budgetBulanan={budgetBulanan}
@@ -475,8 +492,9 @@ export default function Analytics() {
               rekomendasi={dashboardData?.rekomendasi ?? rekomendasi}
               formatIDR={formatIDR}
             />
-
+          
             {/* ── Section 2: Charts (3/5 + 2/5) ─────────────────────────────── */}
+            {hasPengeluaran ? (
             <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-5">
               {/* Bar Chart — Prediksi 7 Hari */}
               <div className="lg:col-span-3 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
@@ -645,89 +663,98 @@ export default function Analytics() {
                 )}
               </div>
             </div>
-
-            {/* ── Section 3: Category Status Grid (2×4) ──────────────────────── */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <h2
-                  style={{ fontFamily: "var(--font-heading)" }}
-                  className="text-base font-semibold text-zinc-900"
-                >
-                  Status per Kategori
-                </h2>
-                <span className="text-xs font-normal text-zinc-400">
-                  ({CATEGORIES.length} kategori)
-                </span>
+            ) : (
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-10 text-center mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center mx-auto mb-4">
+              <BarChart3 size={24} className="text-teal-300" />
               </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {Object.entries(displayStatusPerKategori).map(
-                  ([categoryName, status]) => {
-                    const Icon = getCategoryIcon(categoryName);
-                    const catStyle =
-                      CATEGORY_STYLE[categoryName] ?? CATEGORY_STYLE.lain_lain;
-                    const clampedPct = Math.min(status.pct_used, 100);
-                    const progressColor =
-                      status.label === "DARURAT"
-                        ? "bg-rose-500"
-                        : status.label === "WASPADA"
-                          ? "bg-amber-500"
-                          : "bg-emerald-500";
-
-                    return (
-                      <div
-                        key={categoryName}
-                        className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] p-4 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 cursor-default"
-                      >
-                        {/* Top row: category icon + status badge */}
-                        <div className="flex items-start justify-between mb-3">
-                          <div
-                            className={`w-9 h-9 rounded-xl ${catStyle.bg} flex items-center justify-center flex-shrink-0`}
-                          >
-                            <Icon className={`h-4 w-4 ${catStyle.color}`} />
-                          </div>
-                          <FinancialStatusBadge status={status.label} />
-                        </div>
-
-                        {/* Category name */}
-                        <p className="mb-1 text-sm font-semibold capitalize truncate text-zinc-800">
-                          {categoryName.replace(/_/g, " ")}
-                        </p>
-
-                        {/* Amount */}
-                        <p
-                          className="mb-2 text-base font-bold truncate text-zinc-900"
-                          style={{ fontFamily: "var(--font-heading)" }}
-                        >
-                          {formatIDR(status.aktual_rp)}
-                        </p>
-
-                        {/* Progress bar */}
-                        <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${progressColor}`}
-                            style={{
-                              width: `${clampedPct}%`,
-                              transition: "width 0.8s ease-out",
-                            }}
-                            role="progressbar"
-                            aria-valuenow={status.pct_used}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            aria-label={`${categoryName} usage ${status.pct_used}%`}
-                          />
-                        </div>
-
-                        {/* Footer */}
-                        <p className="text-xs text-zinc-400 mt-1.5">
-                          {status.pct_used}% dari budget
-                        </p>
-                      </div>
-                    );
-                  },
-                )}
-              </div>
+              <h3 className="text-base font-bold text-zinc-900 mb-2">
+              Belum ada data prediksi
+              </h3>
+              <p className="text-sm text-zinc-500 max-w-xs mx-auto">
+             Tambahkan transaksi pertama untuk mendapatkan prediksi pengeluaran 7 hari ke depan dari AI.
+              </p>
             </div>
+          )}
+            {/* ── Section 3: Category Status Grid (2×4) ──────────────────────── */}
+            {hasPengeluaran && (
+  <div>
+    <div className="flex items-center gap-2 mb-4">
+      <h2
+        style={{ fontFamily: "var(--font-heading)" }}
+        className="text-base font-semibold text-zinc-900"
+      >
+        Status per Kategori
+      </h2>
+      <span className="text-xs font-normal text-zinc-400">
+        ({CATEGORIES.length} kategori)
+      </span>
+    </div>
+
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {Object.entries(displayStatusPerKategori).map(
+        ([categoryName, status]) => {
+          const Icon = getCategoryIcon(categoryName);
+          const catStyle =
+            CATEGORY_STYLE[categoryName] ?? CATEGORY_STYLE.lain_lain;
+          const clampedPct = Math.min(status.pct_used, 100);
+          const progressColor =
+            status.label === "DARURAT"
+              ? "bg-rose-500"
+              : status.label === "WASPADA"
+                ? "bg-amber-500"
+                : "bg-emerald-500";
+
+          return (
+            <div
+              key={categoryName}
+              className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] p-4 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 cursor-default"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div
+                  className={`w-9 h-9 rounded-xl ${catStyle.bg} flex items-center justify-center flex-shrink-0`}
+                >
+                  <Icon className={`h-4 w-4 ${catStyle.color}`} />
+                </div>
+                <FinancialStatusBadge status={status.label} />
+              </div>
+
+              <p className="mb-1 text-sm font-semibold capitalize truncate text-zinc-800">
+                {categoryName.replace(/_/g, " ")}
+              </p>
+
+              <p
+                className="mb-2 text-base font-bold truncate text-zinc-900"
+                style={{ fontFamily: "var(--font-heading)" }}
+              >
+                {formatIDR(status.aktual_rp)}
+              </p>
+
+              <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${progressColor}`}
+                  style={{
+                    width: `${clampedPct}%`,
+                    transition: "width 0.8s ease-out",
+                  }}
+                  role="progressbar"
+                  aria-valuenow={status.pct_used}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${categoryName} usage ${status.pct_used}%`}
+                />
+              </div>
+
+              <p className="text-xs text-zinc-400 mt-1.5">
+                {status.pct_used}% dari budget
+              </p>
+            </div>
+          );
+        },
+      )}
+    </div>
+  </div>
+)}
           </div>
         )}
       </div>

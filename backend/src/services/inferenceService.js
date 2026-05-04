@@ -49,8 +49,9 @@ export const getPrediksi = async (actualHariIni, context = {}) => {
       actual_hari_ini: actualHariIni,
       budget_bulanan: context.budget_bulanan || 2000000,
       day_of_month: context.day_of_month || new Date().getDate(),
+      saldo_sisa: context.saldo_sisa || 0,
     }, {
-      timeout: 30000, // 30 detik timeout untuk cold start
+      timeout: 120000, // 30 detik timeout untuk cold start
       headers: {
         'Content-Type': 'application/json',
       },

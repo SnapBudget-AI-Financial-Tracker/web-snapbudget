@@ -913,15 +913,24 @@ def run_head3(
     model_lbl_up     = LABELS_H3_UP[model_idx]
 
     # Rule-based anchor
+    pct_aktual = (sum(actual_dict_rb.values()) / sum(budget_dict_rb.values())) \
+                 if sum(budget_dict_rb.values()) > 0 else 0
+
+    # Tentukan rule_lbl dulu (selalu)
     if proj_overall < 0.50:   rule_lbl = "HEMAT"
     elif proj_overall < 0.85: rule_lbl = "AMAN"
     elif proj_overall < 1.05: rule_lbl = "WASPADA"
     elif proj_overall < 1.30: rule_lbl = "BOROS"
     else:                     rule_lbl = "DARURAT"
 
-    diff = abs(LABEL_RANK[rule_lbl] - LABEL_RANK[model_lbl_up])
-    overall_lbl_up = model_lbl_up if (model_conf >= 60 and diff <= 1) else rule_lbl
-
+    # Override untuk awal bulan — percaya model AI
+    if days_elapsed <= 7 and pct_aktual < 0.15:
+        overall_lbl_up = model_lbl_up
+    else:
+        diff           = abs(LABEL_RANK[rule_lbl] - LABEL_RANK[model_lbl_up])
+        overall_lbl_up = model_lbl_up if (model_conf >= 45 and diff <= 2) else rule_lbl
+    
+    
     # Label per kategori
     cat_results = {}
     for i, cat in enumerate(CATEGORIES):
