@@ -277,7 +277,6 @@ export default function Analytics() {
   const totalPrediksi7Hari = prediksiEntries.reduce((sum, [, v]) => sum + v, 0);
 
   const nonZeroEntries = prediksiEntries.filter(([, v]) => v > 0);
-  const sortedEntries = [...nonZeroEntries].sort(([, a], [, b]) => b - a);
   const actualEntries = Object.entries(actualPerKategori).filter(([, v]) => v > 0);
   const sortedActual  = [...actualEntries].sort(([, a], [, b]) => b - a);
   const kategoriTertinggi = sortedActual[0] ?? null;

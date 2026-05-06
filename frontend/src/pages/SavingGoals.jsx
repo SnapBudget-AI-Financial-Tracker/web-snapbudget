@@ -200,8 +200,6 @@ function CreateGoalModal({ onClose, onCreate }) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
-  const selectedKat = KATEGORI_OPTIONS.find(k => k.value === form.kategori);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -348,7 +346,24 @@ export default function SavingGoals() {
     }
   };
 
-  useEffect(() => { fetchGoals(); }, []);
+  useEffect(() => {
+    let mounted = true;
+    const loadGoals = async () => {
+      try {
+        if (!mounted) return;
+        setIsLoading(true);
+        setError(null);
+        const data = await savingGoalService.getSavingGoals();
+        if (mounted) setGoals(data);
+      } catch {
+        if (mounted) setError("Gagal memuat data goals.");
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    loadGoals();
+    return () => { mounted = false; };
+  }, []);
 
   const handleCreate = async (form) => {
     await savingGoalService.createSavingGoal(form);
@@ -370,7 +385,6 @@ export default function SavingGoals() {
   };
 
   // Stats
-  const totalTarget    = goals.reduce((s, g) => s + g.targetAmount, 0);
   const totalTerkumpul = goals.reduce((s, g) => s + g.currentAmount, 0);
   const goalTercapai   = goals.filter(g => g.status === "tercapai" || g.isTercapai).length;
   const goalAktif      = goals.filter(g => g.status === "aktif" && !g.isTercapai).length;

@@ -86,7 +86,7 @@ export default function ChatbotWidget() {
         ...prev,
         { role: "assistant", content: result.data.response },
       ]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [
         ...prev,
         {
