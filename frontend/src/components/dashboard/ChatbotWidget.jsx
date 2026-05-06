@@ -98,7 +98,7 @@ export default function ChatbotWidget() {
         ...prev,
         {
           role: "assistant",
-          content: "Maaf, terjadi kesalahan. Silakan coba lagi. 🙏",
+          content: "Maaf, terjadi kesalahan. Silakan coba lagi.",
         },
       ]);
     } finally {

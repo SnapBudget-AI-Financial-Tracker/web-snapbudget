@@ -22,14 +22,14 @@ const formatIDR = (val) =>
     .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
 
 const KATEGORI_OPTIONS = [
-  { value: "elektronik", label: "Elektronik", icon: "💻" },
-  { value: "kendaraan", label: "Kendaraan", icon: "🏍️" },
-  { value: "pendidikan", label: "Pendidikan", icon: "📚" },
-  { value: "liburan", label: "Liburan", icon: "✈️" },
-  { value: "darurat", label: "Dana Darurat", icon: "🛡️" },
-  { value: "fashion", label: "Fashion", icon: "👗" },
-  { value: "kesehatan", label: "Kesehatan", icon: "❤️" },
-  { value: "umum", label: "Umum", icon: "🎯" },
+  { value: "elektronik", label: "Elektronik", icon: "laptop" },
+  { value: "kendaraan", label: "Kendaraan", icon: "bike" },
+  { value: "pendidikan", label: "Pendidikan", icon: "book-open" },
+  { value: "liburan", label: "Liburan", icon: "plane" },
+  { value: "darurat", label: "Dana Darurat", icon: "shield" },
+  { value: "fashion", label: "Fashion", icon: "shirt" },
+  { value: "kesehatan", label: "Kesehatan", icon: "heart" },
+  { value: "umum", label: "Umum", icon: "target" },
 ];
 
 // ── Status Badge ──────────────────────────────────────────────────
@@ -235,7 +235,7 @@ function CreateGoalModal({ onClose, onCreate }) {
     currentAmount: "",
     deadline: "",
     kategori: "umum",
-    icon: "🎯",
+    icon: "target",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -248,7 +248,7 @@ function CreateGoalModal({ onClose, onCreate }) {
       setForm((prev) => ({
         ...prev,
         kategori: value,
-        icon: kat?.icon || "🎯",
+        icon: kat?.icon || "target",
       }));
     }
   };

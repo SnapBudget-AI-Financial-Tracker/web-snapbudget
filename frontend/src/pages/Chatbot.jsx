@@ -17,18 +17,24 @@ function ChatMessage({ message }) {
   const isBot = message.role === "assistant";
   return (
     <div className={`flex gap-3 ${isBot ? "" : "flex-row-reverse"}`}>
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5
-        ${isBot ? "bg-teal-500" : "bg-zinc-200"}`}>
-        {isBot
-          ? <Bot size={15} className="text-white" />
-          : <User size={15} className="text-zinc-600" />
-        }
+      <div
+        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5
+        ${isBot ? "bg-teal-500" : "bg-zinc-200"}`}
+      >
+        {isBot ? (
+          <Bot size={15} className="text-white" />
+        ) : (
+          <User size={15} className="text-zinc-600" />
+        )}
       </div>
-      <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
-        ${isBot
-          ? "bg-white border border-teal-100 text-zinc-800 rounded-tl-sm shadow-sm"
-          : "bg-teal-500 text-white rounded-tr-sm"
-        }`}>
+      <div
+        className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
+        ${
+          isBot
+            ? "bg-white border border-teal-100 text-zinc-800 rounded-tl-sm shadow-sm"
+            : "bg-teal-500 text-white rounded-tr-sm"
+        }`}
+      >
         {message.content}
       </div>
     </div>
@@ -36,16 +42,17 @@ function ChatMessage({ message }) {
 }
 
 export default function Chatbot() {
-  const [messages, setMessages]   = useState([
+  const [messages, setMessages] = useState([
     {
-      role   : "assistant",
-      content: "Halo! 👋 Saya asisten keuangan SnapBudget.\n\nSaya bisa membantu kamu:\n• 📊 Menganalisis pengeluaran per kategori\n• 💡 Memberikan tips hemat yang personal\n• 🔮 Menjelaskan prediksi pengeluaran AI\n• 💬 Menjawab pertanyaan seputar keuangan\n\nAda yang bisa saya bantu?",
+      role: "assistant",
+      content:
+        "Halo! 👋 Saya asisten keuangan SnapBudget.\n\nSaya bisa membantu kamu:\n• 📊 Menganalisis pengeluaran per kategori\n• 💡 Memberikan tips hemat yang personal\n• 🔮 Menjelaskan prediksi pengeluaran AI\n• 💬 Menjawab pertanyaan seputar keuangan\n\nAda yang bisa saya bantu?",
     },
   ]);
-  const [input, setInput]         = useState("");
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef            = useRef(null);
-  const inputRef                  = useRef(null);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,28 +67,31 @@ export default function Chatbot() {
     if (!messageText || isLoading) return;
 
     const userMessage = { role: "user", content: messageText };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
     try {
       const history = messages
-        .filter(m => m.role !== "system")
-        .map(m => ({ role: m.role, content: m.content }));
+        .filter((m) => m.role !== "system")
+        .map((m) => ({ role: m.role, content: m.content }));
 
       const result = await api.post("/chatbot/chat", {
-        message            : messageText,
+        message: messageText,
         conversationHistory: history,
       });
 
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         { role: "assistant", content: result.data.response },
       ]);
     } catch {
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Maaf, terjadi kesalahan. Silakan coba lagi. 🙏" },
+        {
+          role: "assistant",
+          content: "Maaf, terjadi kesalahan. Silakan coba lagi.",
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -96,16 +106,17 @@ export default function Chatbot() {
   };
 
   const clearChat = () => {
-    setMessages([{
-      role   : "assistant",
-      content: "Chat direset! 🔄 Ada yang bisa saya bantu?",
-    }]);
+    setMessages([
+      {
+        role: "assistant",
+        content: "Chat direset! 🔄 Ada yang bisa saya bantu?",
+      },
+    ]);
   };
 
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 max-w-4xl mx-auto w-full h-full flex flex-col">
-
         {/* Header */}
         <div className="flex items-center justify-between mb-6 animate-fadeIn">
           <div className="flex items-center gap-3">
@@ -113,11 +124,15 @@ export default function Chatbot() {
               <Sparkles size={20} className="text-white" />
             </div>
             <div>
-              <h1 style={{ fontFamily: "var(--font-heading)" }}
-                className="text-xl font-bold text-zinc-900">
+              <h1
+                style={{ fontFamily: "var(--font-heading)" }}
+                className="text-xl font-bold text-zinc-900"
+              >
                 SnapBudget AI
               </h1>
-              <p className="text-sm text-zinc-500">Asisten keuangan pribadi berbasis AI</p>
+              <p className="text-sm text-zinc-500">
+                Asisten keuangan pribadi berbasis AI
+              </p>
             </div>
           </div>
           <button
@@ -130,9 +145,10 @@ export default function Chatbot() {
         </div>
 
         {/* Chat Container */}
-        <div className="flex-1 flex flex-col bg-white rounded-2xl border border-teal-100 shadow-sm overflow-hidden"
-          style={{ minHeight: "calc(100vh - 220px)" }}>
-
+        <div
+          className="flex-1 flex flex-col bg-white rounded-2xl border border-teal-100 shadow-sm overflow-hidden"
+          style={{ minHeight: "calc(100vh - 220px)" }}
+        >
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-zinc-50">
             {messages.map((msg, i) => (
@@ -147,9 +163,18 @@ export default function Chatbot() {
                 </div>
                 <div className="bg-white border border-teal-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{animationDelay:"0ms"}}/>
-                    <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{animationDelay:"150ms"}}/>
-                    <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{animationDelay:"300ms"}}/>
+                    <div
+                      className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <div
+                      className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <div
+                      className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -165,8 +190,11 @@ export default function Chatbot() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {SUGGESTED_QUESTIONS.map((q, i) => (
-                  <button key={i} onClick={() => sendMessage(q)}
-                    className="text-xs px-3 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 hover:bg-teal-100 transition-colors">
+                  <button
+                    key={i}
+                    onClick={() => sendMessage(q)}
+                    className="text-xs px-3 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 hover:bg-teal-100 transition-colors"
+                  >
                     {q}
                   </button>
                 ))}
@@ -181,7 +209,7 @@ export default function Chatbot() {
                 <textarea
                   ref={inputRef}
                   value={input}
-                  onChange={e => setInput(e.target.value)}
+                  onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Tanya seputar keuangan kamu... (Enter untuk kirim)"
                   className="w-full bg-transparent text-sm text-zinc-800 placeholder:text-zinc-400 outline-none resize-none"
@@ -195,10 +223,11 @@ export default function Chatbot() {
                 disabled={!input.trim() || isLoading}
                 className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center hover:bg-teal-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
               >
-                {isLoading
-                  ? <Loader2 size={16} className="text-white animate-spin" />
-                  : <Send size={16} className="text-white" />
-                }
+                {isLoading ? (
+                  <Loader2 size={16} className="text-white animate-spin" />
+                ) : (
+                  <Send size={16} className="text-white" />
+                )}
               </button>
             </div>
             <p className="text-[10px] text-zinc-400 mt-1.5 text-center">
