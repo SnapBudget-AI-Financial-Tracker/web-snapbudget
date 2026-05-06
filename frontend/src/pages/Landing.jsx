@@ -7,17 +7,6 @@ import CTASection from "../components/landing/CTASection";
 import LandingFooter from "../components/landing/LandingFooter";
 import { useActiveSection } from "../hooks/useScrollAnimation";
 
-/**
- * Landing Page Component
- * Requirement 1: Public Landing Page
- *
- * Scroll-Triggered Storytelling landing page with:
- * - Hero Section with 3D scene
- * - Feature Section with interactive cards
- * - Social Proof Section with testimonials
- * - CTA Section
- * - Responsive design for all breakpoints
- */
 export default function Landing() {
   const sectionIds = ["hero", "features", "testimonials", "cta"];
   const activeSection = useActiveSection(sectionIds);

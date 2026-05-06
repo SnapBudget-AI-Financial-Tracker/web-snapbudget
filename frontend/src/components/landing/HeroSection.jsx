@@ -37,9 +37,9 @@ export default function HeroSection() {
                 <span className="block text-text-primary">Lebih Cerdas</span>
               </h1>
               <p className="text-lg sm:text-xl text-text-secondary max-w-xl">
-                SnapBudget menggunakan AI untuk membantu Anda melacak
-                pengeluaran, menganalisis pola keuangan, dan mencapai tujuan
-                tabungan dengan lebih cepat.
+                Cukup foto struk belanja, AI SnapBudget akan otomatis mencatat,
+                mengkategorikan, dan menganalisis pengeluaran Anda tanpa perlu
+                input manual yang merepotkan.
               </p>
             </div>
 

@@ -7,17 +7,6 @@ import {
   scrollToTop,
 } from "../../hooks/useScrollAnimation";
 
-/**
- * Landing Page Navbar Component
- * Requirements 1.3, 6.1, 6.2, 6.3, 6.4, 6.6, 9.4, 9.5
- *
- * Features:
- * - Glassmorphism effect after scroll
- * - Active section indicator
- * - Smooth scroll to sections
- * - Hamburger menu on mobile
- * - Scroll to top button
- */
 export default function LandingNavbar({ activeSection = "" }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isScrolled, showScrollToTop } = useNavbarScrollEffect(80);
@@ -49,9 +38,6 @@ export default function LandingNavbar({ activeSection = "" }) {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/landing" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
-              </div>
               <span className="font-heading font-bold text-xl text-text-primary">
                 SnapBudget
               </span>
@@ -151,10 +137,10 @@ export default function LandingNavbar({ activeSection = "" }) {
       {showScrollToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 p-3 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-all hover:scale-110 animate-fadeIn"
+          className="fixed bottom-8 right-8 z-50 p-3 bg-success-600 rounded-full shadow-lg hover:bg-success-700 transition-all hover:scale-110 animate-fadeIn"
           aria-label="Kembali ke atas"
         >
-          <ChevronUp size={24} />
+          <ChevronUp size={24} className="text-success-50" />
         </button>
       )}
     </>

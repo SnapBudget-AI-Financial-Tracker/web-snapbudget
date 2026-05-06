@@ -9,17 +9,6 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 
-/**
- * Feature Section Component
- * Requirement 4: Feature Section with Interactive 3D Animations
- *
- * Features:
- * - 4 main features with SVG icons from Lucide React
- * - 3D tilt effect on hover
- * - Expandable feature details on click
- * - Scroll-triggered animations
- */
-
 const features = [
   {
     id: "scan",
