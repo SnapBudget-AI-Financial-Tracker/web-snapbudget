@@ -18,6 +18,7 @@ import useReducedMotion from "./hooks/useReducedMotion";
 import Chatbot from "./pages/Chatbot";
 import SavingGoals from "./pages/SavingGoals";
 import Gamification from "./pages/Gamification";
+import Landing from "./pages/Landing";
 // Component to protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -31,13 +32,13 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Component to redirect authenticated users away from public pages
-const PublicRoute = ({ children }) => {
+// Component to redirect authenticated users away from public pages (except landing)
+const PublicRoute = ({ children, allowAuthenticated = false }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) return null;
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !allowAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -148,12 +149,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/gamification" 
-            element={<ProtectedRoute>
-              <Gamification />
-              </ProtectedRoute>}
-               />
-               
+            <Route
+              path="/gamification"
+              element={
+                <ProtectedRoute>
+                  <Gamification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/landing"
+              element={
+                <PublicRoute allowAuthenticated={true}>
+                  <Landing />
+                </PublicRoute>
+              }
+            />
           </Routes>
         </PageTransitionWrapper>
       </Router>
