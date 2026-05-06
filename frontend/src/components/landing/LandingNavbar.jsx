@@ -88,7 +88,7 @@ export default function LandingNavbar({ activeSection = "" }) {
               </Link>
               <Link
                 to="/register"
-                className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-semibold rounded-full hover:shadow-primary transition-all hover:scale-105"
+                className="px-6 py-2.5 border-2 border-success-600 text-success-600 text-sm font-semibold rounded-full hover:bg-success-50 transition-colors"
               >
                 Daftar Gratis
               </Link>
@@ -137,7 +137,7 @@ export default function LandingNavbar({ activeSection = "" }) {
               </Link>
               <Link
                 to="/register"
-                className="w-full px-6 py-3 text-center bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold rounded-full hover:shadow-primary transition-all"
+                className="w-full px-6 py-3 text-center border-2 border-success-600 text-success-600 font-semibold rounded-full hover:bg-success-50 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Daftar Gratis
