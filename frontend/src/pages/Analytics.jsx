@@ -130,26 +130,59 @@ function StatCard({ icon, iconBg, iconColor, label, value, sub }) {
 
 // ─── Analytics Summary Note ────────────────────────────────────────────────────
 
-function AnalyticsSummary({ totalActual, budgetBulanan, projectedPct, kategoriTertinggi, kategoriTerendah, rekomendasi, formatIDR }) {
+function AnalyticsSummary({
+  totalActual,
+  budgetBulanan,
+  projectedPct,
+  kategoriTertinggi,
+  kategoriTerendah,
+  rekomendasi,
+  formatIDR,
+}) {
   // Build dynamic summary sentences
   const statusLabel = rekomendasi?.label || "HEMAT";
   const statusMap = {
-    HEMAT: { color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", accent: "bg-emerald-500" },
-    WASPADA: { color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", accent: "bg-amber-500" },
-    DARURAT: { color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-200", accent: "bg-rose-500" },
+    HEMAT: {
+      color: "text-emerald-700",
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+      accent: "bg-emerald-500",
+    },
+    WASPADA: {
+      color: "text-amber-700",
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      accent: "bg-amber-500",
+    },
+    DARURAT: {
+      color: "text-rose-700",
+      bg: "bg-rose-50",
+      border: "border-rose-200",
+      accent: "bg-rose-500",
+    },
   };
   const style = statusMap[statusLabel] || statusMap.HEMAT;
 
-  const topCatName = kategoriTertinggi ? kategoriTertinggi[0].replace(/_/g, " ") : null;
-  const lowCatName = kategoriTerendah ? kategoriTerendah[0].replace(/_/g, " ") : null;
+  const topCatName = kategoriTertinggi
+    ? kategoriTertinggi[0].replace(/_/g, " ")
+    : null;
+  const lowCatName = kategoriTerendah
+    ? kategoriTerendah[0].replace(/_/g, " ")
+    : null;
 
   const summaryLines = [];
   summaryLines.push(
-    `Bulan ini total pengeluaran aktual kamu ${formatIDR(totalActual)} (${projectedPct}% dari budget ${formatIDR(budgetBulanan)}).`
+    `Bulan ini total pengeluaran aktual kamu ${formatIDR(
+      totalActual
+    )} (${projectedPct}% dari budget ${formatIDR(budgetBulanan)}).`
   );
   if (topCatName) {
     summaryLines.push(
-      `Kategori tertinggi: ${topCatName} (${formatIDR(kategoriTertinggi[1])})${lowCatName && lowCatName !== topCatName ? `, terendah: ${lowCatName} (${formatIDR(kategoriTerendah[1])})` : ""}.`
+      `Kategori tertinggi: ${topCatName} (${formatIDR(kategoriTertinggi[1])})${
+        lowCatName && lowCatName !== topCatName
+          ? `, terendah: ${lowCatName} (${formatIDR(kategoriTerendah[1])})`
+          : ""
+      }.`
     );
   }
   if (rekomendasi?.pesan) {
@@ -157,15 +190,23 @@ function AnalyticsSummary({ totalActual, budgetBulanan, projectedPct, kategoriTe
   }
 
   return (
-    <div className={`rounded-xl ${style.bg} border ${style.border} px-4 py-3 mb-6 animate-fadeIn`}>
+    <div
+      className={`rounded-xl ${style.bg} border ${style.border} px-4 py-3 mb-6 animate-fadeIn`}
+    >
       <div className="flex items-start gap-3">
-        <div className={`w-8 h-8 rounded-lg ${style.accent} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+        <div
+          className={`w-8 h-8 rounded-lg ${style.accent} flex items-center justify-center flex-shrink-0 mt-0.5`}
+        >
           <Lightbulb size={15} className="text-white" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className={`text-sm font-semibold ${style.color}`}>Ringkasan Analytics</h3>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.accent} text-white uppercase tracking-wide`}>
+            <h3 className={`text-sm font-semibold ${style.color}`}>
+              Ringkasan Analytics
+            </h3>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.accent} text-white uppercase tracking-wide`}
+            >
               {statusLabel}
             </span>
           </div>
@@ -232,13 +273,13 @@ export default function Analytics() {
   // ── Computed aggregates ─────────────────────────────────────────────────────
   const totalActual = Object.values(actualPerKategori).reduce(
     (sum, v) => sum + v,
-    0,
+    0
   );
   const budgetBulanan = userBudget.budgetBulanan || 2000000;
   const sisaBudget = budgetBulanan - totalActual;
   const projectedPct =
     budgetBulanan > 0 ? ((totalActual / budgetBulanan) * 100).toFixed(1) : 0;
-    // Cek apakah sudah ada transaksi
+  // Cek apakah sudah ada transaksi
   const hasPengeluaran = totalActual > 0;
 
   // ── Rule-based fallback recommendation ─────────────────────────────────────
@@ -277,10 +318,12 @@ export default function Analytics() {
   const totalPrediksi7Hari = prediksiEntries.reduce((sum, [, v]) => sum + v, 0);
 
   const nonZeroEntries = prediksiEntries.filter(([, v]) => v > 0);
-  const actualEntries = Object.entries(actualPerKategori).filter(([, v]) => v > 0);
-  const sortedActual  = [...actualEntries].sort(([, a], [, b]) => b - a);
+  const actualEntries = Object.entries(actualPerKategori).filter(
+    ([, v]) => v > 0
+  );
+  const sortedActual = [...actualEntries].sort(([, a], [, b]) => b - a);
   const kategoriTertinggi = sortedActual[0] ?? null;
-  const kategoriTerendah  = sortedActual[sortedActual.length - 1] ?? null;
+  const kategoriTerendah = sortedActual[sortedActual.length - 1] ?? null;
 
   const donutData = nonZeroEntries.map(([key, value]) => ({
     name: key.charAt(0).toUpperCase() + key.slice(1).replace("_", " "),
@@ -299,49 +342,47 @@ export default function Analytics() {
     "lain_lain",
   ];
 
-    const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
-    const actual   = actualPerKategori[key] || 0;
-    const pred     = prediksi7hari[key] || 0;
-    
+  const displayStatusPerKategori = CATEGORIES.reduce((acc, key) => {
+    const actual = actualPerKategori[key] || 0;
+    const pred = prediksi7hari[key] || 0;
 
     // Gunakan budget per kategori kalau ada, fallback ke budget rata
     const BUDGET_MAP = {
-  makanan      : userBudget.budgetMakanan      || budgetBulanan * 0.35,
-  minuman      : userBudget.budgetMinuman      || budgetBulanan * 0.10,
-  transportasi : userBudget.budgetTransportasi || budgetBulanan * 0.15,
-  belanja      : userBudget.budgetBelanja      || budgetBulanan * 0.10,
-  tagihan      : userBudget.budgetTagihan      || budgetBulanan * 0.12,
-  hiburan      : userBudget.budgetHiburan      || budgetBulanan * 0.08,
-  kesehatan    : userBudget.budgetKesehatan    || budgetBulanan * 0.05,
-  lain_lain    : userBudget.budgetLainLain     || budgetBulanan * 0.05,
-};
-const budgetPerKat = BUDGET_MAP[key] || budgetBulanan / CATEGORIES.length;
-    const pct = budgetPerKat > 0
-        ? ((actual / budgetPerKat) * 100).toFixed(1)
-        : 0;
+      makanan: userBudget.budgetMakanan || budgetBulanan * 0.35,
+      minuman: userBudget.budgetMinuman || budgetBulanan * 0.1,
+      transportasi: userBudget.budgetTransportasi || budgetBulanan * 0.15,
+      belanja: userBudget.budgetBelanja || budgetBulanan * 0.1,
+      tagihan: userBudget.budgetTagihan || budgetBulanan * 0.12,
+      hiburan: userBudget.budgetHiburan || budgetBulanan * 0.08,
+      kesehatan: userBudget.budgetKesehatan || budgetBulanan * 0.05,
+      lain_lain: userBudget.budgetLainLain || budgetBulanan * 0.05,
+    };
+    const budgetPerKat = BUDGET_MAP[key] || budgetBulanan / CATEGORIES.length;
+    const pct =
+      budgetPerKat > 0 ? ((actual / budgetPerKat) * 100).toFixed(1) : 0;
 
     // Gunakan label dari API (sudah dihitung model AI)
     // Fallback ke rule-based kalau API tidak ada
-    const apiStatus  = statusPerKategori[key];
+    const apiStatus = statusPerKategori[key];
     let finalLabel = "HEMAT";
     if (typeof apiStatus === "object" && apiStatus?.label) {
-        finalLabel = apiStatus.label.toUpperCase();
+      finalLabel = apiStatus.label.toUpperCase();
     } else if (typeof apiStatus === "string") {
-        finalLabel = apiStatus.toUpperCase();
+      finalLabel = apiStatus.toUpperCase();
     } else {
-        if (parseFloat(pct) > 100) finalLabel = "DARURAT";
-        else if (parseFloat(pct) > 80) finalLabel = "WASPADA";
-        else finalLabel = "HEMAT";
+      if (parseFloat(pct) > 100) finalLabel = "DARURAT";
+      else if (parseFloat(pct) > 80) finalLabel = "WASPADA";
+      else finalLabel = "HEMAT";
     }
 
     acc[key] = {
-        label    : finalLabel,
-        aktual_rp: actual,
-        pred_rp  : pred,
-        pct_used : parseFloat(pct),
+      label: finalLabel,
+      aktual_rp: actual,
+      pred_rp: pred,
+      pct_used: parseFloat(pct),
     };
     return acc;
-}, {});
+  }, {});
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -417,7 +458,7 @@ const budgetPerKat = BUDGET_MAP[key] || budgetBulanan / CATEGORIES.length;
           /* ══ Main content ════════════════════════════════════════════════════ */
           <div className="animate-fadeIn">
             {/* ── Section 1: AI Prediction Card + 2×2 Stat Grid ─────────────── */}
-            
+
             <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-2">
               {/* Left — AIPredictionCard */}
               <AIPredictionCard
@@ -479,9 +520,9 @@ const budgetPerKat = BUDGET_MAP[key] || budgetBulanan / CATEGORIES.length;
                 />
               </div>
             </div>
-            
+
             {/* ── Analytics Summary Note ──────────────────────────────────── */}
-            
+
             <AnalyticsSummary
               totalActual={totalActual}
               budgetBulanan={budgetBulanan}
@@ -491,269 +532,275 @@ const budgetPerKat = BUDGET_MAP[key] || budgetBulanan / CATEGORIES.length;
               rekomendasi={dashboardData?.rekomendasi ?? rekomendasi}
               formatIDR={formatIDR}
             />
-          
+
             {/* ── Section 2: Charts (3/5 + 2/5) ─────────────────────────────── */}
             {hasPengeluaran ? (
-            <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-5">
-              {/* Bar Chart — Prediksi 7 Hari */}
-              <div className="lg:col-span-3 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="flex items-center justify-center flex-shrink-0 rounded-lg w-7 h-7 bg-teal-50">
-                    <BarChart3 size={14} className="text-teal-600" />
+              <div className="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-5">
+                {/* Bar Chart — Prediksi 7 Hari */}
+                <div className="lg:col-span-3 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="flex items-center justify-center flex-shrink-0 rounded-lg w-7 h-7 bg-teal-50">
+                      <BarChart3 size={14} className="text-teal-600" />
+                    </div>
+                    <h2
+                      style={{ fontFamily: "var(--font-heading)" }}
+                      className="text-base font-semibold text-zinc-900"
+                    >
+                      Prediksi Pengeluaran 7 Hari
+                    </h2>
                   </div>
-                  <h2
-                    style={{ fontFamily: "var(--font-heading)" }}
-                    className="text-base font-semibold text-zinc-900"
-                  >
-                    Prediksi Pengeluaran 7 Hari
-                  </h2>
-                </div>
 
-                {chartData.length > 0 ? (
-                  <div className="h-[260px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={chartData}
-                        margin={{ top: 10, right: 10, left: 20, bottom: 20 }}
-                      >
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          vertical={false}
-                          stroke="#f0fdfa"
-                        />
-                        <XAxis
-                          dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: "#7aada8", fontSize: 12 }}
-                          dy={10}
-                        />
-                        <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: "#7aada8", fontSize: 12 }}
-                          tickFormatter={(value) =>
-                            new Intl.NumberFormat("id-ID", {
-                              notation: "compact",
-                              compactDisplay: "short",
-                            }).format(value)
-                          }
-                        />
-                        <Tooltip
-                          cursor={{ fill: "#f0fdfa" }}
-                          content={
-                            <BarTooltip totalAmount={totalPrediksi7Hari} />
-                          }
-                        />
-                        <Bar
-                          dataKey="amount"
-                          fill="#14b8a6"
-                          radius={[8, 8, 0, 0]}
-                          barSize={36}
-                          isAnimationActive={true}
-                          animationDuration={800}
-                          animationEasing="ease-out"
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-[260px] flex items-center justify-center">
-                    <p className="text-sm text-zinc-400 text-center max-w-[240px]">
-                      Belum ada data prediksi. Tambahkan transaksi untuk
-                      mendapatkan prediksi AI.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Donut Chart — Proporsi per Kategori */}
-              <div className="lg:col-span-2 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="flex items-center justify-center flex-shrink-0 rounded-lg w-7 h-7 bg-teal-50">
-                    <TrendingUp size={14} className="text-teal-600" />
-                  </div>
-                  <h2
-                    style={{ fontFamily: "var(--font-heading)" }}
-                    className="text-base font-semibold text-zinc-900"
-                  >
-                    Proporsi per Kategori
-                  </h2>
-                </div>
-
-                {donutData.length > 0 ? (
-                  <div className="flex flex-col items-center gap-4">
-                    {/* Donut ring */}
-                    <div className="h-[160px] w-full">
+                  {chartData.length > 0 ? (
+                    <div className="h-[260px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={donutData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={75}
-                            paddingAngle={3}
-                            dataKey="value"
+                        <BarChart
+                          data={chartData}
+                          margin={{ top: 10, right: 10, left: 20, bottom: 20 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#f0fdfa"
+                          />
+                          <XAxis
+                            dataKey="name"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#7aada8", fontSize: 12 }}
+                            dy={10}
+                          />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#7aada8", fontSize: 12 }}
+                            tickFormatter={(value) =>
+                              new Intl.NumberFormat("id-ID", {
+                                notation: "compact",
+                                compactDisplay: "short",
+                              }).format(value)
+                            }
+                          />
+                          <Tooltip
+                            cursor={{ fill: "#f0fdfa" }}
+                            content={
+                              <BarTooltip totalAmount={totalPrediksi7Hari} />
+                            }
+                          />
+                          <Bar
+                            dataKey="amount"
+                            fill="#14b8a6"
+                            radius={[8, 8, 0, 0]}
+                            barSize={36}
                             isAnimationActive={true}
                             animationDuration={800}
                             animationEasing="ease-out"
-                          >
-                            {donutData.map((entry, index) => (
-                              <Cell
-                                key={`cell-${index}`}
-                                fill={DONUT_COLORS[index % DONUT_COLORS.length]}
-                              />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            content={
-                              <DonutTooltip totalAmount={totalPrediksi7Hari} />
-                            }
                           />
-                        </PieChart>
+                        </BarChart>
                       </ResponsiveContainer>
                     </div>
+                  ) : (
+                    <div className="h-[260px] flex items-center justify-center">
+                      <p className="text-sm text-zinc-400 text-center max-w-[240px]">
+                        Belum ada data prediksi. Tambahkan transaksi untuk
+                        mendapatkan prediksi AI.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                    {/* Compact legend */}
-                    <ul className="w-full space-y-1.5">
-                      {donutData.map((entry, index) => {
-                        const pct =
-                          totalPrediksi7Hari > 0
-                            ? (
-                                (entry.value / totalPrediksi7Hari) *
-                                100
-                              ).toFixed(1)
-                            : 0;
-                        return (
-                          <li
-                            key={entry.name}
-                            className="flex items-center justify-between gap-2 text-xs"
-                          >
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span
-                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                style={{
-                                  backgroundColor:
-                                    DONUT_COLORS[index % DONUT_COLORS.length],
-                                }}
-                              />
-                              <span className="capitalize truncate text-zinc-600">
-                                {entry.name}
-                              </span>
-                            </div>
-                            <div className="flex items-center flex-shrink-0 gap-2">
-                              <span className="text-zinc-400">{pct}%</span>
-                              <span className="font-semibold text-zinc-800">
-                                {formatIDR(entry.value)}
-                              </span>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                {/* Donut Chart — Proporsi per Kategori */}
+                <div className="lg:col-span-2 bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-md)] p-5">
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="flex items-center justify-center flex-shrink-0 rounded-lg w-7 h-7 bg-teal-50">
+                      <TrendingUp size={14} className="text-teal-600" />
+                    </div>
+                    <h2
+                      style={{ fontFamily: "var(--font-heading)" }}
+                      className="text-base font-semibold text-zinc-900"
+                    >
+                      Proporsi per Kategori
+                    </h2>
                   </div>
-                ) : (
-                  <div className="h-[240px] flex items-center justify-center">
-                    <p className="text-sm text-center text-zinc-400">
-                      Tidak ada data prediksi untuk ditampilkan.
-                    </p>
-                  </div>
-                )}
+
+                  {donutData.length > 0 ? (
+                    <div className="flex flex-col items-center gap-4">
+                      {/* Donut ring */}
+                      <div className="h-[160px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={donutData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={50}
+                              outerRadius={75}
+                              paddingAngle={3}
+                              dataKey="value"
+                              isAnimationActive={true}
+                              animationDuration={800}
+                              animationEasing="ease-out"
+                            >
+                              {donutData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={
+                                    DONUT_COLORS[index % DONUT_COLORS.length]
+                                  }
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              content={
+                                <DonutTooltip
+                                  totalAmount={totalPrediksi7Hari}
+                                />
+                              }
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* Compact legend */}
+                      <ul className="w-full space-y-1.5">
+                        {donutData.map((entry, index) => {
+                          const pct =
+                            totalPrediksi7Hari > 0
+                              ? (
+                                  (entry.value / totalPrediksi7Hari) *
+                                  100
+                                ).toFixed(1)
+                              : 0;
+                          return (
+                            <li
+                              key={entry.name}
+                              className="flex items-center justify-between gap-2 text-xs"
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                  style={{
+                                    backgroundColor:
+                                      DONUT_COLORS[index % DONUT_COLORS.length],
+                                  }}
+                                />
+                                <span className="capitalize truncate text-zinc-600">
+                                  {entry.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center flex-shrink-0 gap-2">
+                                <span className="text-zinc-400">{pct}%</span>
+                                <span className="font-semibold text-zinc-800">
+                                  {formatIDR(entry.value)}
+                                </span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className="h-[240px] flex items-center justify-center">
+                      <p className="text-sm text-center text-zinc-400">
+                        Tidak ada data prediksi untuk ditampilkan.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
             ) : (
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-10 text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center mx-auto mb-4">
-              <BarChart3 size={24} className="text-teal-300" />
+                <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 size={24} className="text-teal-300" />
+                </div>
+                <h3 className="text-base font-bold text-zinc-900 mb-2">
+                  Belum ada data prediksi
+                </h3>
+                <p className="text-sm text-zinc-500 max-w-xs mx-auto">
+                  Tambahkan transaksi pertama untuk mendapatkan prediksi
+                  pengeluaran 7 hari ke depan dari AI.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-zinc-900 mb-2">
-              Belum ada data prediksi
-              </h3>
-              <p className="text-sm text-zinc-500 max-w-xs mx-auto">
-             Tambahkan transaksi pertama untuk mendapatkan prediksi pengeluaran 7 hari ke depan dari AI.
-              </p>
-            </div>
-          )}
+            )}
             {/* ── Section 3: Category Status Grid (2×4) ──────────────────────── */}
             {hasPengeluaran && (
-  <div>
-    <div className="flex items-center gap-2 mb-4">
-      <h2
-        style={{ fontFamily: "var(--font-heading)" }}
-        className="text-base font-semibold text-zinc-900"
-      >
-        Status per Kategori
-      </h2>
-      <span className="text-xs font-normal text-zinc-400">
-        ({CATEGORIES.length} kategori)
-      </span>
-    </div>
-
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {Object.entries(displayStatusPerKategori).map(
-        ([categoryName, status]) => {
-          const Icon = getCategoryIcon(categoryName);
-          const catStyle =
-            CATEGORY_STYLE[categoryName] ?? CATEGORY_STYLE.lain_lain;
-          const clampedPct = Math.min(status.pct_used, 100);
-          const progressColor =
-            status.label === "DARURAT"
-              ? "bg-rose-500"
-              : status.label === "WASPADA"
-                ? "bg-amber-500"
-                : "bg-emerald-500";
-
-          return (
-            <div
-              key={categoryName}
-              className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] p-4 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 cursor-default"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div
-                  className={`w-9 h-9 rounded-xl ${catStyle.bg} flex items-center justify-center flex-shrink-0`}
-                >
-                  <Icon className={`h-4 w-4 ${catStyle.color}`} />
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <h2
+                    style={{ fontFamily: "var(--font-heading)" }}
+                    className="text-base font-semibold text-zinc-900"
+                  >
+                    Status per Kategori
+                  </h2>
+                  <span className="text-xs font-normal text-zinc-400">
+                    ({CATEGORIES.length} kategori)
+                  </span>
                 </div>
-                <FinancialStatusBadge status={status.label} />
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {Object.entries(displayStatusPerKategori).map(
+                    ([categoryName, status]) => {
+                      const Icon = getCategoryIcon(categoryName);
+                      const catStyle =
+                        CATEGORY_STYLE[categoryName] ??
+                        CATEGORY_STYLE.lain_lain;
+                      const clampedPct = Math.min(status.pct_used, 100);
+                      const progressColor =
+                        status.label === "DARURAT"
+                          ? "bg-rose-500"
+                          : status.label === "WASPADA"
+                          ? "bg-amber-500"
+                          : "bg-emerald-500";
+
+                      return (
+                        <div
+                          key={categoryName}
+                          className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] p-4 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 cursor-default"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div
+                              className={`w-9 h-9 rounded-xl ${catStyle.bg} flex items-center justify-center flex-shrink-0`}
+                            >
+                              <Icon className={`h-4 w-4 ${catStyle.color}`} />
+                            </div>
+                            <FinancialStatusBadge status={status.label} />
+                          </div>
+
+                          <p className="mb-1 text-sm font-semibold capitalize truncate text-zinc-800">
+                            {categoryName.replace(/_/g, " ")}
+                          </p>
+
+                          <p
+                            className="mb-2 text-base font-bold truncate text-zinc-900"
+                            style={{ fontFamily: "var(--font-heading)" }}
+                          >
+                            {formatIDR(status.aktual_rp)}
+                          </p>
+
+                          <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${progressColor}`}
+                              style={{
+                                width: `${clampedPct}%`,
+                                transition: "width 0.8s ease-out",
+                              }}
+                              role="progressbar"
+                              aria-valuenow={status.pct_used}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-label={`${categoryName} usage ${status.pct_used}%`}
+                            />
+                          </div>
+
+                          <p className="text-xs text-zinc-400 mt-1.5">
+                            {status.pct_used}% dari budget
+                          </p>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
               </div>
-
-              <p className="mb-1 text-sm font-semibold capitalize truncate text-zinc-800">
-                {categoryName.replace(/_/g, " ")}
-              </p>
-
-              <p
-                className="mb-2 text-base font-bold truncate text-zinc-900"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
-                {formatIDR(status.aktual_rp)}
-              </p>
-
-              <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${progressColor}`}
-                  style={{
-                    width: `${clampedPct}%`,
-                    transition: "width 0.8s ease-out",
-                  }}
-                  role="progressbar"
-                  aria-valuenow={status.pct_used}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={`${categoryName} usage ${status.pct_used}%`}
-                />
-              </div>
-
-              <p className="text-xs text-zinc-400 mt-1.5">
-                {status.pct_used}% dari budget
-              </p>
-            </div>
-          );
-        },
-      )}
-    </div>
-  </div>
-)}
+            )}
           </div>
         )}
       </div>

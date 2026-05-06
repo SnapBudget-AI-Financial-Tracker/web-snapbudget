@@ -15,20 +15,26 @@ function ChatMessage({ message }) {
   return (
     <div className={`flex gap-2.5 ${isBot ? "" : "flex-row-reverse"}`}>
       {/* Avatar */}
-      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5
-        ${isBot ? "bg-teal-500" : "bg-zinc-200"}`}>
-        {isBot
-          ? <Bot size={14} className="text-white" />
-          : <User size={14} className="text-zinc-600" />
-        }
+      <div
+        className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5
+        ${isBot ? "bg-teal-500" : "bg-zinc-200"}`}
+      >
+        {isBot ? (
+          <Bot size={14} className="text-white" />
+        ) : (
+          <User size={14} className="text-zinc-600" />
+        )}
       </div>
 
       {/* Bubble */}
-      <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed
-        ${isBot
-          ? "bg-white border border-teal-100 text-zinc-800 rounded-tl-sm"
-          : "bg-teal-500 text-white rounded-tr-sm"
-        }`}>
+      <div
+        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed
+        ${
+          isBot
+            ? "bg-white border border-teal-100 text-zinc-800 rounded-tl-sm"
+            : "bg-teal-500 text-white rounded-tr-sm"
+        }`}
+      >
         {message.content}
       </div>
     </div>
@@ -36,17 +42,18 @@ function ChatMessage({ message }) {
 }
 
 export default function ChatbotWidget() {
-  const [isOpen, setIsOpen]       = useState(false);
-  const [messages, setMessages]   = useState([
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([
     {
-      role   : "assistant",
-      content: "Halo! 👋 Saya asisten keuangan SnapBudget. Saya bisa membantu menganalisis pengeluaran, memberikan tips hemat, dan menjawab pertanyaan seputar keuangan kamu. Ada yang bisa saya bantu?",
+      role: "assistant",
+      content:
+        "Halo! 👋 Saya asisten keuangan SnapBudget. Saya bisa membantu menganalisis pengeluaran, memberikan tips hemat, dan menjawab pertanyaan seputar keuangan kamu. Ada yang bisa saya bantu?",
     },
   ]);
-  const [input, setInput]         = useState("");
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef            = useRef(null);
-  const inputRef                  = useRef(null);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Auto scroll ke bawah
   useEffect(() => {
@@ -66,31 +73,31 @@ export default function ChatbotWidget() {
 
     // Tambah pesan user
     const userMessage = { role: "user", content: messageText };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
     try {
       // Kirim ke backend
       const history = messages
-        .filter(m => m.role !== "system")
-        .map(m => ({ role: m.role, content: m.content }));
+        .filter((m) => m.role !== "system")
+        .map((m) => ({ role: m.role, content: m.content }));
 
       const result = await api.post("/chatbot/chat", {
-        message            : messageText,
+        message: messageText,
         conversationHistory: history,
       });
 
       // Tambah respons bot
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         { role: "assistant", content: result.data.response },
       ]);
     } catch {
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         {
-          role   : "assistant",
+          role: "assistant",
           content: "Maaf, terjadi kesalahan. Silakan coba lagi. 🙏",
         },
       ]);
@@ -111,7 +118,6 @@ export default function ChatbotWidget() {
       {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-20 right-4 md:right-6 w-[340px] md:w-[380px] h-[500px] bg-white rounded-2xl shadow-2xl border border-teal-100 flex flex-col z-50 animate-fadeIn">
-          
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-teal-500 rounded-t-2xl">
             <div className="flex items-center gap-2.5">
@@ -119,8 +125,12 @@ export default function ChatbotWidget() {
                 <Bot size={16} className="text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">SnapBudget AI</p>
-                <p className="text-[10px] text-teal-100">Asisten Keuangan Pribadi</p>
+                <p className="text-sm font-semibold text-white">
+                  SnapBudget AI
+                </p>
+                <p className="text-[10px] text-teal-100">
+                  Asisten Keuangan Pribadi
+                </p>
               </div>
             </div>
             <button
@@ -154,7 +164,9 @@ export default function ChatbotWidget() {
           {/* Suggested Questions */}
           {messages.length === 1 && (
             <div className="px-3 py-2 bg-white border-t border-zinc-100">
-              <p className="text-[10px] text-zinc-400 mb-1.5 font-medium">PERTANYAAN POPULER</p>
+              <p className="text-[10px] text-zinc-400 mb-1.5 font-medium">
+                PERTANYAAN POPULER
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {SUGGESTED_QUESTIONS.map((q, i) => (
                   <button
@@ -176,7 +188,7 @@ export default function ChatbotWidget() {
                 ref={inputRef}
                 type="text"
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Tanya seputar keuangan kamu..."
                 className="flex-1 text-sm bg-transparent outline-none text-zinc-800 placeholder:text-zinc-400"
@@ -196,14 +208,15 @@ export default function ChatbotWidget() {
 
       {/* FAB Button */}
       <button
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={() => setIsOpen((prev) => !prev)}
         className="fixed z-50 flex items-center justify-center text-white transition-all bg-teal-500 rounded-full shadow-lg bottom-4 right-4 md:right-6 w-13 h-13 hover:bg-teal-600 hover:scale-105 active:scale-95"
         aria-label="Buka chatbot"
       >
-        {isOpen
-          ? <X size={22} className="text-white" />
-          : <MessageCircle size={22} className="text-white" />
-        }
+        {isOpen ? (
+          <X size={22} className="text-white" />
+        ) : (
+          <MessageCircle size={22} className="text-white" />
+        )}
       </button>
     </>
   );
