@@ -32,7 +32,7 @@ export default function Input({
             ${Icon ? "pl-10" : "pl-3"}
             ${error
               ? "border-rose-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 bg-rose-50"
-              : "border-teal-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white text-teal-900 placeholder:text-teal-400"}
+              : "border-teal-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white text-teal-900 placeholder:text-teal-900/40"}
             ${className}
           `}
           {...props}
