@@ -116,8 +116,8 @@ describe("Landing Page Correctness Properties", () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1, max: 10000 }),
-          fc.double({ min: 0, max: 0.99 }),
-          fc.double({ min: 0.01, max: 1 }),
+          fc.double({ min: 0, max: 0.99, noNaN: true, noDefaultInfinity: true }),
+          fc.double({ min: 0.01, max: 1, noNaN: true, noDefaultInfinity: true }),
           (targetValue, progress1, delta) => {
             const progress2 = Math.min(progress1 + delta, 1);
 

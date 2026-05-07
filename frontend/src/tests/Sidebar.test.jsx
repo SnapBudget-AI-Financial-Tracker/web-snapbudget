@@ -69,17 +69,17 @@ describe('Sidebar — Property 3: Toggle idempotency (Validates: Requirements 5.
   it('initial state: sidebar is expanded (width 256px)', () => {
     renderSidebar();
 
-    const sidebar = screen.getByRole('complementary', { name: /main navigation/i });
+    const sidebar = screen.getByRole('complementary', { name: /navigasi utama/i });
     expect(sidebar.style.width).toBe('256px');
   });
 
   it('after one toggle: sidebar is collapsed (width 64px)', () => {
     renderSidebar();
 
-    const collapseBtn = screen.getByRole('button', { name: /collapse sidebar/i });
+    const collapseBtn = screen.getByRole('button', { name: /ciutkan sidebar/i });
     fireEvent.click(collapseBtn);
 
-    const sidebar = screen.getByRole('complementary', { name: /main navigation/i });
+    const sidebar = screen.getByRole('complementary', { name: /navigasi utama/i });
     expect(sidebar.style.width).toBe('64px');
   });
 
@@ -87,14 +87,14 @@ describe('Sidebar — Property 3: Toggle idempotency (Validates: Requirements 5.
     renderSidebar();
 
     // First toggle: expanded → collapsed
-    const collapseBtn = screen.getByRole('button', { name: /collapse sidebar/i });
+    const collapseBtn = screen.getByRole('button', { name: /ciutkan sidebar/i });
     fireEvent.click(collapseBtn);
 
-    const sidebar = screen.getByRole('complementary', { name: /main navigation/i });
+    const sidebar = screen.getByRole('complementary', { name: /navigasi utama/i });
     expect(sidebar.style.width).toBe('64px');
 
     // Second toggle: collapsed → expanded
-    const expandBtn = screen.getByRole('button', { name: /expand sidebar/i });
+    const expandBtn = screen.getByRole('button', { name: /perluas sidebar/i });
     fireEvent.click(expandBtn);
 
     expect(sidebar.style.width).toBe('256px');
@@ -103,7 +103,7 @@ describe('Sidebar — Property 3: Toggle idempotency (Validates: Requirements 5.
   it('multiple double-toggles always return to original state', () => {
     renderSidebar();
 
-    const sidebar = screen.getByRole('complementary', { name: /main navigation/i });
+    const sidebar = screen.getByRole('complementary', { name: /navigasi utama/i });
 
     // Run the double-toggle cycle 3 times to verify idempotency holds consistently
     for (let i = 0; i < 3; i++) {
@@ -111,11 +111,11 @@ describe('Sidebar — Property 3: Toggle idempotency (Validates: Requirements 5.
       expect(initialWidth).toBe('256px');
 
       // Toggle once: collapse
-      fireEvent.click(screen.getByRole('button', { name: /collapse sidebar/i }));
+      fireEvent.click(screen.getByRole('button', { name: /ciutkan sidebar/i }));
       expect(sidebar.style.width).toBe('64px');
 
       // Toggle again: expand back
-      fireEvent.click(screen.getByRole('button', { name: /expand sidebar/i }));
+      fireEvent.click(screen.getByRole('button', { name: /perluas sidebar/i }));
       expect(sidebar.style.width).toBe('256px');
     }
   });

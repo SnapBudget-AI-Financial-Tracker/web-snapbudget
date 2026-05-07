@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest --run",
     "dev": "nodemon src/index.js",
     "start": "node src/index.js"
   },
@@ -20,9 +20,11 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.1",
     "form-data": "^4.0.5",
     "google-auth-library": "^10.6.2",
     "groq-sdk": "^1.1.2",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
     "nodemailer": "^8.0.5",
@@ -33,6 +35,8 @@
   "devDependencies": {
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/config": "^7.7.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.8"
   }
 }
