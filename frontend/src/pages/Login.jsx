@@ -63,9 +63,9 @@ export default function Login() {
         />
 
         <div className="space-y-1.5 pt-1">
-          <div className="flex justify-between items-center mb-[-6px]">
+          <div className="flex justify-between items-center mb-0.5">
             <label
-              className="text-[13px] font-medium text-zinc-700 block"
+              className="text-[13px] font-medium text-teal-800 block"
               htmlFor="password"
             >
               Password
