@@ -3,8 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import IPhoneMockup from "./IPhoneMockup";
 
-
-// ── Split text by chars ──────────────────────────────────────────
+// Split text by chars
 function SplitHeading({ text, className, style, delay = 0 }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -56,7 +55,7 @@ function SplitHeading({ text, className, style, delay = 0 }) {
   );
 }
 
-// ── Parallax on scroll ───────────────────────────────────────────
+// Parallax on scroll
 function useParallax(speed = 0.3) {
   const ref = useRef(null);
   useEffect(() => {
@@ -71,7 +70,7 @@ function useParallax(speed = 0.3) {
   return ref;
 }
 
-// ── Mouse tilt on hero ───────────────────────────────────────────
+// Mouse tilt on hero
 function useHeroTilt() {
   const ref = useRef(null);
   const onMove = useCallback((e) => {
@@ -206,40 +205,6 @@ export default function HeroSection() {
                 Sudah punya akun
               </Link>
             </div>
-
-            {/* Trust signals */}
-            <div
-              className="flex flex-wrap items-center gap-6"
-              style={{ transform: "translateZ(10px)" }}
-            >
-              {[
-                { value: "15K+", label: "Pengguna aktif" },
-                { value: "95%", label: "Akurasi AI" },
-                { value: "100%", label: "Gratis" },
-              ].map((s) => (
-                <div key={s.label}>
-                  <div
-                    style={{
-                      fontFamily: "var(--l-font-head)",
-                      fontWeight: 700,
-                      fontSize: "1.25rem",
-                      color: "var(--l-primary)",
-                    }}
-                  >
-                    {s.value}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "var(--l-font-body)",
-                      fontSize: "0.78rem",
-                      color: "var(--l-text-muted)",
-                    }}
-                  >
-                    {s.label}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* ── Right: iPhone Mockup ── */}
@@ -300,15 +265,30 @@ export default function HeroSection() {
                 boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
               }}
             >
-              <div style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: "rgba(0,212,170,0.15)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--l-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: "rgba(0,212,170,0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--l-primary)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
                 </svg>
               </div>
               <div>
@@ -344,15 +324,30 @@ export default function HeroSection() {
                 boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
               }}
             >
-              <div style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: "rgba(245,166,35,0.15)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--l-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                  <polyline points="17 6 23 6 23 12"/>
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: "rgba(245,166,35,0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--l-accent)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                  <polyline points="17 6 23 6 23 12" />
                 </svg>
               </div>
               <div>

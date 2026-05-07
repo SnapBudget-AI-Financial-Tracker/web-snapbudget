@@ -3,14 +3,23 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import "../components/landing/landing.css";
 
+// Team Photos
+import rizkyPhoto from "../assets/about/foto1.jpeg";
+import rifqiPhoto from "../assets/about/foto2.jpg";
+import aprizalPhoto from "../assets/about/foto3.jpeg";
+import aldiPhoto from "../assets/about/foto4.jpg";
+import cholidPhoto from "../assets/about/foto5.jpg";
+
 // ── Reveal hook ────────────────────────────────────────────────
 function useReveal(threshold = 0.1) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setVisible(true); },
-      { threshold }
+      ([e]) => {
+        if (e.isIntersecting) setVisible(true);
+      },
+      { threshold },
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
@@ -92,40 +101,54 @@ function AvatarInitial({ name, accent, size = 96 }) {
 // ── Data tim ───────────────────────────────────────────────────
 const team = [
   {
-    name: "Ahmad Fauzan",
-    role: "Full Stack Developer",
-    path: "Frontend & Backend Development",
-    university: "Universitas Brawijaya",
-    accent: "var(--l-primary)",
-    linkedin: "https://linkedin.com",
-    github: "https://github.com",
-  },
-  {
-    name: "Siti Rahayu",
-    role: "Frontend Developer",
-    path: "UI/UX & Web Development",
-    university: "Universitas Indonesia",
-    accent: "#818CF8",
-    linkedin: "https://linkedin.com",
-    github: "https://github.com",
-  },
-  {
-    name: "Budi Santoso",
-    role: "Machine Learning Engineer",
-    path: "AI & Data Science",
-    university: "Institut Teknologi Bandung",
+    name: "Aprizal",
+    role: "Project Manager",
+    path: "AI Engineering",
+    university: "Universitas Hang Tuah Pekanbaru",
     accent: "var(--l-accent)",
-    linkedin: "https://linkedin.com",
-    github: "https://github.com",
+    image: aprizalPhoto,
+    linkedin: "https://www.linkedin.com/in/aprizal-9670972b5/",
+    github: "https://github.com/aprizal543",
   },
   {
-    name: "Dewi Lestari",
-    role: "Backend Developer",
-    path: "Backend & Cloud Engineering",
-    university: "Universitas Gadjah Mada",
-    accent: "#34D399",
-    linkedin: "https://linkedin.com",
-    github: "https://github.com",
+    name: "Cholid Muntaha",
+    role: "AI Engineer",
+    path: "AI Engineering",
+    university: "Universitas Jenderal Soedirman",
+    accent: "#10B981",
+    image: cholidPhoto,
+    linkedin: "https://www.linkedin.com/in/cholid-muntaha-60474a2b1/",
+    github: "https://github.com/CholidMuntaha",
+  },
+  {
+    name: "Rifqi Surya Permana",
+    role: "Data Scientist",
+    path: "Data Science",
+    university: "Bhayangkara Jakarta Raya",
+    accent: "#818CF8",
+    image: rifqiPhoto,
+    linkedin: "https://www.linkedin.com/in/rifqi-permana-01b524374/",
+    github: "https://github.com/RIfqi2113",
+  },
+  {
+    name: "Aldi Zulfan Azhari",
+    role: "Data Scientist",
+    path: "Data Science",
+    university: "UIN Sultan Syarif Kasim Riau",
+    accent: "#F59E0B",
+    image: aldiPhoto,
+    linkedin: "https://www.linkedin.com/in/aldi-zulfan-azhari-6973b6368/",
+    github: "https://github.com/aldiZulfanAzhari",
+  },
+  {
+    name: "Muhammad Rizky",
+    role: "Lead Developer",
+    path: "Full Stack Developer",
+    university: "UPN Veteran Jakarta",
+    accent: "var(--l-primary)",
+    image: rizkyPhoto,
+    linkedin: "https://www.linkedin.com/in/muhammad-rizky-26557b192/",
+    github: "https://github.com/MuhammadRizkyyy",
   },
 ];
 
@@ -163,7 +186,27 @@ function TeamCard({ member, index }) {
       >
         {/* Avatar + nama */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <AvatarInitial name={member.name} accent={member.accent} />
+          {member.image ? (
+            <div
+              style={{
+                width: 96,
+                height: 96,
+                borderRadius: "50%",
+                overflow: "hidden",
+                border: `2px solid ${member.accent}40`,
+                boxShadow: `0 0 20px ${member.accent}22`,
+                flexShrink: 0,
+              }}
+            >
+              <img
+                src={member.image}
+                alt={member.name}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+          ) : (
+            <AvatarInitial name={member.name} accent={member.accent} />
+          )}
           <div>
             <div
               style={{
@@ -199,14 +242,34 @@ function TeamCard({ member, index }) {
             borderTop: "1px solid var(--l-border)",
           }}
         >
-          <InfoRow label="Learning Path" value={member.path} accent={member.accent} />
-          <InfoRow label="Kampus" value={member.university} accent={member.accent} />
+          <InfoRow
+            label="Learning Path"
+            value={member.path}
+            accent={member.accent}
+          />
+          <InfoRow
+            label="Kampus"
+            value={member.university}
+            accent={member.accent}
+          />
         </div>
 
         {/* Sosial */}
         <div style={{ display: "flex", gap: 10, marginTop: "auto" }}>
-          <SocialLink href={member.linkedin} icon={null} label="LinkedIn" accent={member.accent} isLinkedin />
-          <SocialLink href={member.github} icon={null} label="GitHub" accent={member.accent} isGithub />
+          <SocialLink
+            href={member.linkedin}
+            icon={null}
+            label="LinkedIn"
+            accent={member.accent}
+            isLinkedin
+          />
+          <SocialLink
+            href={member.github}
+            icon={null}
+            label="GitHub"
+            accent={member.accent}
+            isGithub
+          />
         </div>
       </div>
     </div>
@@ -242,7 +305,14 @@ function InfoRow({ label, value, accent }) {
   );
 }
 
-function SocialLink({ href, icon: Icon, label, accent, isGithub = false, isLinkedin = false }) {
+function SocialLink({
+  href,
+  icon: Icon,
+  label,
+  accent,
+  isGithub = false,
+  isLinkedin = false,
+}) {
   const [hovered, setHovered] = useState(false);
   return (
     <a
@@ -271,11 +341,11 @@ function SocialLink({ href, icon: Icon, label, accent, isGithub = false, isLinke
     >
       {isGithub ? (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
         </svg>
       ) : isLinkedin ? (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
         </svg>
       ) : Icon ? (
         <Icon size={14} />
@@ -292,7 +362,10 @@ export default function About() {
   const { ref: teamRef, visible: teamVisible } = useReveal(0.05);
 
   return (
-    <div className="landing-root min-h-screen" style={{ background: "var(--l-bg)" }}>
+    <div
+      className="landing-root min-h-screen"
+      style={{ background: "var(--l-bg)" }}
+    >
       {/* Cursor */}
       <div className="l-cursor" ref={dotRef} aria-hidden="true" />
       <div className="l-cursor-follower" ref={ringRef} aria-hidden="true" />
@@ -381,7 +454,8 @@ export default function About() {
             width: 700,
             height: 700,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,212,170,0.07) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(0,212,170,0.07) 0%, transparent 70%)",
             top: "-20%",
             left: "50%",
             transform: "translateX(-50%)",
@@ -390,7 +464,10 @@ export default function About() {
           }}
         />
 
-        <div className="max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
+        <div
+          className="max-w-4xl mx-auto px-5 sm:px-8 text-center"
+          ref={heroRef}
+        >
           <div
             className="l-badge"
             style={{
@@ -419,8 +496,7 @@ export default function About() {
               transition: "opacity 0.7s 0.1s ease, transform 0.7s 0.1s ease",
             }}
           >
-            Tentang{" "}
-            <span className="l-gradient-text">SnapBudget</span>
+            Tentang <span className="l-gradient-text">SnapBudget</span>
           </h1>
 
           <p
@@ -436,11 +512,13 @@ export default function About() {
               transition: "opacity 0.7s 0.2s ease, transform 0.7s 0.2s ease",
             }}
           >
-            SnapBudget adalah aplikasi manajemen keuangan berbasis AI yang dirancang
-            untuk membantu pengguna memahami, merencanakan, dan mengelola keuangan
-            pribadi dengan cara yang intuitif. Dibangun sebagai proyek capstone oleh
-            mahasiswa yang percaya bahwa teknologi dapat membuat literasi keuangan
-            lebih mudah diakses semua orang.
+            SnapBudget adalah aplikasi manajemen keuangan berbasis AI yang
+            dirancang untuk membantu pengguna memahami, merencanakan, dan
+            mengelola keuangan pribadi dengan cara yang intuitif. Cukup dengan
+            foto struk, AI kami akan otomatis memproses data dan memasukkannya
+            ke dalam catatan tanpa perlu input pengeluaran manual. Dibangun
+            sebagai proyek capstone oleh mahasiswa yang percaya bahwa teknologi
+            dapat membuat literasi keuangan lebih mudah diakses semua orang.
           </p>
 
           {/* Tiga pilar project */}
@@ -454,9 +532,21 @@ export default function About() {
             }}
           >
             {[
-              { label: "Scan Struk AI", desc: "Ekstraksi otomatis dari foto struk", accent: "var(--l-primary)" },
-              { label: "Analitik Cerdas", desc: "Insight pengeluaran berbasis data", accent: "#818CF8" },
-              { label: "Chatbot Keuangan", desc: "Asisten AI personal 24/7", accent: "var(--l-accent)" },
+              {
+                label: "Scan Struk AI",
+                desc: "Ekstraksi otomatis dari foto struk",
+                accent: "var(--l-primary)",
+              },
+              {
+                label: "Analitik Cerdas",
+                desc: "Insight pengeluaran berbasis data",
+                accent: "#818CF8",
+              },
+              {
+                label: "Chatbot Keuangan",
+                desc: "Asisten AI personal 24/7",
+                accent: "var(--l-accent)",
+              },
             ].map((p) => (
               <div
                 key={p.label}
@@ -512,7 +602,8 @@ export default function About() {
             width: 500,
             height: 500,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(129,140,248,0.06) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(129,140,248,0.06) 0%, transparent 70%)",
             bottom: "0%",
             left: "-10%",
             filter: "blur(60px)",
@@ -552,10 +643,32 @@ export default function About() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {team.map((member, i) => (
+          {/* Baris 1: 3 Anggota */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {team.slice(0, 3).map((member, i) => (
               <TeamCard key={member.name} member={member} index={i} />
             ))}
+          </div>
+
+          {/* Baris 2: 2 Anggota (Centered) */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <div
+              className="grid md:grid-cols-2 gap-6"
+              style={{
+                width: "100%",
+                maxWidth: "min(100%, 860px)",
+              }}
+            >
+              {team.slice(3, 5).map((member, i) => (
+                <TeamCard key={member.name} member={member} index={i + 3} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
