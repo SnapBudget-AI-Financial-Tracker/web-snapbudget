@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronUp } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import {
   useNavbarScrollEffect,
   smoothScrollTo,
@@ -9,14 +9,24 @@ import {
 
 export default function LandingNavbar({ activeSection = "" }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isScrolled, showScrollToTop } = useNavbarScrollEffect(80);
+  const { isScrolled } = useNavbarScrollEffect(60);
+  const [scrollPct, setScrollPct] = useState(0);
 
   const navLinks = [
     { id: "hero", label: "Beranda" },
     { id: "features", label: "Fitur" },
-    { id: "testimonials", label: "Testimoni" },
     { id: "cta", label: "Mulai" },
   ];
+
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.documentElement;
+      const pct = el.scrollTop / (el.scrollHeight - el.clientHeight);
+      setScrollPct(Math.min(pct * 100, 100));
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleNavClick = (sectionId) => {
     smoothScrollTo(sectionId);
@@ -25,122 +35,209 @@ export default function LandingNavbar({ activeSection = "" }) {
 
   return (
     <>
+      {/* Scroll progress */}
+      <div
+        className="l-progress-bar"
+        style={{ width: `${scrollPct}%` }}
+        aria-hidden="true"
+      />
+
       <nav
         role="navigation"
         aria-label="Navigasi utama"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-md"
-            : "bg-white/90 backdrop-blur-sm shadow-sm"
-        }`}
+        className={`l-nav ${isScrolled ? "scrolled" : ""}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+        <div
+          className="max-w-7xl mx-auto px-5 sm:px-8"
+          style={{ paddingTop: "18px", paddingBottom: "18px" }}
+        >
+          <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/landing" className="flex items-center gap-2">
-              <span className="font-heading font-bold text-xl text-text-primary">
+            <Link
+              to="/landing"
+              className="flex items-center gap-2.5"
+              style={{ cursor: "none" }}
+            >
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  background:
+                    "linear-gradient(135deg, var(--l-primary), #059669)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 12px var(--l-primary-glow)",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--l-font-head)",
+                    fontWeight: 800,
+                    fontSize: 16,
+                    color: "#07070F",
+                    lineHeight: 1,
+                  }}
+                >
+                  S
+                </span>
+              </div>
+              <span
+                style={{
+                  fontFamily: "var(--l-font-head)",
+                  fontWeight: 700,
+                  fontSize: "1.1rem",
+                  color: "var(--l-text)",
+                  letterSpacing: "-0.02em",
+                }}
+              >
                 SnapBudget
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
+            {/* Desktop nav links */}
+            <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <button
                   key={link.id}
                   onClick={() => handleNavClick(link.id)}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors ${
-                    activeSection === link.id
-                      ? "text-primary-600"
-                      : "text-text-primary hover:text-primary-600"
-                  }`}
+                  className={`l-nav-link px-4 py-2 ${activeSection === link.id ? "active" : ""}`}
                   aria-current={activeSection === link.id ? "page" : undefined}
                 >
                   {link.label}
-                  {activeSection === link.id && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full" />
-                  )}
                 </button>
               ))}
+              <Link
+                to="/about"
+                className="l-nav-link px-4 py-2"
+                style={{ cursor: "none" }}
+              >
+                Tentang
+              </Link>
             </div>
 
-            {/* Desktop CTA Buttons */}
+            {/* Desktop CTAs */}
             <div className="hidden md:flex items-center gap-3">
               <Link
                 to="/login"
-                className="px-4 py-2 text-sm font-medium text-text-primary hover:text-primary-600 transition-colors"
+                className="l-nav-link px-4 py-2"
+                style={{ cursor: "none" }}
               >
                 Masuk
               </Link>
-              <Link
-                to="/register"
-                className="px-6 py-2.5 border-2 border-success-600 text-success-600 text-sm font-semibold rounded-full hover:bg-success-50 transition-colors"
-              >
+              <Link to="/register" className="l-btn-primary" style={{ padding: "10px 22px", fontSize: "0.875rem" }}>
                 Daftar Gratis
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile hamburger */}
             <button
-              className="md:hidden p-2 text-text-primary"
+              className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Tutup menu" : "Buka menu"}
-              aria-expanded={mobileMenuOpen}
+              style={{ color: "var(--l-text)", cursor: "pointer" }}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-white animate-slideDown md:hidden"
-          style={{ top: "64px" }}
+          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 md:hidden"
+          style={{ background: "rgba(7,7,15,0.97)", top: 0 }}
         >
-          <div className="flex flex-col items-center justify-center h-full gap-8 px-4">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => handleNavClick(link.id)}
-                className={`text-2xl font-heading font-semibold transition-colors ${
+          <button
+            className="absolute top-5 right-5"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ color: "var(--l-text-muted)", cursor: "pointer" }}
+          >
+            <X size={24} />
+          </button>
+
+          {navLinks.map((link) => (
+            <button
+              key={link.id}
+              onClick={() => handleNavClick(link.id)}
+              style={{
+                fontFamily: "var(--l-font-head)",
+                fontSize: "1.8rem",
+                fontWeight: 700,
+                color:
                   activeSection === link.id
-                    ? "text-primary-600"
-                    : "text-text-primary hover:text-primary-600"
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
-            <div className="flex flex-col gap-4 mt-8 w-full max-w-xs">
-              <Link
-                to="/login"
-                className="w-full px-6 py-3 text-center border-2 border-primary-600 text-primary-600 font-semibold rounded-full hover:bg-primary-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Masuk
-              </Link>
-              <Link
-                to="/register"
-                className="w-full px-6 py-3 text-center border-2 border-success-600 text-success-600 font-semibold rounded-full hover:bg-success-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Daftar Gratis
-              </Link>
-            </div>
+                    ? "var(--l-primary)"
+                    : "var(--l-text)",
+                letterSpacing: "-0.02em",
+                cursor: "pointer",
+              }}
+            >
+              {link.label}
+            </button>
+          ))}
+          <Link
+            to="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              fontFamily: "var(--l-font-head)",
+              fontSize: "1.8rem",
+              fontWeight: 700,
+              color: "var(--l-text)",
+              letterSpacing: "-0.02em",
+              textDecoration: "none",
+              cursor: "pointer",
+            }}
+          >
+            Tentang
+          </Link>
+
+          <div className="flex flex-col gap-3 mt-4 w-64">
+            <Link
+              to="/login"
+              className="l-btn-ghost"
+              style={{ justifyContent: "center", cursor: "pointer" }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Masuk
+            </Link>
+            <Link
+              to="/register"
+              className="l-btn-primary"
+              style={{ justifyContent: "center", cursor: "pointer" }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Daftar Gratis
+            </Link>
           </div>
         </div>
       )}
 
-      {/* Scroll to Top Button */}
-      {showScrollToTop && (
+      {/* Scroll-to-top */}
+      {scrollPct > 20 && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 p-3 bg-success-600 rounded-full shadow-lg hover:bg-success-700 transition-all hover:scale-110 animate-fadeIn"
           aria-label="Kembali ke atas"
+          style={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            zIndex: 490,
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: "var(--l-surface)",
+            border: "1px solid var(--l-border)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "none",
+            color: "var(--l-primary)",
+            transition: "border-color 0.2s, box-shadow 0.2s",
+          }}
         >
-          <ChevronUp size={24} className="text-success-50" />
+          ↑
         </button>
       )}
     </>

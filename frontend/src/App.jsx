@@ -19,11 +19,12 @@ import Chatbot from "./pages/Chatbot";
 import SavingGoals from "./pages/SavingGoals";
 import Gamification from "./pages/Gamification";
 import Landing from "./pages/Landing";
-// Component to protect routes that require authentication
+import About from "./pages/About";
+
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return null; // Or a loading spinner
+  if (loading) return null;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -32,7 +33,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Component to redirect authenticated users away from public pages (except landing)
 const PublicRoute = ({ children, allowAuthenticated = false }) => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -45,7 +45,6 @@ const PublicRoute = ({ children, allowAuthenticated = false }) => {
   return children;
 };
 
-/** Wraps route content with a fade-in animation on each navigation */
 function PageTransitionWrapper({ children }) {
   const location = useLocation();
   const reducedMotion = useReducedMotion();
@@ -162,6 +161,14 @@ function App() {
               element={
                 <PublicRoute allowAuthenticated={true}>
                   <Landing />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <PublicRoute allowAuthenticated={true}>
+                  <About />
                 </PublicRoute>
               }
             />

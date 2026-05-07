@@ -1,81 +1,129 @@
 import { Link } from "react-router-dom";
-import { MailIcon, CodeIcon, UsersIcon, Share2Icon } from "lucide-react";
+
+const footerLinks = {
+  Produk: [
+    { label: "Fitur", to: "#features" },
+    { label: "Harga", to: "/pricing" },
+    { label: "Roadmap", to: "/roadmap" },
+  ],
+  Perusahaan: [
+    { label: "Tentang Kami", to: "/about" },
+    { label: "Blog", to: "/blog" },
+    { label: "Karir", to: "/careers" },
+  ],
+  Dukungan: [
+    { label: "Pusat Bantuan", to: "/help" },
+    { label: "Kontak", to: "/contact" },
+    { label: "Status", to: "/status" },
+  ],
+};
 
 export default function LandingFooter() {
-  const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    produk: [
-      { label: "Fitur", href: "/landing#features" },
-      { label: "Harga", href: "/landing" },
-      { label: "FAQ", href: "/landing" },
-    ],
-    perusahaan: [
-      { label: "Tentang Kami", href: "/landing" },
-      { label: "Karir", href: "/landing" },
-      { label: "Kontak", href: "/landing" },
-    ],
-    legal: [
-      { label: "Kebijakan Privasi", href: "/landing" },
-      { label: "Syarat & Ketentuan", href: "/landing" },
-      { label: "Keamanan Data", href: "/landing" },
-    ],
-  };
-
-  const socialLinks = [
-    { icon: Share2Icon, href: "#", label: "Twitter" },
-    { icon: CodeIcon, href: "#", label: "GitHub" },
-    { icon: UsersIcon, href: "#", label: "LinkedIn" },
-    { icon: MailIcon, href: "mailto:hello@snapbudget.id", label: "Email" },
-  ];
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-bg-base pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+    <footer
+      style={{
+        background: "var(--l-bg)",
+        borderTop: "1px solid var(--l-border)",
+        padding: "80px 0 32px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Subtle top gradient */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0, left: "20%", right: "20%",
+          height: 1,
+          background: "linear-gradient(90deg, transparent, var(--l-primary-glow), transparent)",
+        }}
+      />
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link to="/landing" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-success-400 to-success-500 rounded-lg flex items-center justify-center">
-                <span className="font-bold text-lg text-success-900">S</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 34, height: 34, borderRadius: 10,
+                  background: "linear-gradient(135deg, var(--l-primary), #059669)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 4px 12px var(--l-primary-glow)",
+                }}
+              >
+                <span style={{ fontFamily: "var(--l-font-head)", fontWeight: 800, fontSize: 16, color: "#07070F" }}>
+                  S
+                </span>
               </div>
-              <span className="font-heading font-bold text-xl text-text-primary">
+              <span style={{ fontFamily: "var(--l-font-head)", fontWeight: 700, fontSize: "1.1rem", color: "var(--l-text)" }}>
                 SnapBudget
               </span>
-            </Link>
-            <p className="text-success-600 text-sm leading-relaxed mb-4">
-              Aplikasi keuangan personal berbasis AI untuk membantu Anda
-              mencapai tujuan finansial.
+            </div>
+            <p style={{ fontFamily: "var(--l-font-body)", fontSize: "0.85rem", color: "var(--l-text-muted)", lineHeight: 1.7, maxWidth: 220, marginBottom: 24 }}>
+              AI-powered financial tracker yang membantu Anda mengelola keuangan lebih cerdas.
             </p>
-            <div className="flex gap-3">
-              {socialLinks.map((link) => (
+
+            {/* Social icons */}
+            <div style={{ display: "flex", gap: 10 }}>
+              {["𝕏", "in", "yt"].map((icon) => (
                 <a
-                  key={link.label}
-                  href={link.href}
-                  className="p-2 bg-success-100 rounded-full hover:bg-success-200 transition-colors text-success-600"
-                  aria-label={link.label}
+                  key={icon}
+                  href="#"
+                  style={{
+                    width: 34, height: 34, borderRadius: 8,
+                    background: "var(--l-surface)",
+                    border: "1px solid var(--l-border)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "var(--l-text-muted)",
+                    fontFamily: "var(--l-font-head)", fontWeight: 600, fontSize: "0.75rem",
+                    transition: "border-color 0.2s, color 0.2s",
+                    textDecoration: "none",
+                  }}
+                  aria-label={icon}
                 >
-                  <link.icon size={18} className="text-success-600" />
+                  {icon}
                 </a>
               ))}
             </div>
           </div>
 
           {/* Links */}
-          {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
-              <h3 className="font-heading font-semibold text-base mb-4 capitalize text-text-primary">
-                {category}
-              </h3>
-              <ul className="space-y-2">
+          {Object.entries(footerLinks).map(([cat, links]) => (
+            <div key={cat}>
+              <h4
+                style={{
+                  fontFamily: "var(--l-font-head)",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  color: "var(--l-text)",
+                  marginBottom: 16,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                }}
+              >
+                {cat}
+              </h4>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-success-600 hover:text-success-700 transition-colors text-sm"
+                    <Link
+                      to={link.to}
+                      style={{
+                        fontFamily: "var(--l-font-body)",
+                        fontSize: "0.875rem",
+                        color: "var(--l-text-muted)",
+                        textDecoration: "none",
+                        transition: "color 0.2s",
+                      }}
+                      onMouseEnter={(e) => (e.target.style.color = "var(--l-primary)")}
+                      onMouseLeave={(e) => (e.target.style.color = "var(--l-text-muted)")}
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -84,15 +132,39 @@ export default function LandingFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-success-200">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-success-600">
-              © {currentYear} SnapBudget. Hak cipta dilindungi.
-            </p>
-            <p className="text-sm text-success-600">
-              Dibuat dengan <span className="text-accent-400">❤</span> di
-              Indonesia
-            </p>
+        <div
+          style={{
+            borderTop: "1px solid var(--l-border)",
+            paddingTop: 24,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          <p style={{ fontFamily: "var(--l-font-body)", fontSize: "0.8rem", color: "var(--l-text-muted)" }}>
+            © {year} SnapBudget. Dibuat dengan ❤️ di Indonesia.
+          </p>
+          <div style={{ display: "flex", gap: 24 }}>
+            {[
+              { label: "Privasi", to: "/privacy" },
+              { label: "Ketentuan", to: "/terms" },
+            ].map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                style={{
+                  fontFamily: "var(--l-font-body)",
+                  fontSize: "0.8rem",
+                  color: "var(--l-text-muted)",
+                  textDecoration: "none",
+                  transition: "color 0.2s",
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

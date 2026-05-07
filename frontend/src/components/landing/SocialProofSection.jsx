@@ -1,323 +1,176 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import useReducedMotion from "../../hooks/useReducedMotion";
 
-function useCountUpAnimation(
-  targetValue,
-  duration = 2000,
-  startAnimation = false
-) {
+function useCountUp(target, duration = 2000, start = false, decimals = 0) {
   const reducedMotion = useReducedMotion();
-  const [currentValue, setCurrentValue] = useState(
-    !startAnimation || reducedMotion ? targetValue : 0
-  );
-  const animationRef = useRef(null);
+  const [value, setValue] = useState(reducedMotion || !start ? target : 0);
+  const rafRef = useRef(null);
 
   useEffect(() => {
-    if (!startAnimation || reducedMotion) {
-      return;
-    }
-
+    if (!start || reducedMotion) return;
     const startTime = Date.now();
     const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      const value = easedProgress * targetValue;
-
-      setCurrentValue(Math.floor(value));
-
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      }
+      const progress = Math.min((Date.now() - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const raw = eased * target;
+      setValue(
+        decimals > 0 ? parseFloat(raw.toFixed(decimals)) : Math.floor(raw),
+      );
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
     };
-
-    animationRef.current = requestAnimationFrame(animate);
-
+    rafRef.current = requestAnimationFrame(animate);
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [targetValue, duration, startAnimation, reducedMotion]);
+  }, [target, duration, start, reducedMotion, decimals]);
 
-  return currentValue;
+  return value;
 }
 
+function useReveal(threshold = 0.2) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) setVisible(true);
+      },
+      { threshold },
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
+
+// ── Stat card with count-up ──────────────────────────────────────
 function StatCard({
   value,
-  label,
-  prefix = "",
   suffix = "",
-  isVisible,
+  prefix = "",
+  label,
+  accent,
   delay = 0,
+  isVisible,
+  decimals = 0,
 }) {
-  const animatedValue = useCountUpAnimation(value, 2000, isVisible);
+  const count = useCountUp(value, 2200, isVisible, decimals);
+  const { ref, visible: cardVisible } = useReveal(0.1);
 
   return (
     <div
-      className={`text-center transition-all duration-700 ease-out ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
-      style={{ transitionDelay: `${delay}ms` }}
+      ref={ref}
+      className="l-stat-card"
+      style={{
+        opacity: cardVisible ? 1 : 0,
+        transform: cardVisible ? "translateY(0)" : "translateY(30px)",
+        transition: `opacity 0.7s ${delay}ms ease, transform 0.7s ${delay}ms ease`,
+      }}
     >
-      <div className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-primary-600 mb-2">
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "10%",
+          right: "10%",
+          height: 1,
+          background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+          opacity: 0.6,
+        }}
+        aria-hidden="true"
+      />
+      <div
+        style={{
+          fontFamily: "var(--l-font-head)",
+          fontWeight: 800,
+          fontSize: "clamp(2.2rem, 4vw, 3rem)",
+          color: accent,
+          lineHeight: 1,
+          marginBottom: 8,
+          letterSpacing: "-0.03em",
+        }}
+      >
         {prefix}
-        {animatedValue.toLocaleString("id-ID")}
+        {decimals > 0 ? count.toFixed(decimals) : count.toLocaleString("id-ID")}
         {suffix}
       </div>
-      <div className="text-text-primary text-lg font-medium">{label}</div>
-    </div>
-  );
-}
-
-function TestimonialCard({ testimonial }) {
-  return (
-    <div className="flex-shrink-0 w-80 sm:w-96 bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow">
-      <div className="flex items-center gap-4 mb-4">
-        <img
-          src={testimonial.avatar}
-          alt={`Foto ${testimonial.name}`}
-          className="w-12 h-12 rounded-full object-cover bg-gradient-to-br from-primary-100 to-primary-200"
-        />
-        <div>
-          <h4 className="font-semibold text-text-primary">
-            {testimonial.name}
-          </h4>
-          <p className="text-sm text-text-muted">{testimonial.role}</p>
-        </div>
-      </div>
-      <p className="text-text-secondary leading-relaxed">
-        {testimonial.content}
-      </p>
-      <div className="mt-4 flex items-center gap-1">
-        {[...Array(5)].map((_, i) => (
-          <svg
-            key={i}
-            className={`w-4 h-4 ${
-              i < testimonial.rating ? "text-accent-500" : "text-gray-300"
-            }`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
+      <div
+        style={{
+          fontFamily: "var(--l-font-body)",
+          fontSize: "0.875rem",
+          color: "var(--l-text-muted)",
+          fontWeight: 500,
+        }}
+      >
+        {label}
       </div>
     </div>
   );
 }
-
-const testimonials = [
-  {
-    id: 1,
-    name: "Sarah Amelia",
-    role: "Freelance Designer",
-    avatar: "",
-    content:
-      "SnapBudget membantu saya menghemat 30% pengeluaran bulanan. Fitur scan struknya luar biasa akurat!",
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: "Budi Santoso",
-    role: "Software Engineer",
-    avatar: "",
-    content:
-      "Analitik keuangannya sangat membantu saya memahami pola pengeluaran. Sekarang saya bisa budgeting lebih baik.",
-    rating: 5,
-  },
-  {
-    id: 3,
-    name: "Diana Putri",
-    role: "Marketing Manager",
-    avatar: "",
-    content:
-      "Chatbot AI-nya seperti punya asisten keuangan pribadi. Sangat responsif dan sarannya praktis!",
-    rating: 5,
-  },
-  {
-    id: 4,
-    name: "Andi Pratama",
-    role: "Mahasiswa",
-    avatar: "",
-    content:
-      "Sebagai mahasiswa, SnapBudget membantu saya mengatur uang saku dengan lebih bijak. Recommended!",
-    rating: 4,
-  },
-  {
-    id: 5,
-    name: "Maya Sari",
-    role: "Business Owner",
-    avatar: "",
-    content:
-      "Fitur tujuan tabungan memotivasi saya untuk konsisten menabung. UI-nya juga sangat intuitif.",
-    rating: 5,
-  },
-];
-
-const getAvatarUrl = (name) => {
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    name
-  )}&background=14b8a6&color=fff&size=128`;
-};
 
 export default function SocialProofSection() {
-  const { ref, isVisible } = useScrollAnimation({
-    threshold: 0.2,
-    triggerOnce: true,
-  });
+  const { ref: sectionRef, visible: sectionVisible } = useReveal(0.15);
 
-  const carouselRef = useRef(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const reducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    if (isPaused || reducedMotion) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [isPaused, reducedMotion]);
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      const cardWidth = 384;
-      const gap = 24;
-      carouselRef.current.scrollTo({
-        left: currentIndex * (cardWidth + gap),
-        behavior: "smooth",
-      });
-    }
-  }, [currentIndex]);
-
-  const handlePrev = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
-    );
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  };
+  const stats = [
+    {
+      value: 15000,
+      suffix: "+",
+      label: "Pengguna Aktif",
+      accent: "var(--l-primary)",
+    },
+    {
+      value: 500000,
+      suffix: "+",
+      label: "Transaksi Tercatat",
+      accent: "var(--l-accent)",
+    },
+    {
+      value: 4.8,
+      suffix: "/5",
+      label: "Rating Rata-rata",
+      accent: "#818CF8",
+      decimals: 1,
+    },
+  ];
 
   return (
     <section
-      id="testimonials"
-      ref={ref}
-      className="py-20 md:py-32 bg-gradient-to-br from-primary-50 to-bg-base"
+      id="social-proof"
+      style={{
+        background: "var(--l-bg)",
+        padding: "120px 0",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Statistics */}
-        <div className="mb-20">
-          <h2
-            className={`font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-text-primary text-center mb-12 transition-all duration-700 ease-out ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-          >
-            Dipercaya Ribuan Pengguna
-          </h2>
+      {/* Decorative orb */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: 500,
+          height: 500,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(129,140,248,0.06) 0%, transparent 70%)",
+          top: "10%",
+          right: "-15%",
+          filter: "blur(60px)",
+          pointerEvents: "none",
+        }}
+      />
 
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div ref={sectionRef} className="grid md:grid-cols-3 gap-5">
+          {stats.map((s, i) => (
             <StatCard
-              value={15000}
-              label="Pengguna Aktif"
-              suffix="+"
-              isVisible={isVisible}
-              delay={0}
+              key={s.label}
+              {...s}
+              delay={i * 150}
+              isVisible={sectionVisible}
+              decimals={s.decimals || 0}
             />
-            <StatCard
-              value={500000}
-              label="Transaksi Tercatat"
-              suffix="+"
-              isVisible={isVisible}
-              delay={200}
-            />
-            <StatCard
-              value={4.8}
-              label="Rating Rata-rata"
-              suffix="/5"
-              isVisible={isVisible}
-              delay={400}
-            />
-          </div>
-        </div>
-
-        {/* Testimonials Carousel */}
-        <div>
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="font-heading text-2xl sm:text-3xl font-bold text-text-primary">
-              Apa Kata Mereka
-            </h3>
-            <div className="flex items-center gap-2">
-              {/* Pause/Play Button (Requirement 8.7) */}
-              <button
-                onClick={() => setIsPaused(!isPaused)}
-                className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
-                aria-label={
-                  isPaused ? "Lanjutkan carousel" : "Hentikan carousel"
-                }
-              >
-                {isPaused ? <Play size={18} /> : <Pause size={18} />}
-              </button>
-              <button
-                onClick={handlePrev}
-                className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
-                aria-label="Testimoni sebelumnya"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                onClick={handleNext}
-                className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
-                aria-label="Testimoni selanjutnya"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
-
-          {/* Carousel Container */}
-          <div
-            ref={carouselRef}
-            className="flex gap-6 overflow-x-hidden scroll-smooth"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            {testimonials.map((testimonial) => (
-              <TestimonialCard
-                key={testimonial.id}
-                testimonial={{
-                  ...testimonial,
-                  avatar: getAvatarUrl(testimonial.name),
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Carousel Indicators */}
-          <div className="flex justify-center gap-2 mt-6">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex
-                    ? "bg-primary-600 w-6"
-                    : "bg-primary-300 hover:bg-primary-400"
-                }`}
-                aria-label={`Lihat testimoni ${index + 1}`}
-                aria-current={index === currentIndex}
-              />
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>
