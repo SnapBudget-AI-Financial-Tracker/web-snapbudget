@@ -67,7 +67,14 @@ function App() {
       <Router>
         <PageTransitionWrapper>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/"
+              element={
+                <PublicRoute>
+                  <Landing />
+                </PublicRoute>
+              }
+            />
             <Route
               path="/login"
               element={
@@ -156,14 +163,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/landing"
-              element={
-                <PublicRoute allowAuthenticated={true}>
-                  <Landing />
-                </PublicRoute>
-              }
-            />
+
             <Route
               path="/about"
               element={

@@ -322,7 +322,7 @@ export default function About() {
           }}
         >
           <Link
-            to="/landing"
+            to="/"
             style={{
               display: "flex",
               alignItems: "center",
@@ -340,7 +340,7 @@ export default function About() {
           </Link>
 
           <Link
-            to="/landing"
+            to="/"
             style={{
               fontFamily: "var(--l-font-head)",
               fontWeight: 700,

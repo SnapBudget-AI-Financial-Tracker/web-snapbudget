@@ -54,7 +54,7 @@ export default function LandingNavbar({ activeSection = "" }) {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link
-              to="/landing"
+              to="/"
               className="flex items-center gap-2.5"
               style={{ cursor: "none" }}
             >
