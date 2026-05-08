@@ -124,8 +124,8 @@ export default function CTASection() {
               transition: "opacity 0.7s 0.2s ease, transform 0.7s 0.2s ease",
             }}
           >
-            Bergabunglah dengan lebih dari 15.000 pengguna yang sudah merasakan manfaat
-            mengelola keuangan dengan bantuan AI.
+            Bergabunglah dengan para pengguna lainnya yang telah merasakan manfaat
+            mengelola keuangan secara cerdas dengan bantuan AI.
           </p>
 
           <div

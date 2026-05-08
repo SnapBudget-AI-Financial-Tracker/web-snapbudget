@@ -35,6 +35,9 @@ function useCursorFollower() {
   const follower = useRef({ x: 0, y: 0 });
   const raf = useRef(null);
   useEffect(() => {
+    // Disable on touch devices
+    if (!window.matchMedia("(hover: hover)").matches) return;
+
     const onMove = (e) => {
       mouse.current = { x: e.clientX, y: e.clientY };
       if (dotRef.current)
@@ -164,18 +167,21 @@ function TeamCard({ member, index }) {
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(32px)",
         transition: `opacity 0.6s ${index * 100}ms ease, transform 0.6s ${index * 100}ms ease`,
+        width: "100%",
+        maxWidth: 380,
+        display: "flex",
       }}
     >
       <div
-        className="l-card"
+        className="l-card p-6 sm:p-8"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          padding: "32px",
           cursor: "none",
           display: "flex",
           flexDirection: "column",
           gap: 20,
+          flex: 1,
           height: "100%",
           borderColor: hovered ? member.accent + "40" : "var(--l-border)",
           boxShadow: hovered
@@ -385,63 +391,84 @@ export default function About() {
         }}
       >
         <div
-          className="max-w-7xl mx-auto px-5 sm:px-8"
+          className="max-w-7xl mx-auto px-4 sm:px-8"
           style={{
-            paddingTop: 16,
-            paddingBottom: 16,
+            paddingTop: 12,
+            paddingBottom: 12,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            gap: "clamp(12px, 4vw, 20px)",
           }}
         >
-          <Link
-            to="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              color: "var(--l-text-muted)",
-              textDecoration: "none",
-              fontFamily: "var(--l-font-body)",
-              fontSize: "0.875rem",
-              cursor: "none",
-              transition: "color 0.2s",
-            }}
+          {/* Left space - Back button */}
+          <div
+            style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}
           >
-            <ArrowLeft size={16} />
-            Kembali
-          </Link>
+            <Link
+              to="/"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "var(--l-text-muted)",
+                textDecoration: "none",
+                fontFamily: "var(--l-font-body)",
+                fontSize: "0.875rem",
+                cursor: "none",
+                transition: "color 0.2s",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              <ArrowLeft size={16} />
+              <span className="hidden sm:inline">Kembali</span>
+            </Link>
+          </div>
 
+          {/* Center Logo */}
           <Link
             to="/"
             style={{
               fontFamily: "var(--l-font-head)",
               fontWeight: 700,
-              fontSize: "1rem",
+              fontSize: "clamp(0.85rem, 3.5vw, 1.1rem)",
               color: "var(--l-text)",
               textDecoration: "none",
               letterSpacing: "-0.02em",
               cursor: "none",
+              textAlign: "center",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
             }}
           >
             SnapBudget
           </Link>
 
-          <Link
-            to="/register"
-            className="l-btn-primary"
-            style={{ padding: "8px 18px", fontSize: "0.8rem", cursor: "none" }}
-          >
-            Daftar Gratis
-          </Link>
+          {/* Right space - Action button */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+            <Link
+              to="/register"
+              className="l-btn-primary"
+              style={{
+                padding: "clamp(6px, 1.5vw, 8px) clamp(8px, 2.5vw, 18px)",
+                fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
+                cursor: "none",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              Daftar
+            </Link>
+          </div>
         </div>
       </nav>
 
       {/* ── Hero project ───────────────────────────────────────── */}
       <section
         style={{
-          paddingTop: 140,
-          paddingBottom: 100,
+          paddingTop: "clamp(100px, 15vh, 140px)",
+          paddingBottom: "clamp(40px, 8vh, 100px)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -523,7 +550,7 @@ export default function About() {
 
           {/* Tiga pilar project */}
           <div
-            className="grid md:grid-cols-3 gap-4"
+            className="grid sm:grid-cols-2 md:grid-cols-3 gap-4"
             style={{
               marginTop: 48,
               opacity: heroVisible ? 1 : 0,
@@ -612,7 +639,11 @@ export default function About() {
         />
 
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
-          <div ref={teamRef} style={{ marginBottom: 60 }}>
+          <div
+            ref={teamRef}
+            style={{ marginBottom: 40 }}
+            className="text-center md:text-left"
+          >
             <div
               className="l-badge"
               style={{
@@ -633,39 +664,43 @@ export default function About() {
                 color: "var(--l-text)",
                 letterSpacing: "-0.03em",
                 maxWidth: 480,
+                margin: "0 auto",
                 opacity: teamVisible ? 1 : 0,
                 transform: teamVisible ? "none" : "translateY(20px)",
                 transition: "opacity 0.7s 0.1s ease, transform 0.7s 0.1s ease",
               }}
+              className="md:mx-0"
             >
-              Orang-orang di balik{" "}
-              <span className="l-gradient-text">SnapBudget</span>
+              Tim di balik <span className="l-gradient-text">SnapBudget</span>
             </h2>
           </div>
 
-          {/* Baris 1: 3 Anggota */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {team.slice(0, 3).map((member, i) => (
-              <TeamCard key={member.name} member={member} index={i} />
-            ))}
-          </div>
-
-          {/* Baris 2: 2 Anggota (Centered) */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
+          {/* Explicit 3+2 Centered Layout */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+            {/* Row 1: 3 members */}
             <div
-              className="grid md:grid-cols-2 gap-6"
               style={{
-                width: "100%",
-                maxWidth: "min(100%, 860px)",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: 32,
               }}
             >
-              {team.slice(3, 5).map((member, i) => (
+              {team.slice(0, 3).map((member, i) => (
+                <TeamCard key={member.name} member={member} index={i} />
+              ))}
+            </div>
+
+            {/* Row 2: 2 members */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: 32,
+              }}
+            >
+              {team.slice(3).map((member, i) => (
                 <TeamCard key={member.name} member={member} index={i + 3} />
               ))}
             </div>

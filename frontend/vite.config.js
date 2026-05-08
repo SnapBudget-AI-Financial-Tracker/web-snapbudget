@@ -1,23 +1,68 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: [],
-  },
-  server: {
-    port: 5173,
-    strictPort: true,
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+export default defineConfig(({ mode }) => {
+  const isDev = mode === 'development'
+
+  return {
+    plugins: [
+      react(),
+      tailwindcss(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.png', 'favicon.svg', 'icons.svg'],
+        manifest: {
+          name: 'SnapBudget - AI Financial Tracker',
+          short_name: 'SnapBudget',
+          description: 'AI-Powered Financial Tracking and Budget Management',
+          theme_color: '#09090b',
+          background_color: '#09090b',
+          display: 'browser',
+          orientation: 'portrait',
+          scope: '/',
+          start_url: '/',
+          icons: [
+            {
+              src: 'favicon.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'favicon.png',
+              sizes: '512x512',
+              type: 'image/png'
+            },
+            {
+              src: 'favicon.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable'
+            }
+          ]
+        },
+        workbox: {
+          globPatterns: isDev ? [] : ['**/*.{js,css,html,ico,png,svg}']
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module'
+        }
+      }),
+    ],
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      setupFiles: [],
     },
-  },
+    server: {
+      port: 5173,
+      strictPort: true,
+      headers: {
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+      },
+    },
+  }
 })

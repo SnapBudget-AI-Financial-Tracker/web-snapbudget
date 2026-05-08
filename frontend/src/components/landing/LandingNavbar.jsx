@@ -56,7 +56,7 @@ export default function LandingNavbar({ activeSection = "" }) {
             <Link
               to="/"
               className="flex items-center gap-2.5"
-              style={{ cursor: "none" }}
+              style={{ cursor: "none", flexShrink: 0, whiteSpace: "nowrap" }}
             >
               <div
                 style={{
@@ -126,7 +126,11 @@ export default function LandingNavbar({ activeSection = "" }) {
               >
                 Masuk
               </Link>
-              <Link to="/register" className="l-btn-primary" style={{ padding: "10px 22px", fontSize: "0.875rem" }}>
+              <Link
+                to="/register"
+                className="l-btn-primary"
+                style={{ padding: "10px 22px", fontSize: "0.875rem" }}
+              >
                 Daftar Gratis
               </Link>
             </div>
@@ -136,7 +140,11 @@ export default function LandingNavbar({ activeSection = "" }) {
               className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Tutup menu" : "Buka menu"}
-              style={{ color: "var(--l-text)", cursor: "pointer" }}
+              style={{
+                color: "var(--l-text)",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
             >
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>

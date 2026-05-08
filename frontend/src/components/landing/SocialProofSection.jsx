@@ -113,19 +113,19 @@ export default function SocialProofSection() {
 
   const stats = [
     {
-      value: 15000,
+      value: 500,
       suffix: "+",
       label: "Pengguna Aktif",
       accent: "var(--l-primary)",
     },
     {
-      value: 500000,
+      value: 10000,
       suffix: "+",
       label: "Transaksi Tercatat",
       accent: "var(--l-accent)",
     },
     {
-      value: 4.8,
+      value: 4.9,
       suffix: "/5",
       label: "Rating Rata-rata",
       accent: "#818CF8",
