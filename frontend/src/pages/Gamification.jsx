@@ -65,87 +65,7 @@ const IconRenderer = ({ name, size = 24, className = "" }) => {
   return Icon ? <Icon size={size} className={className} /> : null;
 };
 
-// ── Level Card ────────────────────────────────────────────────────
-function LevelCard({ data }) {
-  const { stats, currentLevel, nextLevel, poinKeLevel, progressLevel } = data;
 
-  return (
-    <div className="p-5 md:p-6 text-white shadow-lg bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20">
-            <IconRenderer
-              name={currentLevel.icon}
-              size={28}
-              className="text-white"
-            />
-          </div>
-          <div>
-            <p className="text-xs font-medium tracking-wide text-teal-200 uppercase">
-              Level {currentLevel.level}
-            </p>
-            <h2 className="text-2xl font-bold">{currentLevel.nama}</h2>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-teal-200">Total Poin</p>
-          <p className="text-3xl font-bold">{formatPoin(stats.totalPoin)}</p>
-        </div>
-      </div>
-
-      {/* Progress ke level berikutnya */}
-      {nextLevel && (
-        <div>
-          <div className="flex justify-between text-sm mb-1.5">
-            <span className="text-teal-200">
-              Menuju{" "}
-              <IconRenderer
-                name={nextLevel.icon}
-                size={14}
-                className="inline"
-              />{" "}
-              {nextLevel.nama}
-            </span>
-            <span className="font-semibold">
-              {formatPoin(poinKeLevel)} poin lagi
-            </span>
-          </div>
-          <div className="w-full h-2.5 bg-white/20 rounded-full overflow-hidden">
-            <div
-              className="h-full transition-all duration-700 bg-white rounded-full"
-              style={{ width: `${progressLevel}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3 mt-4">
-        {[
-          {
-            label: "Streak",
-            value: `${stats.streakHarian} hari`,
-            icon: "flame",
-          },
-          {
-            label: "Terpanjang",
-            value: `${stats.streakTerpanjang} hari`,
-            icon: "zap",
-          },
-          { label: "Badge", value: data.earnedBadges.length, icon: "award" },
-        ].map((s, i) => (
-          <div key={i} className="px-3 py-2 text-center bg-white/10 rounded-xl">
-            <div className="flex justify-center mb-1">
-              <IconRenderer name={s.icon} size={20} className="text-white" />
-            </div>
-            <p className="text-sm font-bold">{s.value}</p>
-            <p className="text-[10px] text-teal-200 uppercase">{s.label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ── Streak Card ───────────────────────────────────────────────────
 function StreakCard({ stats }) {
@@ -229,51 +149,58 @@ function BadgeGrid({ allBadges }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {filtered.map((badge) => (
           <div
             key={badge.id}
-            className={`relative rounded-xl p-3 border text-center transition-all ${
+            className={`relative rounded-2xl p-4 border text-center transition-all duration-300 group/badge ${
               badge.earned
-                ? "border-teal-100 bg-teal-50 hover:shadow-md hover:-translate-y-0.5"
-                : "border-zinc-100 bg-zinc-50 opacity-50"
+                ? "border-teal-100 bg-gradient-to-b from-white to-teal-50/30 hover:shadow-lg hover:-translate-y-1"
+                : "border-zinc-100 bg-zinc-50/50 opacity-60"
             }`}
           >
-            {badge.earned && (
-              <div className="absolute top-2 right-2">
-                <CheckCircle2 size={12} className="text-teal-500" />
+            {badge.earned ? (
+              <div className="absolute top-2.5 right-2.5 p-1 bg-teal-500 rounded-full shadow-sm">
+                <CheckCircle2 size={10} className="text-white" />
+              </div>
+            ) : (
+              <div className="absolute top-2.5 right-2.5 p-1 bg-zinc-200 rounded-full">
+                <Lock size={10} className="text-zinc-400" />
               </div>
             )}
-            {!badge.earned && (
-              <div className="absolute top-2 right-2">
-                <Lock size={12} className="text-zinc-400" />
+            
+            <div className="mb-3 flex justify-center">
+              <div className={`p-3 rounded-2xl transition-transform duration-500 group-hover/badge:scale-110 ${
+                badge.earned ? "bg-white shadow-sm" : "bg-zinc-100"
+              }`}>
+                {badge.earned ? (
+                  <IconRenderer
+                    name={badge.icon}
+                    size={32}
+                    className="text-teal-600"
+                  />
+                ) : (
+                  <Lock size={32} className="text-zinc-300" />
+                )}
               </div>
-            )}
-            <div className="mb-2 flex justify-center">
-              {badge.earned ? (
-                <IconRenderer
-                  name={badge.icon}
-                  size={32}
-                  className="text-teal-600"
-                />
-              ) : (
-                <Lock size={32} className="text-zinc-400" />
-              )}
             </div>
-            <p className="mb-1 text-xs font-bold leading-tight text-zinc-800">
+            
+            <h4 className="mb-1 text-xs font-bold text-zinc-900 leading-tight">
               {badge.nama}
-            </p>
-            <p className="text-[10px] text-zinc-500 leading-tight">
+            </h4>
+            <p className="text-[10px] text-zinc-500 leading-relaxed px-1">
               {badge.deskripsi}
             </p>
+            
             <div
-              className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${
+              className={`mt-3 text-[10px] font-bold px-3 py-1 rounded-full inline-flex items-center gap-1 ${
                 badge.earned
-                  ? "bg-teal-100 text-teal-700"
-                  : "bg-zinc-100 text-zinc-500"
+                  ? "bg-teal-500 text-white shadow-sm shadow-teal-200"
+                  : "bg-zinc-200 text-zinc-500"
               }`}
             >
-              +{badge.poin} poin
+              <Star size={8} className={badge.earned ? "fill-white" : ""} />
+              {badge.poin} poin
             </div>
           </div>
         ))}
@@ -334,42 +261,166 @@ export default function Gamification() {
           </div>
         </div>
 
-        {/* Level Card */}
-        <LevelCard data={data} />
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fadeIn">
+          {/* Points Card */}
+          <div className="relative overflow-hidden p-6 bg-white border border-teal-100/60 rounded-2xl shadow-sm group hover:shadow-md transition-all duration-300">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <Star size={80} className="text-teal-600 fill-teal-600" />
+            </div>
+            <div className="relative flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 bg-teal-50 rounded-xl">
+                <Sparkles className="text-teal-600" size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Poin</p>
+                <p className="text-2xl font-bold text-zinc-900">{formatPoin(data.stats.totalPoin)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Level Card */}
+          <div className="relative overflow-hidden p-6 bg-white border border-teal-100/60 rounded-2xl shadow-sm group hover:shadow-md transition-all duration-300">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <IconRenderer name={data.currentLevel.icon} size={80} className="text-amber-500 fill-amber-500" />
+            </div>
+            <div className="relative flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 bg-amber-50 rounded-xl">
+                <IconRenderer name={data.currentLevel.icon} size={24} className="text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Level {data.currentLevel.level}</p>
+                <p className="text-2xl font-bold text-zinc-900">{data.currentLevel.nama}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Rank Card */}
+          <div className="relative overflow-hidden p-6 bg-white border border-teal-100/60 rounded-2xl shadow-sm group hover:shadow-md transition-all duration-300">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <TrendingUp size={80} className="text-blue-500" />
+            </div>
+            <div className="relative flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-50 rounded-xl">
+                <Trophy className="text-blue-600" size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Peringkat</p>
+                <p className="text-2xl font-bold text-zinc-900">#{data.rank}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Level Progress Section */}
+        <div className="p-5 md:p-8 bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl text-white shadow-lg relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-10 opacity-10 -mr-10 -mt-10 group-hover:scale-110 transition-transform duration-700">
+             <Trophy size={200} />
+          </div>
+          
+          <div className="relative">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                  <IconRenderer name={data.currentLevel.icon} size={32} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">{data.currentLevel.nama}</h2>
+                  <p className="text-teal-100 text-sm">Terus kumpulkan poin untuk naik level!</p>
+                </div>
+              </div>
+              
+              {data.nextLevel && (
+                <div className="text-left md:text-right">
+                  <p className="text-teal-200 text-xs uppercase tracking-widest font-bold mb-1">Level Berikutnya</p>
+                  <div className="flex items-center md:justify-end gap-2 text-xl font-bold">
+                    <IconRenderer name={data.nextLevel.icon} size={20} />
+                    {data.nextLevel.nama}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {data.nextLevel && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-medium text-teal-100">
+                    Progres Level {data.currentLevel.level}
+                  </span>
+                  <span className="text-lg font-bold">
+                    {data.progressLevel}%
+                  </span>
+                </div>
+                <div className="h-3 w-full bg-black/20 rounded-full overflow-hidden p-0.5 border border-white/10">
+                  <div 
+                    className="h-full bg-gradient-to-r from-teal-200 to-white rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                    style={{ width: `${data.progressLevel}%` }}
+                  />
+                </div>
+                <p className="text-sm text-teal-100 text-center md:text-left italic">
+                  Tinggal {formatPoin(data.poinKeLevel)} poin lagi untuk menjadi {data.nextLevel.nama}!
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Internal Stats row */}
+          <div className="grid grid-cols-3 gap-3 mt-8 border-t border-white/10 pt-6">
+            {[
+              { label: "Streak", value: `${data.stats.streakHarian} hari`, icon: "flame" },
+              { label: "Terpanjang", value: `${data.stats.streakTerpanjang} hari`, icon: "zap" },
+              { label: "Badge", value: data.earnedBadges.length, icon: "award" },
+            ].map((s, i) => (
+              <div key={i} className="text-center group/stat">
+                <div className="flex justify-center mb-2">
+                  <IconRenderer name={s.icon} size={24} className="text-teal-200 group-hover/stat:text-white transition-colors" />
+                </div>
+                <p className="text-lg font-bold">{s.value}</p>
+                <p className="text-[10px] text-teal-300 uppercase tracking-wider font-bold">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Streak */}
         <StreakCard stats={data.stats} />
 
         {/* Cara Dapat Poin */}
-        <div className="p-5 bg-white border shadow-sm rounded-2xl border-teal-100/60">
-          <div className="flex items-center gap-2 mb-4">
-            <Star size={18} className="text-yellow-500" />
-            <h3 className="font-bold text-zinc-900">Cara Dapat Poin</h3>
+        <div className="p-5 bg-white border shadow-sm rounded-2xl border-teal-100/60 overflow-hidden relative group">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-1.5 bg-yellow-50 rounded-lg">
+              <Star size={18} className="text-yellow-500 fill-yellow-500" />
+            </div>
+            <h3 className="font-bold text-zinc-900 tracking-tight">Cara Dapat Poin</h3>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { icon: "pen-line", aksi: "Input Transaksi", poin: "+10 poin" },
-              { icon: "camera", aksi: "Scan Struk", poin: "+25 poin" },
-              { icon: "target", aksi: "Buat Goal", poin: "+50 poin" },
-              { icon: "sparkles", aksi: "Capai Goal", poin: "+100 poin" },
-              { icon: "flame", aksi: "Streak Harian", poin: "+5/hari" },
-              { icon: "wallet", aksi: "Status HEMAT", poin: "+200/bulan" },
-              { icon: "award", aksi: "Raih Badge", poin: "Varies" },
-              { icon: "crown", aksi: "Naik Level", poin: "Milestone" },
+              { icon: "pen-line", aksi: "Input Transaksi", poin: "+10", color: "bg-blue-50 text-blue-600" },
+              { icon: "camera", aksi: "Scan Struk", poin: "+25", color: "bg-purple-50 text-purple-600" },
+              { icon: "target", aksi: "Buat Goal", poin: "+50", color: "bg-emerald-50 text-emerald-600" },
+              { icon: "sparkles", aksi: "Capai Goal", poin: "+100", color: "bg-amber-50 text-amber-600" },
+              { icon: "flame", aksi: "Streak Harian", poin: "+5/hari", color: "bg-orange-50 text-orange-600" },
+              { icon: "wallet", aksi: "Status HEMAT", poin: "+200", color: "bg-teal-50 text-teal-600" },
+              { icon: "award", aksi: "Raih Badge", poin: "Varies", color: "bg-indigo-50 text-indigo-600" },
+              { icon: "crown", aksi: "Naik Level", poin: "Bonus", color: "bg-rose-50 text-rose-600" },
             ].map((item, i) => (
-              <div key={i} className="p-3 text-center bg-zinc-50 rounded-xl">
-                <div className="flex justify-center mb-1">
+              <div 
+                key={i} 
+                className="group/card p-4 text-center bg-zinc-50 border border-transparent hover:border-teal-100 hover:bg-white hover:shadow-md transition-all duration-300 rounded-2xl"
+              >
+                <div className={`flex justify-center items-center w-10 h-10 mx-auto mb-3 rounded-xl ${item.color.split(' ')[0]} transition-transform group-hover/card:scale-110`}>
                   <IconRenderer
                     name={item.icon}
-                    size={24}
-                    className="text-zinc-700"
+                    size={20}
+                    className={item.color.split(' ')[1]}
                   />
                 </div>
-                <p className="text-xs font-semibold text-zinc-700">
+                <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1">
                   {item.aksi}
                 </p>
-                <p className="text-xs text-teal-600 font-bold mt-0.5">
-                  {item.poin}
+                <p className="text-sm font-bold text-zinc-900">
+                  {item.poin} <span className="text-[10px] text-zinc-400 font-normal">poin</span>
                 </p>
               </div>
             ))}

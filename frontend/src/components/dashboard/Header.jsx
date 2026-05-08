@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, Menu, User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -94,18 +94,7 @@ export default function Header({ onMenuClick }) {
           <span className="font-medium text-teal-700">{firstName}</span>!
         </span>
 
-        {/* Notification bell */}
-        <button
-          aria-label="Notifikasi"
-          className="relative p-2 text-zinc-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-colors cursor-pointer"
-        >
-          <Bell size={19} />
-          {/* Red dot badge */}
-          <span
-            className="absolute top-[7px] right-[7px] w-2 h-2 bg-rose-500 rounded-full border-2 border-white"
-            aria-hidden="true"
-          />
-        </button>
+
 
         {/* Avatar + dropdown */}
         <div className="relative ml-1" ref={dropdownRef}>

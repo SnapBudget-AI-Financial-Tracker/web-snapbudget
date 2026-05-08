@@ -168,16 +168,16 @@ export default function ChatbotWidget() {
 
           {/* Suggested Questions */}
           {messages.length === 1 && (
-            <div className="px-3 py-2 bg-white border-t border-zinc-100">
-              <p className="text-[10px] text-zinc-400 mb-1.5 font-medium">
+            <div className="px-3 py-2 bg-white border-t border-zinc-100 overflow-hidden">
+              <p className="text-[10px] text-zinc-400 mb-2 font-medium tracking-wider px-1">
                 PERTANYAAN POPULER
               </p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar pb-1 px-1">
                 {SUGGESTED_QUESTIONS.map((q, i) => (
                   <button
                     key={i}
                     onClick={() => sendMessage(q)}
-                    className="text-[11px] px-2.5 py-1 bg-teal-50 text-teal-700 rounded-full border border-teal-100 hover:bg-teal-100 transition-colors"
+                    className="whitespace-nowrap text-[11px] px-3 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 hover:bg-teal-100 hover:border-teal-200 transition-all active:scale-95 shadow-sm"
                   >
                     {q}
                   </button>

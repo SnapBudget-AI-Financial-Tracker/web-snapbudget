@@ -294,13 +294,22 @@ export const checkGoalBadges = async (userId) => {
 
 // ── Get full gamification data ────────────────────────────────────
 export const getGamificationData = async (userId) => {
-  const [stats, userBadges] = await Promise.all([
-    getOrCreateGameStats(userId),
+  const stats = await getOrCreateGameStats(userId);
+  const [userBadges, rankCount] = await Promise.all([
     prisma.userBadge.findMany({
       where: { userId },
       orderBy: { earnedAt: "desc" },
     }),
+    prisma.userGameStats.count({
+      where: {
+        totalPoin: {
+          gt: stats.totalPoin,
+        },
+      },
+    }),
   ]);
+
+  const rank = rankCount + 1;
 
   const { currentLevel, nextLevel } = getLevelFromPoin(stats.totalPoin);
   const earnedBadgeIds = userBadges.map((b) => b.badgeId);
@@ -317,6 +326,7 @@ export const getGamificationData = async (userId) => {
     nextLevel,
     poinKeLevel,
     progressLevel: Math.round(progressLevel),
+    rank,
     earnedBadges: userBadges
       .map((ub) => ({
         ...BADGES[ub.badgeId],
