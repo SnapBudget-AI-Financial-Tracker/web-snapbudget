@@ -1,5 +1,6 @@
 // frontend/src/components/dashboard/ChatbotWidget.jsx
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
 import api from "../../services/api";
 
@@ -42,6 +43,7 @@ function ChatMessage({ message }) {
 }
 
 export default function ChatbotWidget() {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -66,6 +68,9 @@ export default function ChatbotWidget() {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  // Jangan tampilkan widget jika sedang di halaman chatbot full
+  if (location.pathname === "/chatbot") return null;
 
   const sendMessage = async (text) => {
     const messageText = text || input.trim();

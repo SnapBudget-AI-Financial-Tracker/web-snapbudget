@@ -28,7 +28,7 @@ function ChatMessage({ message }) {
         )}
       </div>
       <div
-        className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
+        className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
         ${
           isBot
             ? "bg-white border border-teal-100 text-zinc-800 rounded-tl-sm shadow-sm"
@@ -116,7 +116,7 @@ export default function Chatbot() {
 
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-6 max-w-4xl mx-auto w-full h-full flex flex-col">
+      <div className="p-3 md:p-6 max-w-4xl mx-auto w-full h-[calc(100vh-64px)] md:h-full flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 animate-fadeIn">
           <div className="flex items-center gap-3">
@@ -146,13 +146,33 @@ export default function Chatbot() {
 
         {/* Chat Container */}
         <div
-          className="flex-1 flex flex-col bg-white rounded-2xl border border-teal-100 shadow-sm overflow-hidden"
-          style={{ minHeight: "calc(100vh - 220px)" }}
+          className="flex-1 flex flex-col bg-white rounded-2xl border border-teal-100 shadow-sm overflow-hidden mb-2 md:mb-0"
         >
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-zinc-50">
             {messages.map((msg, i) => (
-              <ChatMessage key={i} message={msg} />
+              <div key={i} className="space-y-4">
+                <ChatMessage message={msg} />
+                {/* Show suggestions after the first bot message if it's a new chat */}
+                {i === 0 && messages.length === 1 && msg.role === "assistant" && (
+                  <div className="ml-11 animate-fadeInUp" style={{ animationDelay: "200ms" }}>
+                    <p className="text-[10px] text-zinc-400 font-semibold mb-2 uppercase tracking-wider">
+                      Saran Pertanyaan
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {SUGGESTED_QUESTIONS.map((q, i) => (
+                        <button
+                          key={i}
+                          onClick={() => sendMessage(q)}
+                          className="text-xs px-3 py-1.5 bg-white text-zinc-600 rounded-xl border border-zinc-200 hover:border-teal-300 hover:text-teal-600 hover:bg-teal-50 transition-all shadow-sm active:scale-95"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
 
             {/* Loading */}
@@ -182,25 +202,7 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggested Questions */}
-          {messages.length <= 1 && (
-            <div className="px-5 py-3 border-t border-zinc-100 bg-white">
-              <p className="text-xs text-zinc-400 font-medium mb-2 uppercase tracking-wide">
-                Pertanyaan Populer
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {SUGGESTED_QUESTIONS.map((q, i) => (
-                  <button
-                    key={i}
-                    onClick={() => sendMessage(q)}
-                    className="text-xs px-3 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 hover:bg-teal-100 transition-colors"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+
 
           {/* Input */}
           <div className="px-4 py-4 border-t border-zinc-100 bg-white">
@@ -211,8 +213,8 @@ export default function Chatbot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Tanya seputar keuangan kamu... (Enter untuk kirim)"
-                  className="w-full bg-transparent text-sm text-zinc-800 placeholder:text-zinc-400 outline-none resize-none"
+                  placeholder="Tanya seputar keuangan... "
+                  className="w-full bg-transparent text-sm text-zinc-800 placeholder:text-zinc-400 outline-none resize-none py-1"
                   rows={1}
                   disabled={isLoading}
                   style={{ maxHeight: "120px", overflowY: "auto" }}

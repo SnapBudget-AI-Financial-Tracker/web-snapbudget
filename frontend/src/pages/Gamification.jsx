@@ -70,8 +70,8 @@ function LevelCard({ data }) {
   const { stats, currentLevel, nextLevel, poinKeLevel, progressLevel } = data;
 
   return (
-    <div className="p-6 text-white shadow-lg bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-5 md:p-6 text-white shadow-lg bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-6">
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20">
             <IconRenderer
@@ -199,7 +199,7 @@ function BadgeGrid({ allBadges }) {
   const [filter, setFilter] = useState("semua");
 
   const filtered = allBadges.filter((b) =>
-    filter === "semua" ? true : filter === "diraih" ? b.earned : !b.earned
+    filter === "semua" ? true : filter === "diraih" ? b.earned : !b.earned,
   );
 
   return (
