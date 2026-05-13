@@ -21,6 +21,7 @@ export default function SwipeableRow({
   const isDraggingRef = useRef(false);
   const isLockedRef = useRef(false);
   const rafRef = useRef(null);
+  const previewTimeoutsRef = useRef([]);
 
   const [offset, setOffset] = useState(0);
   const [isSpringing, setIsSpringing] = useState(false);
@@ -40,6 +41,11 @@ export default function SwipeableRow({
     }, SPRING_BACK_MS);
   }, []);
 
+  const clearPreview = useCallback(() => {
+    previewTimeoutsRef.current.forEach(clearTimeout);
+    previewTimeoutsRef.current = [];
+  }, []);
+
   const onPointerDown = useCallback(
     (e) => {
       if (disabled) return;
@@ -49,8 +55,9 @@ export default function SwipeableRow({
       startYRef.current = e.touches ? e.touches[0].clientY : e.clientY;
       currentXRef.current = startXRef.current;
       setIsSpringing(false);
+      clearPreview();
     },
-    [disabled],
+    [disabled, clearPreview],
   );
 
   const onPointerMove = useCallback((e) => {
@@ -90,11 +97,52 @@ export default function SwipeableRow({
     }
   }, [threshold, onEdit, onDelete, springBackTo]);
 
+  const handleMouseEnter = useCallback(() => {
+    // Only preview if not dragging, and starts from center
+    if (disabled || isDraggingRef.current || offset !== 0) return;
+    
+    clearPreview();
+    
+    const t1 = setTimeout(() => {
+      if (isDraggingRef.current) return;
+      setIsSpringing(true);
+      setOffset(-24); // Peek left (Delete)
+      
+      const t2 = setTimeout(() => {
+        if (isDraggingRef.current) return;
+        setOffset(24); // Peek right (Edit)
+        
+        const t3 = setTimeout(() => {
+          if (isDraggingRef.current) return;
+          setOffset(0); // Center
+          
+          const t4 = setTimeout(() => {
+            if (!isDraggingRef.current) setIsSpringing(false);
+          }, SPRING_BACK_MS);
+          previewTimeoutsRef.current.push(t4);
+        }, SPRING_BACK_MS + 80);
+        previewTimeoutsRef.current.push(t3);
+      }, SPRING_BACK_MS + 80);
+      previewTimeoutsRef.current.push(t2);
+    }, 250); // initial delay
+    
+    previewTimeoutsRef.current.push(t1);
+  }, [disabled, offset, clearPreview]);
+
+  const handleMouseLeave = useCallback(() => {
+    clearPreview();
+    // If we left while it was previewing and not dragging, snap back
+    if (!isDraggingRef.current && offset !== 0) {
+      springBackTo(0);
+    }
+  }, [clearPreview, offset, springBackTo]);
+
   useEffect(
     () => () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clearPreview();
     },
-    [],
+    [clearPreview],
   );
 
   const absOffset = Math.abs(offset);
@@ -116,6 +164,8 @@ export default function SwipeableRow({
       ref={containerRef}
       className="relative overflow-hidden"
       style={{ touchAction: "pan-y" }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div
         aria-hidden="true"
@@ -207,3 +257,4 @@ export default function SwipeableRow({
     </div>
   );
 }
+
