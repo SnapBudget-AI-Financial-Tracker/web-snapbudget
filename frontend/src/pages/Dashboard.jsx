@@ -6,7 +6,9 @@ import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
 import ScanStrukUpload from "../components/dashboard/ScanStrukUpload";
-
+import EditTransactionModal from "../components/dashboard/EditTransactionModal";
+import SwipeableRow from "../components/ui/SwipeableRow";
+import DeleteConfirmSheet from "../components/ui/DeleteConfirmSheet";
 import AddTransactionModal from "../components/dashboard/AddTransactionModal";
 import OnboardingModal from "../components/onboarding/OnboardingModal";
 import Button from "../components/ui/Button";
@@ -28,8 +30,6 @@ import {
   X,
   BarChart3,
 } from "lucide-react";
-
-// ─── Design constants ────────────────────────────────────────────────────────
 
 const CATEGORY_CONFIG = {
   makanan: {
@@ -127,8 +127,6 @@ const HERO_BADGE_COLORS = {
 const RING_RADIUS = 52;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 326.73
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function getGreeting() {
   const h = new Date().getHours();
   if (h >= 4 && h < 11) return "Selamat pagi";
@@ -146,12 +144,9 @@ function getIndonesianDate() {
   });
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function Dashboard() {
   const { user } = useAuth();
 
-  // ── State ──────────────────────────────────────────────────────────────────
   const [transactions, setTransactions] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -160,12 +155,14 @@ export default function Dashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(true);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [deletingTransaction, setDeletingTransaction] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const [summary, setSummary] = useState({
     totalBalance: 0,
     monthlySpending: 0,
   });
 
-  // ── Data fetching ──────────────────────────────────────────────────────────
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
@@ -234,7 +231,6 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  // ── Event handlers ─────────────────────────────────────────────────────────
   const handleScanSuccess = () => {
     setShowScanUpload(false);
     fetchDashboardData();
@@ -251,7 +247,24 @@ export default function Dashboard() {
     fetchDashboardData();
   };
 
-  // ── Format helpers ─────────────────────────────────────────────────────────
+  // Swipe-left delete confirmation
+  const handleSwipeDelete = (t) => setDeletingTransaction(t);
+
+  const handleConfirmDelete = async () => {
+    if (!deletingTransaction) return;
+    const id = deletingTransaction.id;
+    try {
+      setDeletingId(id);
+      await transactionService.deleteTransaction(id);
+      setDeletingTransaction(null);
+      fetchDashboardData();
+    } catch (err) {
+      console.error("Delete error:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const formatCurrency = (amount) => {
     const absAmount = Math.abs(Math.round(amount));
     const formatted = absAmount
@@ -260,7 +273,6 @@ export default function Dashboard() {
     return `Rp ${formatted}`;
   };
 
-  // ── Computed values ────────────────────────────────────────────────────────
   const budgetBulanan = dashboardData?.user_budget?.budgetBulanan || 0;
   const totalSpending = summary.monthlySpending;
   const sisaBudget = budgetBulanan - totalSpending;
@@ -305,7 +317,6 @@ export default function Dashboard() {
   // User first name
   const firstName = user?.name?.split(" ")[0] || "Pengguna";
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
       {/* ── Modals ── */}
@@ -348,7 +359,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ══ Main content ══════════════════════════════════════════════════════ */}
       <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
         {/* ── 1. Welcome section ─────────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4 mb-6 animate-fadeIn">
@@ -386,7 +396,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── 2. Setup reminder banner ────────────────────────────────────── */}
         {!isOnboardingComplete && !showOnboarding && (
           <div className="mb-5 bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-200 rounded-[var(--radius-xl)] p-4 animate-fadeIn">
             <div className="flex items-start justify-between gap-4">
@@ -420,7 +429,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── 3. AI status banner ─────────────────────────────────────────── */}
         {!isLoading && dashboardData?.rekomendasi && bannerConf && (
           <div
             className={`mb-5 ${bannerConf.bg} border ${bannerConf.border} rounded-[var(--radius-xl)] px-4 py-3 flex items-center justify-between gap-3 animate-slideUp`}
@@ -441,7 +449,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── 4. Budget hero card + stat cards ───────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
           {/* Hero card — spans 2 columns on large screens */}
           {isLoading ? (
@@ -582,7 +589,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Right column: 2 stat cards stacked */}
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
             {isLoading ? (
               <>
@@ -612,7 +618,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── 5. Spending Breakdown (full-width) ──────────────────────────── */}
         {!isLoading && dashboardData && (
           <div className="mb-5 animate-fadeIn">
             <div className="bg-white rounded-[var(--radius-xl)] border border-teal-100/60 shadow-[var(--shadow-md)] p-6">
@@ -721,7 +726,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── 6. Recent Transactions ──────────────────────────────────────── */}
         <div className="animate-slideUp">
           {/* Section header */}
           <div className="flex items-center justify-between mb-4">
@@ -781,35 +785,41 @@ export default function Dashboard() {
                   });
 
                   return (
-                    <div
+                    <SwipeableRow
                       key={t.id}
-                      className="flex items-center gap-3 px-4 py-3.5 hover:bg-teal-50/40 transition-colors"
+                      onEdit={() => setEditingTransaction(t)}
+                      onDelete={() => handleSwipeDelete(t)}
+                      editLabel="Edit"
+                      deleteLabel="Hapus"
                     >
-                      {/* Category icon badge */}
-                      <div
-                        className={`w-10 h-10 rounded-xl ${conf.bg} flex items-center justify-center flex-shrink-0 shadow-sm`}
-                      >
-                        <Icon size={17} className={conf.text} />
-                      </div>
+                      {/* Row content */}
+                      <div className="flex items-center gap-3 px-4 py-3.5 select-none">
+                        {/* Category icon badge */}
+                        <div
+                          className={`w-10 h-10 rounded-xl ${conf.bg} flex items-center justify-center flex-shrink-0 shadow-sm`}
+                        >
+                          <Icon size={17} className={conf.text} />
+                        </div>
 
-                      {/* Description + meta */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-zinc-900 truncate">
-                          {t.description || "Transaksi"}
-                        </p>
-                        <p className="text-xs text-zinc-400 mt-0.5 capitalize">
-                          {conf.label || t.category} · {dateStr}
-                        </p>
-                      </div>
+                        {/* Description + meta */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-zinc-900 truncate">
+                            {t.description || "Transaksi"}
+                          </p>
+                          <p className="text-xs text-zinc-400 mt-0.5 capitalize">
+                            {conf.label || t.category} · {dateStr}
+                          </p>
+                        </div>
 
-                      {/* Amount */}
-                      <span
-                        className="text-sm font-bold text-zinc-900 flex-shrink-0"
-                        style={{ fontFamily: "var(--font-heading)" }}
-                      >
-                        -{formatCurrency(Math.abs(t.amount))}
-                      </span>
-                    </div>
+                        {/* Amount */}
+                        <span
+                          className="text-sm font-bold text-zinc-900 flex-shrink-0"
+                          style={{ fontFamily: "var(--font-heading)" }}
+                        >
+                          -{formatCurrency(Math.abs(t.amount))}
+                        </span>
+                      </div>
+                    </SwipeableRow>
                   );
                 })}
               </div>
@@ -860,9 +870,28 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Bottom padding for comfort */}
         <div className="h-8" aria-hidden="true" />
       </div>
+
+      {editingTransaction && (
+        <EditTransactionModal
+          transaction={editingTransaction}
+          onClose={() => setEditingTransaction(null)}
+          onSuccess={() => {
+            setEditingTransaction(null);
+            fetchDashboardData();
+          }}
+        />
+      )}
+
+      {deletingTransaction && (
+        <DeleteConfirmSheet
+          transaction={deletingTransaction}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setDeletingTransaction(null)}
+          isDeleting={deletingId === deletingTransaction.id}
+        />
+      )}
     </DashboardLayout>
   );
 }

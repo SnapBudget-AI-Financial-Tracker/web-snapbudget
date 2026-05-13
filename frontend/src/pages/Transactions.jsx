@@ -1,6 +1,17 @@
-import { useState, useEffect, useCallback, useMemo, createElement } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  createElement,
+} from "react";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import AddTransactionModal from "../components/dashboard/AddTransactionModal";
+import EditTransactionModal from "../components/dashboard/EditTransactionModal";
+import SwipeableRow from "../components/ui/SwipeableRow";
+import SwipeHintOverlay from "../components/ui/SwipeHintOverlay";
+import { useSwipeHint } from "../hooks/useSwipeHint";
+import DeleteConfirmSheet from "../components/ui/DeleteConfirmSheet";
 import Button from "../components/ui/Button";
 import Skeleton from "../components/ui/Skeleton";
 import { getCategoryIcon } from "../utils/categoryIcons.js";
@@ -17,38 +28,55 @@ import {
   TrendingDown,
   TrendingUp,
   Wallet,
-  Trash2,
   ChevronDown,
   ChevronUp,
   X,
 } from "lucide-react";
 import { useToast } from "../context/ToastContext";
 
-/* ─── Constants ─────────────────────────────────────────────── */
 const CATEGORIES = [
-  { id: "semua",        label: "Semua" },
-  { id: "makanan",      label: "Makanan" },
-  { id: "minuman",      label: "Minuman" },
+  { id: "semua", label: "Semua" },
+  { id: "makanan", label: "Makanan" },
+  { id: "minuman", label: "Minuman" },
   { id: "transportasi", label: "Transportasi" },
-  { id: "belanja",      label: "Belanja" },
-  { id: "tagihan",      label: "Tagihan" },
-  { id: "hiburan",      label: "Hiburan" },
-  { id: "kesehatan",    label: "Kesehatan" },
-  { id: "lain-lain",    label: "Lain-lain" },
+  { id: "belanja", label: "Belanja" },
+  { id: "tagihan", label: "Tagihan" },
+  { id: "hiburan", label: "Hiburan" },
+  { id: "kesehatan", label: "Kesehatan" },
+  { id: "lain-lain", label: "Lain-lain" },
 ];
 
 const CATEGORY_COLORS = {
-  makanan:      { bg: "bg-orange-50",  text: "text-orange-600",  ring: "ring-orange-200" },
-  minuman:      { bg: "bg-blue-50",    text: "text-blue-600",    ring: "ring-blue-200" },
-  transportasi: { bg: "bg-purple-50",  text: "text-purple-600",  ring: "ring-purple-200" },
-  belanja:      { bg: "bg-pink-50",    text: "text-pink-600",    ring: "ring-pink-200" },
-  tagihan:      { bg: "bg-red-50",     text: "text-red-600",     ring: "ring-red-200" },
-  hiburan:      { bg: "bg-yellow-50",  text: "text-yellow-600",  ring: "ring-yellow-200" },
-  kesehatan:    { bg: "bg-green-50",   text: "text-green-600",   ring: "ring-green-200" },
-  "lain-lain":  { bg: "bg-zinc-50",    text: "text-zinc-500",    ring: "ring-zinc-200" },
+  makanan: {
+    bg: "bg-orange-50",
+    text: "text-orange-600",
+    ring: "ring-orange-200",
+  },
+  minuman: { bg: "bg-blue-50", text: "text-blue-600", ring: "ring-blue-200" },
+  transportasi: {
+    bg: "bg-purple-50",
+    text: "text-purple-600",
+    ring: "ring-purple-200",
+  },
+  belanja: { bg: "bg-pink-50", text: "text-pink-600", ring: "ring-pink-200" },
+  tagihan: { bg: "bg-red-50", text: "text-red-600", ring: "ring-red-200" },
+  hiburan: {
+    bg: "bg-yellow-50",
+    text: "text-yellow-600",
+    ring: "ring-yellow-200",
+  },
+  kesehatan: {
+    bg: "bg-green-50",
+    text: "text-green-600",
+    ring: "ring-green-200",
+  },
+  "lain-lain": {
+    bg: "bg-zinc-50",
+    text: "text-zinc-500",
+    ring: "ring-zinc-200",
+  },
 };
 
-/* ─── Helpers ────────────────────────────────────────────────── */
 const formatIDR = (amount) =>
   `Rp ${new Intl.NumberFormat("id-ID").format(Math.abs(amount))}`;
 
@@ -76,7 +104,6 @@ function groupTransactionsByDate(transactions) {
     if (!groups[dateKey]) groups[dateKey] = [];
     groups[dateKey].push(t);
   });
-  // Sort keys in descending order (newest first)
   return Object.entries(groups)
     .sort(([a], [b]) => b.localeCompare(a))
     .map(([date, items]) => ({
@@ -86,7 +113,6 @@ function groupTransactionsByDate(transactions) {
     }));
 }
 
-/* ─── Empty State SVG ────────────────────────────────────────── */
 function EmptyIllustration() {
   return (
     <svg
@@ -99,7 +125,15 @@ function EmptyIllustration() {
     >
       {/* Receipt card */}
       <rect x="30" y="18" width="80" height="104" rx="12" fill="#f0fdfa" />
-      <rect x="30" y="18" width="80" height="104" rx="12" stroke="#ccfbf1" strokeWidth="1.5" />
+      <rect
+        x="30"
+        y="18"
+        width="80"
+        height="104"
+        rx="12"
+        stroke="#ccfbf1"
+        strokeWidth="1.5"
+      />
       {/* Zigzag bottom */}
       <path
         d="M30 110 L37 118 L44 110 L51 118 L58 110 L65 118 L72 110 L79 118 L86 110 L93 118 L100 110 L107 118 L110 114"
@@ -113,8 +147,24 @@ function EmptyIllustration() {
       <rect x="44" y="70" width="44" height="5" rx="2.5" fill="#ccfbf1" />
       <rect x="44" y="84" width="28" height="5" rx="2.5" fill="#ccfbf1" />
       {/* Coin circle */}
-      <circle cx="104" cy="86" r="18" fill="#f0fdfa" stroke="#14b8a6" strokeWidth="1.5" />
-      <text x="104" y="91" textAnchor="middle" fontSize="12" fill="#14b8a6" fontWeight="700">Rp</text>
+      <circle
+        cx="104"
+        cy="86"
+        r="18"
+        fill="#f0fdfa"
+        stroke="#14b8a6"
+        strokeWidth="1.5"
+      />
+      <text
+        x="104"
+        y="91"
+        textAnchor="middle"
+        fontSize="12"
+        fill="#14b8a6"
+        fontWeight="700"
+      >
+        Rp
+      </text>
     </svg>
   );
 }
@@ -124,10 +174,14 @@ function SummaryCard({ icon, iconBg, iconColor, label, value, valueColor }) {
   return (
     <div className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] px-4 py-3 hover:shadow-[var(--shadow-md)] transition-all duration-200">
       <div className="flex items-center gap-2 mb-1.5">
-        <div className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}>
+        <div
+          className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}
+        >
           {createElement(icon, { size: 14, className: iconColor })}
         </div>
-        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">{label}</p>
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+          {label}
+        </p>
       </div>
       <p
         className={`text-lg font-bold truncate ${valueColor || "text-zinc-900"}`}
@@ -139,8 +193,7 @@ function SummaryCard({ icon, iconBg, iconColor, label, value, valueColor }) {
   );
 }
 
-/* ─── Transaction Item ───────────────────────────────────────── */
-function TransactionItem({ transaction, onDelete, isDeleting }) {
+function TransactionItemContent({ transaction }) {
   const { description, amount, category, date } = transaction;
   const isExpense = amount < 0;
   const colors = CATEGORY_COLORS[category] || CATEGORY_COLORS["lain-lain"];
@@ -151,10 +204,15 @@ function TransactionItem({ transaction, onDelete, isDeleting }) {
   const catLabel = CATEGORIES.find((c) => c.id === category)?.label || category;
 
   return (
-    <div className="group flex items-center gap-3 px-4 py-3 hover:bg-teal-50/40 transition-all duration-150 cursor-default">
+    <div className="flex items-center gap-3 px-4 py-3 select-none">
       {/* Category Icon */}
-      <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center flex-shrink-0 shadow-sm ring-1 ${colors.ring}`}>
-        {createElement(getCategoryIcon(category), { size: 17, className: colors.text })}
+      <div
+        className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center flex-shrink-0 shadow-sm ring-1 ${colors.ring}`}
+      >
+        {createElement(getCategoryIcon(category), {
+          size: 17,
+          className: colors.text,
+        })}
       </div>
 
       {/* Info */}
@@ -163,46 +221,34 @@ function TransactionItem({ transaction, onDelete, isDeleting }) {
           {description || "Transaksi"}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${colors.bg} ${colors.text} capitalize`}>
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${colors.bg} ${colors.text} capitalize`}
+          >
             {catLabel}
           </span>
           <span className="text-[11px] text-zinc-400">{timeStr}</span>
         </div>
       </div>
 
-      {/* Amount + Actions */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <div className="text-right">
-          <p className={`text-sm font-bold ${isExpense ? "text-rose-600" : "text-emerald-600"}`}>
-            <span className="inline-flex items-center gap-0.5">
-              {isExpense ? (
-                <ArrowDownLeft size={12} className="text-rose-400" />
-              ) : (
-                <ArrowUpRight size={12} className="text-emerald-400" />
-              )}
-              {formatIDR(amount)}
-            </span>
-          </p>
-        </div>
-        {onDelete && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(transaction.id);
-            }}
-            disabled={isDeleting}
-            className="p-1.5 rounded-lg text-zinc-300 hover:text-rose-500 hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-300"
-            aria-label={`Hapus transaksi ${description}`}
-          >
-            <Trash2 size={14} />
-          </button>
-        )}
+      {/* Amount */}
+      <div className="text-right flex-shrink-0">
+        <p
+          className={`text-sm font-bold ${isExpense ? "text-rose-600" : "text-emerald-600"}`}
+        >
+          <span className="inline-flex items-center gap-0.5">
+            {isExpense ? (
+              <ArrowDownLeft size={12} className="text-rose-400" />
+            ) : (
+              <ArrowUpRight size={12} className="text-emerald-400" />
+            )}
+            {formatIDR(amount)}
+          </span>
+        </p>
       </div>
     </div>
   );
 }
 
-/* ─── Skeleton Loading ───────────────────────────────────────── */
 function TransactionSkeletons() {
   return (
     <div className="space-y-4">
@@ -224,33 +270,47 @@ function TransactionSkeletons() {
   );
 }
 
-/* ─── Main Page ──────────────────────────────────────────────── */
 export default function Transactions() {
-  const [searchTerm, setSearchTerm]         = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("semua");
-  const [showModal, setShowModal]           = useState(false);
-  const [transactions, setTransactions]     = useState([]);
-  const [isLoading, setIsLoading]           = useState(true);
-  const [deletingId, setDeletingId]         = useState(null);
-  const [sortNewest, setSortNewest]         = useState(true);
-  const [showFilters, setShowFilters]       = useState(false);
-  const reducedMotion                       = useReducedMotion();
-  const { showToast }                       = useToast();
+  const [showModal, setShowModal] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [sortNewest, setSortNewest] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [deletingTransaction, setDeletingTransaction] = useState(null); // pending confirm
+  const reducedMotion = useReducedMotion();
+  const { showToast } = useToast();
+  const [showHint, markHintSeen] = useSwipeHint("snapbudget_swipe_hint_seen");
 
-  const openModal  = useCallback(() => setShowModal(true),  []);
+  const openModal = useCallback(() => setShowModal(true), []);
   const closeModal = useCallback(() => setShowModal(false), []);
 
   // Initial data load
   useEffect(() => {
     let cancelled = false;
     transactionService.getTransactions().then(
-      (data) => { if (!cancelled) { setTransactions(data); setIsLoading(false); } },
-      (err) => { if (!cancelled) { console.error("Error:", err); setIsLoading(false); } }
+      (data) => {
+        if (!cancelled) {
+          setTransactions(data);
+          setIsLoading(false);
+        }
+      },
+      (err) => {
+        if (!cancelled) {
+          console.error("Error:", err);
+          setIsLoading(false);
+        }
+      },
     );
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Refetch helper for imperative use (after add/delete)
+  // Refetch helper
   const refetch = async () => {
     try {
       setIsLoading(true);
@@ -269,12 +329,18 @@ export default function Transactions() {
     refetch();
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Yakin ingin menghapus transaksi ini?")) return;
+  const handleSwipeDelete = (transaction) => {
+    setDeletingTransaction(transaction);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingTransaction) return;
+    const id = deletingTransaction.id;
     try {
       setDeletingId(id);
       await transactionService.deleteTransaction(id);
       showToast?.("Transaksi berhasil dihapus", "success");
+      setDeletingTransaction(null);
       refetch();
     } catch (error) {
       console.error("Delete error:", error);
@@ -321,13 +387,14 @@ export default function Transactions() {
   }, [transactions]);
 
   // Grouped by date
-  const dateGroups = useMemo(() => groupTransactionsByDate(filtered), [filtered]);
+  const dateGroups = useMemo(
+    () => groupTransactionsByDate(filtered),
+    [filtered],
+  );
 
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 max-w-7xl mx-auto w-full overflow-x-hidden">
-
-        {/* ══ Header ══════════════════════════════════════════════════════════ */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 animate-fadeIn">
           <div>
             <h1
@@ -351,7 +418,6 @@ export default function Transactions() {
           </Button>
         </div>
 
-        {/* ══ Summary Cards ══════════════════════════════════════════════════ */}
         {isLoading ? (
           <div className="grid grid-cols-3 gap-3 mb-6">
             {[...Array(3)].map((_, i) => (
@@ -389,7 +455,6 @@ export default function Transactions() {
           </div>
         )}
 
-        {/* ══ Search & Filter Bar ════════════════════════════════════════════ */}
         <div className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] mb-4 overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-2.5">
             {/* Search input */}
@@ -448,7 +513,8 @@ export default function Transactions() {
               >
                 {CATEGORIES.map((cat) => {
                   const isActive = activeCategory === cat.id;
-                  const Icon = cat.id !== "semua" ? getCategoryIcon(cat.id) : null;
+                  const Icon =
+                    cat.id !== "semua" ? getCategoryIcon(cat.id) : null;
                   return (
                     <button
                       key={cat.id}
@@ -472,7 +538,6 @@ export default function Transactions() {
           )}
         </div>
 
-        {/* ══ Active filter indicator ════════════════════════════════════════ */}
         {(activeCategory !== "semua" || searchTerm) && (
           <div className="flex items-center gap-2 mb-4 animate-fadeIn">
             <span className="text-xs text-zinc-400">Filter aktif:</span>
@@ -504,7 +569,6 @@ export default function Transactions() {
           </div>
         )}
 
-        {/* ══ Content ════════════════════════════════════════════════════════ */}
         {isLoading ? (
           <TransactionSkeletons />
         ) : filtered.length > 0 ? (
@@ -529,12 +593,15 @@ export default function Transactions() {
                 <div className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] overflow-hidden">
                   <div className="divide-y divide-zinc-50/80">
                     {group.transactions.map((t) => (
-                      <TransactionItem
+                      <SwipeableRow
                         key={t.id}
-                        transaction={t}
-                        onDelete={handleDelete}
-                        isDeleting={deletingId === t.id}
-                      />
+                        onEdit={() => setEditingTransaction(t)}
+                        onDelete={() => handleSwipeDelete(t)}
+                        editLabel="Edit"
+                        deleteLabel="Hapus"
+                      >
+                        <TransactionItemContent transaction={t} />
+                      </SwipeableRow>
                     ))}
                   </div>
                 </div>
@@ -553,14 +620,11 @@ export default function Transactions() {
                 className="text-lg font-bold text-white"
                 style={{ fontFamily: "var(--font-heading)" }}
               >
-                {formatIDR(
-                  filtered.reduce((sum, t) => sum + t.amount, 0)
-                )}
+                {formatIDR(filtered.reduce((sum, t) => sum + t.amount, 0))}
               </span>
             </div>
           </div>
         ) : (
-          /* ══ Empty State ══════════════════════════════════════════════════ */
           <div
             className="bg-white rounded-xl border border-teal-100/60 shadow-[var(--shadow-sm)] p-14 text-center flex flex-col items-center"
             style={reducedMotion ? {} : { animation: "fadeIn 200ms ease both" }}
@@ -593,12 +657,35 @@ export default function Transactions() {
         )}
       </div>
 
-      {/* ══ Add Transaction Modal ════════════════════════════════════════════ */}
       <AddTransactionModal
         isOpen={showModal}
         onClose={closeModal}
         onSuccess={handleAddSuccess}
       />
+
+      {editingTransaction && (
+        <EditTransactionModal
+          transaction={editingTransaction}
+          onClose={() => setEditingTransaction(null)}
+          onSuccess={() => {
+            setEditingTransaction(null);
+            refetch();
+          }}
+        />
+      )}
+
+      {deletingTransaction && (
+        <DeleteConfirmSheet
+          transaction={deletingTransaction}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setDeletingTransaction(null)}
+          isDeleting={deletingId === deletingTransaction.id}
+        />
+      )}
+
+      {showHint && !isLoading && transactions.length > 0 && (
+        <SwipeHintOverlay onDone={markHintSeen} />
+      )}
     </DashboardLayout>
   );
 }
