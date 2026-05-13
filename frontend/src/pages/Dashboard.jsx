@@ -334,7 +334,13 @@ export default function Dashboard() {
 
       {/* Scan Struk modal overlay */}
       {showScanUpload && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            // Tutup jika klik di luar modal (backdrop)
+            if (e.target === e.currentTarget) setShowScanUpload(false);
+          }}
+        >
           <div className="bg-white rounded-[var(--radius-xl)] shadow-[var(--shadow-2xl)] w-full max-w-lg animate-slideUp overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100">
               <div className="flex items-center gap-2">
@@ -354,7 +360,10 @@ export default function Dashboard() {
                 <X size={17} />
               </button>
             </div>
-            <ScanStrukUpload onSuccess={handleScanSuccess} />
+            <ScanStrukUpload
+              onSuccess={handleScanSuccess}
+              onClose={() => setShowScanUpload(false)}
+            />
           </div>
         </div>
       )}

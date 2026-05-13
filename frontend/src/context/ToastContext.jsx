@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from 'react';
-import { ToastContainer } from '../components/ui/Toast.jsx';
-import { ToastContext } from './ToastContext.js';
+import { useCallback, useRef, useState } from "react";
+import { ToastContainer } from "../components/ui/Toast.jsx";
+import { ToastContext } from "./ToastContext.js";
 
 let nextId = 0;
 
@@ -26,7 +26,16 @@ export function ToastProvider({ children }) {
   }, []);
 
   const showToast = useCallback(
-    ({ message, variant = 'info' }) => {
+    (msgOrObj, variantArg = "info") => {
+      const message =
+        typeof msgOrObj === "object" && msgOrObj !== null
+          ? msgOrObj.message
+          : msgOrObj;
+      const variant =
+        typeof msgOrObj === "object" && msgOrObj !== null
+          ? (msgOrObj.variant ?? "info")
+          : variantArg;
+
       const id = ++nextId;
       setToasts((prev) => {
         const trimmed = prev.length >= 3 ? prev.slice(prev.length - 2) : prev;
@@ -37,7 +46,7 @@ export function ToastProvider({ children }) {
         delete timersRef.current[id];
       }, 4000);
     },
-    [removeToast]
+    [removeToast],
   );
 
   const closeToast = useCallback(
@@ -48,7 +57,7 @@ export function ToastProvider({ children }) {
       }
       removeToast(id);
     },
-    [removeToast]
+    [removeToast],
   );
 
   return (
