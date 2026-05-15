@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, User } from "lucide-react";
+import { Menu, Sliders } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -155,8 +155,8 @@ export default function Header({ onMenuClick }) {
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-teal-700 hover:bg-teal-50 transition-colors cursor-pointer"
               >
-                <User size={14} className="text-teal-400" />
-                Profil &amp; Pengaturan
+                <Sliders size={14} className="text-teal-400" />
+                Alokasi Budget
               </Link>
 
               {/* Divider + sign-out */}
