@@ -19,6 +19,8 @@ Thumbs.db
 
 # Logs
 *.log
+coverage/
+**/coverage/
 
 # Docker Compose
 docker-compose.yml

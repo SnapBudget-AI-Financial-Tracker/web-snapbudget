@@ -285,23 +285,43 @@ AI_SERVICE_URL=http://localhost:8000
 
 ---
 
-## 🧪 Menjalankan Tests
+## 🧪 Testing & Test-Driven Development (TDD)
 
-### Frontend Tests
+Proyek ini menggunakan **Vitest** sebagai test runner untuk Frontend dan Backend, serta **React Testing Library** untuk pengujian komponen UI. Kami menerapkan praktik pengujian yang kuat untuk menjaga kualitas kode.
+
+### Status Coverage Saat Ini
+
+Kami secara rutin melacak *code coverage* dari pengujian kami untuk memastikan bahwa fitur-fitur yang ada telah teruji dengan baik dan meminimalisir adanya bug di production.
+
+- **Backend Coverage**: ~81% Branches, ~82% Functions, ~73% Lines
+- **Frontend Coverage**: Meliputi pengujian ekstensif pada utilitas, hook, hingga rendering komponen UI krusial.
+
+*Catatan: Anda dapat melihat visualisasi laporan coverage lengkap dengan membuka file `coverage/index.html` pada masing-masing folder (frontend/backend) melalui browser setelah menjalankan perintah testing dengan mode coverage.*
+
+### Cara Menjalankan Tests
+
+Instruksi ini berlaku baik di dalam folder `backend` maupun `frontend`. Pastikan Anda sudah masuk ke direktori yang sesuai (contoh: `cd backend` atau `cd frontend`).
 
 ```bash
-cd frontend
+# 1. Menjalankan seluruh tes satu kali (Single Run)
+npm run test
 
-# Run tests once
-npm test
+# 2. Menjalankan tes beserta pembuatan laporan Coverage
+npm run test:coverage
 
-# Run tests dengan coverage
-npm run test -- --coverage
-
-# Run tests dalam watch mode (development)
-npx vitest
+# 3. Menjalankan tes dalam Watch Mode (Otomatis jalan ulang saat ada file berubah)
+npm run test:watch
 ```
 
+### Panduan Test-Driven Development (TDD)
+
+Bagi Anda yang ingin berkontribusi menggunakan pendekatan pengembangan TDD, silakan ikuti alur kerja (*Red-Green-Refactor*) berikut:
+
+1. **Jalankan Watch Mode**: Buka terminal dan jalankan `npm run test:watch`. Biarkan terminal ini tetap terbuka.
+2. **Tulis Tes Dahulu (Red)**: Buat file tes baru (contoh: `fiturBaru.test.js` di dalam folder `src/tests`) dan definisikan ekspektasi (apa yang seharusnya fitur ini lakukan). Tes ini pastinya akan **gagal** (berwarna merah) karena implementasinya belum ada.
+3. **Implementasi Kode (Green)**: Tulis kode produksi seminimal dan sesederhana mungkin, hanya untuk membuat tes yang Anda buat sebelumnya berhasil lulus (berwarna hijau).
+4. **Rapikan (Refactor)**: Setelah tes lulus, perbaiki struktur kode, nama variabel, atau performanya tanpa takut merusak fitur, karena jika fitur rusak tes akan otomatis memberi peringatan.
+5. Ulangi kembali proses di atas untuk skenario berikutnya.
 ---
 
 ## 📁 Struktur Proyek
