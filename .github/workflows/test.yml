@@ -22,12 +22,10 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
       # Fallback values so test bootstrap doesn't fail even without secrets
       # (Prisma is mocked, so the real URL is never used)
-      DATABASE_URL: "postgresql://test:test@localhost:5432/snapbudget_test"
-      JWT_SECRET: "ci_test_secret_not_used_in_production"
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://test:test@localhost:5432/snapbudget_test' }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci_test_secret_not_used_in_production' }}
 
     steps:
       - name: Checkout repository
