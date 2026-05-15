@@ -12,8 +12,10 @@ import {
   ChevronRight,
   Wallet,
   Bot,
+  Download,
 } from "lucide-react";
 import { Trophy } from "lucide-react";
+import usePWAInstall from "../../hooks/usePWAInstall";
 
 
 import useReducedMotion from "../../hooks/useReducedMotion";
@@ -41,6 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const [collapsed, setCollapsed] = useState(false);
+  const { isInstallable, isInstalled, isIOS, promptInstall } = usePWAInstall();
 
   const transitionStyle = prefersReducedMotion
     ? {}
@@ -217,6 +220,31 @@ export default function Sidebar({ isOpen, onClose }) {
                 </span>
               </div>
             </div>
+          )}
+
+          {/* Install App */}
+          {!isInstalled && (isInstallable || isIOS) && (
+            <button
+              onClick={() => {
+                if (isInstallable) {
+                  promptInstall();
+                } else if (isIOS) {
+                  alert("To install on iOS: tap the Share button at the bottom of the screen, then select 'Add to Home Screen'.");
+                }
+              }}
+              title={collapsed ? "Install App" : undefined}
+              aria-label="Install App"
+              className={[
+                "flex items-center gap-3 w-full px-3 py-2.5",
+                "text-teal-300 hover:bg-teal-500/20 hover:text-teal-100",
+                "rounded-[var(--radius-md)] text-sm font-medium",
+                "transition-colors duration-150 cursor-pointer mb-2",
+                collapsed ? "justify-center" : "",
+              ].join(" ")}
+            >
+              <Download size={16} className="flex-shrink-0" />
+              {!collapsed && <span>Install App</span>}
+            </button>
           )}
 
           {/* Sign-out */}

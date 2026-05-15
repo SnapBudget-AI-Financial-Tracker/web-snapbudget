@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
           description: 'AI-Powered Financial Tracking and Budget Management',
           theme_color: '#09090b',
           background_color: '#09090b',
-          display: 'browser',
+          display: 'standalone',
           orientation: 'portrait',
           scope: '/',
           start_url: '/',
