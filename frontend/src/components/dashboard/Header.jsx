@@ -9,6 +9,7 @@ const PAGE_META = {
   "/transactions": { title: "Transaksi", subtitle: "Riwayat transaksi" },
   "/settings": { title: "Pengaturan", subtitle: "Kelola akun Anda" },
   "/chatbot": { title: "SnapBudget AI", subtitle: "Asisten keuangan cerdas" },
+  "/saving-goals": { title: "Tabungan Goals", subtitle: "Kelola target tabunganmu" },
 };
 
 function getInitials(name) {

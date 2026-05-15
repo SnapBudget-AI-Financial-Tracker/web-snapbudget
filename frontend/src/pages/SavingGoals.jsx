@@ -494,25 +494,23 @@ export default function SavingGoals() {
       <div className="w-full p-4 mx-auto md:p-6 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 animate-fadeIn">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-teal-500 rounded-xl">
-              <PiggyBank size={20} className="text-white" />
-            </div>
-            <div>
-              <h1
-                style={{ fontFamily: "var(--font-heading)" }}
-                className="text-xl font-bold text-zinc-900"
-              >
-                Tabungan Goals
-              </h1>
-              <p className="text-sm text-zinc-500">Kelola target tabunganmu</p>
-            </div>
+          <div>
+            <h1
+              className="text-teal-900 font-semibold text-[17px] leading-tight"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              Tabungan Goals
+            </h1>
+            <p className="text-[13px] text-zinc-500 mt-0.5">
+              Kelola target tabunganmu
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-teal-500 text-white text-sm font-semibold rounded-xl hover:bg-teal-600 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-500 hover:bg-teal-600 text-white text-[13px] font-medium rounded-lg shadow-sm transition-all"
           >
-            <Plus size={16} /> Buat Goal
+            <Plus size={14} />
+            <span>Buat Goal</span>
           </button>
         </div>
 
