@@ -7,7 +7,7 @@ const PAGE_META = {
   "/dashboard": { title: "Dashboard", subtitle: "Overview keuangan Anda" },
   "/analytics": { title: "Analytics", subtitle: "Analisis pengeluaran" },
   "/transactions": { title: "Transaksi", subtitle: "Riwayat transaksi" },
-  "/settings": { title: "Pengaturan", subtitle: "Kelola akun Anda" },
+  "/settings": { title: "Alokasi Budget", subtitle: "Kelola budget bulanan dan alokasi per kategori" },
   "/chatbot": { title: "SnapBudget AI", subtitle: "Asisten keuangan cerdas" },
   "/saving-goals": { title: "Tabungan Goals", subtitle: "Kelola target tabunganmu" },
   "/gamification": { title: "Gamifikasi Keuangan", subtitle: "Raih poin dan badge" },

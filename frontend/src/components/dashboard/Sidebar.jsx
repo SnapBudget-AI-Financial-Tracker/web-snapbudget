@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   BarChart2,
   ArrowLeftRight,
-  Settings,
+  Sliders,
   ChevronLeft,
   ChevronRight,
   Wallet,
@@ -25,7 +25,7 @@ const navLinks = [
   { path: "/chatbot", label: "AI Chat", icon: Bot },
   { path: "/saving-goals", label: "Goals", icon: PiggyBank },
   { path: "/gamification", label: "Gamifikasi", icon: Trophy },
-  { path: "/settings", label: "Pengaturan", icon: Settings },
+  { path: "/settings", label: "Alokasi Budget", icon: Sliders },
 ];
 
 function getUserInitials(user) {

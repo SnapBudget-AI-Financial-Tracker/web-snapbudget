@@ -46,7 +46,7 @@ export default function Settings() {
         });
       } catch (error) {
         console.error('Error loading settings:', error);
-        showToast('Gagal memuat pengaturan', 'error');
+        showToast('Gagal memuat alokasi budget', 'error');
       } finally {
         setIsLoading(false);
       }
@@ -61,11 +61,11 @@ export default function Settings() {
 
     try {
       await userService.updateBudget(formData);
-      showToast('Pengaturan berhasil disimpan', 'success');
+      showToast('Alokasi budget berhasil disimpan', 'success');
     } catch (error) {
       console.error('Error saving settings:', error);
       showToast(
-        error.response?.data?.message || 'Gagal menyimpan pengaturan',
+        error.response?.data?.message || 'Gagal menyimpan alokasi budget',
         'error'
       );
     } finally {
@@ -95,7 +95,7 @@ export default function Settings() {
       <div className="p-4 md:p-8 max-w-4xl mx-auto w-full">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-zinc-900 mb-2">
-            Pengaturan Budget
+            Alokasi Budget
           </h1>
           <p className="text-zinc-600">
             Kelola budget bulanan dan alokasi per kategori
