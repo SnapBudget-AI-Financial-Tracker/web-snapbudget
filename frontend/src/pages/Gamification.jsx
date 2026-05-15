@@ -244,18 +244,15 @@ export default function Gamification() {
     <DashboardLayout>
       <div className="w-full max-w-5xl p-4 mx-auto space-y-5 md:p-6">
         {/* Header */}
-        <div className="flex items-center gap-3 animate-fadeIn">
-          <div className="flex items-center justify-center w-10 h-10 bg-teal-500 rounded-xl">
-            <Trophy size={20} className="text-white" />
-          </div>
+        <div className="flex items-center justify-between animate-fadeIn">
           <div>
             <h1
+              className="text-teal-900 font-semibold text-[17px] leading-tight"
               style={{ fontFamily: "var(--font-heading)" }}
-              className="text-xl font-bold text-zinc-900"
             >
               Gamifikasi Keuangan
             </h1>
-            <p className="text-sm text-zinc-500">
+            <p className="text-[13px] text-zinc-500 mt-0.5">
               Raih poin dan badge dengan kebiasaan keuangan baik
             </p>
           </div>

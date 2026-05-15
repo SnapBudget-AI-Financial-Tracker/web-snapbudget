@@ -10,6 +10,7 @@ const PAGE_META = {
   "/settings": { title: "Pengaturan", subtitle: "Kelola akun Anda" },
   "/chatbot": { title: "SnapBudget AI", subtitle: "Asisten keuangan cerdas" },
   "/saving-goals": { title: "Tabungan Goals", subtitle: "Kelola target tabunganmu" },
+  "/gamification": { title: "Gamifikasi Keuangan", subtitle: "Raih poin dan badge" },
 };
 
 function getInitials(name) {
