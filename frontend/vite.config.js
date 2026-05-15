@@ -55,7 +55,24 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       globals: true,
-      setupFiles: [],
+      setupFiles: ['./src/tests/setup.js'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        reportsDirectory: './coverage',
+        include: ['src/**/*.{js,jsx}'],
+        exclude: [
+          'src/main.jsx',         // entry point — not unit-testable
+          'src/assets/**',        // static assets
+          'src/tests/**',         // test files themselves
+        ],
+        thresholds: {
+          lines: 80,
+          branches: 70,
+          functions: 80,
+          statements: 80,
+        },
+      },
     },
     server: {
       port: 5173,

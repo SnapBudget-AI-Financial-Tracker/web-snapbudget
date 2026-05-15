@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --run --coverage",
     "dev": "nodemon src/index.js",
     "start": "node src/index.js"
   },
@@ -35,6 +37,7 @@
   "devDependencies": {
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/config": "^7.7.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "nodemon": "^3.1.14",
     "supertest": "^7.0.0",
     "vitest": "^2.1.8"

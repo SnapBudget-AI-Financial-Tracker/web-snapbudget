@@ -1,0 +1,108 @@
+name: CI — Test Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  backend-tests:
+    name: Backend Tests (Node / Vitest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      # Fallback values so test bootstrap doesn't fail even without secrets
+      # (Prisma is mocked, so the real URL is never used)
+      DATABASE_URL: "postgresql://test:test@localhost:5432/snapbudget_test"
+      JWT_SECRET: "ci_test_secret_not_used_in_production"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Run backend tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload backend coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: backend/coverage/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  frontend-tests:
+    name: Frontend Tests (React / Vitest + RTL)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    env:
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run frontend tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload frontend coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Gate: both jobs must pass before a PR can be merged
+  all-tests-pass:
+    name: All Tests Pass
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all test jobs succeeded
+        run: |
+          if [[ "${{ needs.backend-tests.result }}" != "success" || \
+                "${{ needs.frontend-tests.result }}" != "success" ]]; then
+            echo "One or more test jobs failed."
+            exit 1
+          fi
+          echo "All test jobs passed."

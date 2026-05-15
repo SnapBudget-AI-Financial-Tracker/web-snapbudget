@@ -7,13 +7,7 @@ import {
   createDefaultAnimationConfig,
 } from "../utils/animationConfig";
 
-/**
- * Tests for Animation Config Parser and Serializer
- * Requirement 10: Parser dan Serializer Konfigurasi Animasi
- */
-
 describe("Animation Config Parser", () => {
-  // Valid animation types
   const validTypes = [
     "fade-in",
     "slide-up",
@@ -28,7 +22,6 @@ describe("Animation Config Parser", () => {
     "count-up",
   ];
 
-  // Valid easing functions
   const validEasings = ["linear", "ease-in", "ease-out", "ease-in-out", "ease"];
 
   describe("P1 — Round-Trip Property (Requirement 10.4)", () => {
@@ -50,7 +43,6 @@ describe("Animation Config Parser", () => {
             const printed2 = printAnimationConfig(parsed1);
             const parsed2 = parseAnimationConfig(printed2);
 
-            // Check equivalence
             expect(parsed1.type).toBe(parsed2.type);
             expect(parsed1.duration).toBeCloseTo(parsed2.duration, 5);
             expect(parsed1.delay).toBeCloseTo(parsed2.delay, 5);
@@ -58,9 +50,9 @@ describe("Animation Config Parser", () => {
             expect(parsed1.trigger).toBe(parsed2.trigger);
             expect(parsed1.threshold).toBeCloseTo(parsed2.threshold, 5);
             expect(parsed1.repeat).toBe(parsed2.repeat);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
@@ -127,7 +119,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /type is required/
+        /type is required/,
       );
     });
 
@@ -139,7 +131,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /duration is required/
+        /duration is required/,
       );
     });
 
@@ -151,7 +143,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /delay is required/
+        /delay is required/,
       );
     });
 
@@ -163,7 +155,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /easing is required/
+        /easing is required/,
       );
     });
 
@@ -176,7 +168,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /type must be one of/
+        /type must be one of/,
       );
     });
 
@@ -189,7 +181,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /easing must be one of/
+        /easing must be one of/,
       );
     });
 
@@ -202,7 +194,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /duration must be greater than 0/
+        /duration must be greater than 0/,
       );
     });
 
@@ -215,7 +207,7 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /delay must be greater than or equal to 0/
+        /delay must be greater than or equal to 0/,
       );
     });
 
@@ -229,22 +221,22 @@ describe("Animation Config Parser", () => {
       });
 
       expect(() => parseAnimationConfig(invalidJson)).toThrow(
-        /threshold must be between 0 and 1/
+        /threshold must be between 0 and 1/,
       );
     });
 
     it("should throw error for non-object input", () => {
       expect(() => parseAnimationConfig('"string"')).toThrow(
-        /config must be an object/
+        /config must be an object/,
       );
       expect(() => parseAnimationConfig("123")).toThrow(
-        /config must be an object/
+        /config must be an object/,
       );
       expect(() => parseAnimationConfig("null")).toThrow(
-        /config must be an object/
+        /config must be an object/,
       );
       expect(() => parseAnimationConfig("[1,2,3]")).toThrow(
-        /config must be an object/
+        /config must be an object/,
       );
     });
   });
@@ -276,7 +268,7 @@ describe("Animation Config Parser", () => {
       };
 
       expect(() => printAnimationConfig(invalidConfig)).toThrow(
-        /Cannot serialize invalid configuration/
+        /Cannot serialize invalid configuration/,
       );
     });
 
@@ -357,7 +349,6 @@ describe("Animation Config Parser", () => {
     });
   });
 
-  // Edge cases testing with fast-check
   describe("Edge Cases", () => {
     it("should handle extreme numeric values", () => {
       const config = {
