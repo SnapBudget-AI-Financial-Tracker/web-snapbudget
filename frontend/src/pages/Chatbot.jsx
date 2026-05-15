@@ -118,29 +118,24 @@ export default function Chatbot() {
     <DashboardLayout>
       <div className="p-3 md:p-6 max-w-4xl mx-auto w-full h-[calc(100vh-64px)] md:h-full flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 animate-fadeIn">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center">
-              <Sparkles size={20} className="text-white" />
-            </div>
-            <div>
-              <h1
-                style={{ fontFamily: "var(--font-heading)" }}
-                className="text-xl font-bold text-zinc-900"
-              >
-                SnapBudget AI
-              </h1>
-              <p className="text-sm text-zinc-500">
-                Asisten keuangan pribadi berbasis AI
-              </p>
-            </div>
+        <div className="flex items-center justify-between mb-4 animate-fadeIn">
+          <div>
+            <h1
+              className="text-teal-900 font-semibold text-[17px] leading-tight"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              SnapBudget AI
+            </h1>
+            <p className="text-[13px] text-zinc-500 mt-0.5">
+              Asisten keuangan cerdas untukmu
+            </p>
           </div>
           <button
             onClick={clearChat}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors border border-zinc-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-[13px] font-medium rounded-lg shadow-sm transition-all"
           >
             <Trash2 size={14} />
-            Reset Chat
+            <span>Reset</span>
           </button>
         </div>
 
