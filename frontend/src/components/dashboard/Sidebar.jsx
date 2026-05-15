@@ -200,9 +200,6 @@ export default function Sidebar({ isOpen, onClose }) {
                   >
                     {user.name || user.username || "User"}
                   </p>
-                  <span className="flex-shrink-0 text-[9px] font-bold bg-teal-400/25 text-teal-200 px-1.5 py-0.5 rounded-full leading-tight tracking-wide">
-                    PRO
-                  </span>
                 </div>
                 <p className="text-[11px] text-teal-300/60 truncate leading-tight mt-0.5">
                   {user.email}
