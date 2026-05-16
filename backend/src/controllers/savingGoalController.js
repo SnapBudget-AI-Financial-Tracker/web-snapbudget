@@ -46,7 +46,7 @@ export const getSavingGoals = async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
       console.error("Get saving goals error:", error);
     }
-    res.status(500).json({ message: "Gagal mengambil data goals" });
+    res.status(500).json({ message: "Gagal mengambil data goals", error: error.message });
   }
 };
 
@@ -85,7 +85,7 @@ export const createSavingGoal = async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
       console.error("Create saving goal error:", error);
     }
-    res.status(500).json({ message: "Gagal membuat goal" });
+    res.status(500).json({ message: "Gagal membuat goal", error: error.message });
   }
 };
 
@@ -136,7 +136,7 @@ export const updateSavingGoal = async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
       console.error("Update saving goal error:", error);
     }
-    res.status(500).json({ message: "Gagal update goal" });
+    res.status(500).json({ message: "Gagal update goal", error: error.message });
   }
 };
 
@@ -189,7 +189,7 @@ export const addToSavingGoal = async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
       console.error("Add to saving goal error:", error);
     }
-    res.status(500).json({ message: "Gagal menambah tabungan" });
+    res.status(500).json({ message: "Gagal menambah tabungan", error: error.message });
   }
 };
 /**
@@ -214,6 +214,6 @@ export const deleteSavingGoal = async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
       console.error("Delete saving goal error:", error);
     }
-    res.status(500).json({ message: "Gagal menghapus goal" });
+    res.status(500).json({ message: "Gagal menghapus goal", error: error.message });
   }
 };
