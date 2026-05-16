@@ -9,7 +9,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest --run --coverage",
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "npx prisma migrate deploy && node src/index.js"
   },
   "keywords": [],
   "author": "",
