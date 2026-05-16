@@ -10,7 +10,7 @@ import {
 export const getSavingGoals = async (req, res) => {
   try {
     const userId = req.user.id;
-    const goals = await prisma.SavingGoal.findMany({
+    const goals = await prisma.savingGoal.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
