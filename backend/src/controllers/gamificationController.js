@@ -11,6 +11,6 @@ export const getGamification = async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
       console.error('Gamification error:', error);
     }
-    res.status(500).json({ message: 'Gagal mengambil data gamifikasi' });
+    res.status(500).json({ message: 'Gagal mengambil data gamifikasi', error: error.message });
   }
 };
