@@ -16,11 +16,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm install --workspaces=false
 
       - name: Run Linter
         working-directory: ./frontend
@@ -39,8 +39,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Backend Dependencies
         working-directory: ./backend
-        run: npm install
+        run: npm install --workspaces=false
