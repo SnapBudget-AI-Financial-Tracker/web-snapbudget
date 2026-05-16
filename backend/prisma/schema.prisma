@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,32 +7,32 @@ datasource db {
 }
 
 model User {
-  id                    String        @id @default(uuid())
-  email                 String        @unique
-  password              String?
-  googleId              String?       @unique
-  name                  String?
-  avatarUrl             String?
-  budgetBulanan         Int           @default(2000000)
-  budgetMakanan         Int           @default(700000)
-  budgetMinuman         Int           @default(200000)
-  budgetTransportasi    Int           @default(300000)
-  budgetBelanja         Int           @default(200000)
-  budgetTagihan         Int           @default(240000)
-  budgetHiburan         Int           @default(160000)
-  budgetKesehatan       Int           @default(100000)
-  budgetLainLain        Int           @default(100000)
-  tanggalGajian         Int           @default(25)
-  targetTabungan        Int           @default(0)
-  isOnboardingComplete  Boolean       @default(false)
-  resetToken            String?       @unique
-  resetTokenExpiry      DateTime?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  transactions          Transaction[]
-  savingGoals  SavingGoal[]
-  gameStats    UserGameStats?
-  badges       UserBadge[]
+  id                   String         @id @default(uuid())
+  email                String         @unique
+  password             String?
+  googleId             String?        @unique
+  name                 String?
+  avatarUrl            String?
+  budgetBulanan        Int            @default(2000000)
+  budgetMakanan        Int            @default(700000)
+  budgetMinuman        Int            @default(200000)
+  budgetTransportasi   Int            @default(300000)
+  budgetBelanja        Int            @default(200000)
+  budgetTagihan        Int            @default(240000)
+  budgetHiburan        Int            @default(160000)
+  budgetKesehatan      Int            @default(100000)
+  budgetLainLain       Int            @default(100000)
+  tanggalGajian        Int            @default(25)
+  targetTabungan       Int            @default(0)
+  isOnboardingComplete Boolean        @default(false)
+  resetToken           String?        @unique
+  resetTokenExpiry     DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  savingGoals          SavingGoal[]
+  transactions         Transaction[]
+  badges               UserBadge[]
+  gameStats            UserGameStats?
 }
 
 model Transaction {
@@ -46,45 +43,45 @@ model Transaction {
   date        DateTime @default(now())
   receiptUrl  String?
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model SavingGoal {
   id            String   @id @default(uuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
   nama          String
   targetAmount  Float
   currentAmount Float    @default(0)
   deadline      DateTime
   kategori      String   @default("umum")
   icon          String   @default("🎯")
-  status        String   @default("aktif")  // aktif, tercapai, dibatalkan
+  status        String   @default("aktif")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model UserGameStats {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id])
-  totalPoin       Int      @default(0)
-  streakHarian    Int      @default(0)
-  streakTerpanjang Int     @default(0)
-  lastActiveDate  DateTime?
-  level           Int      @default(1)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  totalPoin        Int       @default(0)
+  streakHarian     Int       @default(0)
+  streakTerpanjang Int       @default(0)
+  lastActiveDate   DateTime?
+  level            Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id])
 }
 
 model UserBadge {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  badgeId     String
-  earnedAt    DateTime @default(now())
-  
+  id       String   @id @default(uuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+
   @@unique([userId, badgeId])
 }
