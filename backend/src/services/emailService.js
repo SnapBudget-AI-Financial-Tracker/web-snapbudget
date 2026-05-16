@@ -25,12 +25,16 @@ class EmailService {
             pass: testAccount.pass,
           },
         });
-        console.log('--- Email Service (Development) ---');
-        console.log(`Test User : ${testAccount.user}`);
-        console.log(`Test Pass : ${testAccount.pass}`);
-        console.log('-----------------------------------');
+        if (process.env.NODE_ENV !== 'test') {
+          console.log('--- Email Service (Development) ---');
+          console.log(`Test User : ${testAccount.user}`);
+          console.log(`Test Pass : ${testAccount.pass}`);
+          console.log('-----------------------------------');
+        }
       } catch (error) {
-        console.error('Failed to create Ethereal test account:', error);
+        if (process.env.NODE_ENV !== 'test') {
+          console.error('Failed to create Ethereal test account:', error);
+        }
       }
     } else {
       // Production or manual SMTP config
@@ -81,13 +85,17 @@ class EmailService {
 
     try {
       const info = await this.transporter.sendMail(mailOptions);
-      console.log(`Reset Email sent to ${to}`);
-      if (process.env.NODE_ENV !== 'production' && !process.env.SMTP_HOST) {
-        console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`Reset Email sent to ${to}`);
+        if (process.env.NODE_ENV !== 'production' && !process.env.SMTP_HOST) {
+          console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+        }
       }
       return info;
     } catch (error) {
-      console.error('Error sending reset email:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Error sending reset email:', error);
+      }
       throw new Error('Could not send reset email');
     }
   }

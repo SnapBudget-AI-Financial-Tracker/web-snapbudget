@@ -51,7 +51,9 @@ export const register = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Registration error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -90,7 +92,9 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error('Login error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Login error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -147,7 +151,9 @@ export const googleLogin = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error('Google login error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Google login error:', error);
+    }
     res.status(401).json({ message: 'Invalid Google token' });
   }
 };
@@ -187,7 +193,9 @@ export const forgotPassword = async (req, res) => {
 
     res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
   } catch (error) {
-    console.error('Forgot password error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Forgot password error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -226,7 +234,9 @@ export const resetPassword = async (req, res) => {
 
     res.json({ message: 'Password has been reset successfully' });
   } catch (error) {
-    console.error('Reset password error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Reset password error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -75,7 +75,9 @@ export const chat = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Chatbot error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Chatbot error:', error);
+    }
     res.status(500).json({ message: 'Gagal mendapatkan respons AI' });
   }
 };

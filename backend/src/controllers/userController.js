@@ -37,7 +37,9 @@ export const uploadAvatar = async (req, res) => {
       user: updatedUser
     });
   } catch (error) {
-    console.error('Error uploading avatar:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Error uploading avatar:', error);
+    }
     res.status(500).json({ message: 'Error uploading avatar', error: error.message });
   }
 };
@@ -66,7 +68,9 @@ export const updateProfile = async (req, res) => {
       user: updatedUser
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Error updating profile:', error);
+    }
     res.status(500).json({ message: 'Error updating profile', error: error.message });
   }
 };
@@ -131,7 +135,9 @@ export const updateBudget = async (req, res) => {
       user: updatedUser
     });
   } catch (error) {
-    console.error('Error updating budget:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Error updating budget:', error);
+    }
     res.status(500).json({ message: 'Error updating budget', error: error.message });
   }
 };
@@ -158,7 +164,9 @@ export const getBudgetSettings = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    console.error('Error getting budget settings:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Error getting budget settings:', error);
+    }
     res.status(500).json({ message: 'Error getting budget settings', error: error.message });
   }
 };

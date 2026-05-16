@@ -69,7 +69,9 @@ export const scanStruk = async (req, res) => {
       transaksi_disimpan: transaksiList.length,
     });
   } catch (error) {
-    console.error('Scan struk error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Scan struk error:', error);
+    }
     res.status(500).json({ message: 'Gagal memproses struk' });
   }
 };
@@ -125,13 +127,6 @@ export const getDashboard = async (req, res) => {
       ? Math.round((totalSpending / budgetBulanan) * 1000) / 10
       : 0;
 
-    // DEBUG — posisi yang benar (setelah semua variabel dideklarasikan)
-    console.log('=== DEBUG DASHBOARD ===')
-    console.log('day_of_month :', now.getDate())
-    console.log('total_aktual :', totalSpending)
-    console.log('actual_dict  :', actualHariIni)
-    console.log('saldo_sisa   :', sisaSaldo)
-    console.log('budget       :', budgetBulanan)
 
     // Ambil prediksi + rekomendasi dari AI
     const aiResult = await getPrediksi(actualHariIni, {
@@ -174,7 +169,9 @@ export const getDashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Dashboard error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Dashboard error:', error);
+    }
     res.status(500).json({ message: 'Gagal memuat dashboard' });
   }
 };
@@ -210,7 +207,9 @@ export const createTransaction = async (req, res) => {
 
     res.status(201).json(transaction);
   } catch (error) {
-    console.error('Create transaction error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Create transaction error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -228,7 +227,9 @@ export const getTransactions = async (req, res) => {
 
     res.json(transactions);
   } catch (error) {
-    console.error('Get transactions error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Get transactions error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -255,7 +256,9 @@ export const getTransactionById = async (req, res) => {
 
     res.json(transaction);
   } catch (error) {
-    console.error('Get transaction by id error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Get transaction by id error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -290,7 +293,9 @@ export const updateTransaction = async (req, res) => {
 
     res.json(updatedTransaction);
   } catch (error) {
-    console.error('Update transaction error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Update transaction error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -317,7 +322,9 @@ export const deleteTransaction = async (req, res) => {
 
     res.json({ message: 'Transaction deleted successfully' });
   } catch (error) {
-    console.error('Delete transaction error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Delete transaction error:', error);
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 };

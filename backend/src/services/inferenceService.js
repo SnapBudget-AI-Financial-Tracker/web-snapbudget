@@ -27,7 +27,9 @@ export const scanStruk = async (fileBuffer, filename, context = {}) => {
 
     return response.data;
   } catch (error) {
-    console.error('AI scan struk error:', error.response?.data || error.message);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('AI scan struk error:', error.response?.data || error.message);
+    }
     
     if (error.code === 'ECONNABORTED') {
       throw new Error('AI service timeout. Service mungkin sedang cold start, coba lagi dalam beberapa detik.');
@@ -59,7 +61,9 @@ export const getPrediksi = async (actualHariIni, context = {}) => {
 
     return response.data;
   } catch (error) {
-    console.error('AI prediksi error:', error.response?.data || error.message);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('AI prediksi error:', error.response?.data || error.message);
+    }
     
     // Return fallback data instead of throwing error
     return {
@@ -91,7 +95,9 @@ export const healthCheck = async () => {
     });
     return response.data.status === 'ok';
   } catch (error) {
-    console.error('AI health check error:', error.message);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('AI health check error:', error.message);
+    }
     return false;
   }
 };

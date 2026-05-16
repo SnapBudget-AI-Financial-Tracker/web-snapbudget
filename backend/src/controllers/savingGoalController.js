@@ -43,7 +43,9 @@ export const getSavingGoals = async (req, res) => {
 
     res.json(goalsWithProgress);
   } catch (error) {
-    console.error("Get saving goals error:", error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error("Get saving goals error:", error);
+    }
     res.status(500).json({ message: "Gagal mengambil data goals" });
   }
 };
@@ -80,7 +82,9 @@ export const createSavingGoal = async (req, res) => {
 
     res.status(201).json(goal);
   } catch (error) {
-    console.error("Create saving goal error:", error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error("Create saving goal error:", error);
+    }
     res.status(500).json({ message: "Gagal membuat goal" });
   }
 };
@@ -129,7 +133,9 @@ export const updateSavingGoal = async (req, res) => {
 
     res.json(updated);
   } catch (error) {
-    console.error("Update saving goal error:", error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error("Update saving goal error:", error);
+    }
     res.status(500).json({ message: "Gagal update goal" });
   }
 };
@@ -180,7 +186,9 @@ export const addToSavingGoal = async (req, res) => {
             )}`,
     });
   } catch (error) {
-    console.error("Add to saving goal error:", error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error("Add to saving goal error:", error);
+    }
     res.status(500).json({ message: "Gagal menambah tabungan" });
   }
 };
@@ -203,7 +211,9 @@ export const deleteSavingGoal = async (req, res) => {
     await prisma.savingGoal.delete({ where: { id } });
     res.json({ message: "Goal berhasil dihapus" });
   } catch (error) {
-    console.error("Delete saving goal error:", error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error("Delete saving goal error:", error);
+    }
     res.status(500).json({ message: "Gagal menghapus goal" });
   }
 };

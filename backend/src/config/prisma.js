@@ -9,9 +9,13 @@ try {
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
   const adapter = new PrismaPg(pool);
   prisma = new PrismaClient({ adapter });
-  console.log("Prisma client initialized successfully");
+  if (process.env.NODE_ENV !== "test") {
+    console.log("Prisma client initialized successfully");
+  }
 } catch (error) {
-  console.error("Failed to initialize Prisma client:", error.message);
+  if (process.env.NODE_ENV !== "test") {
+    console.error("Failed to initialize Prisma client:", error.message);
+  }
   prisma = null;
 }
 
