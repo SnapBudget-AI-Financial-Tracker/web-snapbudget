@@ -48,7 +48,6 @@ export default function GoogleAuthButton() {
             }}
             theme="outline"
             size="large"
-            width="100%"
             shape="rectangular"
             text="continue_with"
           />
