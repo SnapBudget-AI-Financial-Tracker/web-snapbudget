@@ -1,9 +1,18 @@
 // backend/src/services/chatbotService.js
 import Groq from 'groq-sdk';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+let groqClient;
+
+const getGroqClient = () => {
+  if (!groqClient) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error('GROQ_API_KEY is missing or empty. Please provide it in your environment variables.');
+    }
+    groqClient = new Groq({ apiKey });
+  }
+  return groqClient;
+};
 
 const formatIDR = (val) =>
   `Rp ${Math.abs(Math.round(val)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
@@ -70,7 +79,7 @@ PANDUAN RESPONS:
     { role: 'user', content: userMessage },
   ];
 
-  const response = await groq.chat.completions.create({
+  const response = await getGroqClient().chat.completions.create({
     model      : 'llama-3.3-70b-versatile',
     max_tokens : 1024,
     temperature: 0.7,
