@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,6 +21,16 @@ import SavingGoals from "./pages/SavingGoals";
 import Gamification from "./pages/Gamification";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -65,6 +76,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <PageTransitionWrapper>
           <Routes>
             <Route
