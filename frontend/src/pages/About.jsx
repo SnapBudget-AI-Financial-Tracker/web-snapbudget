@@ -506,7 +506,7 @@ export default function About() {
             }}
           >
             <span className="l-badge-dot" />
-            Capstone Project 2025
+            Capstone Project 2026
           </div>
 
           <h1
@@ -720,7 +720,7 @@ export default function About() {
         }}
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
-          SnapBudget · Capstone Project 2025
+          SnapBudget · Capstone Project 2026
         </div>
       </footer>
     </div>
