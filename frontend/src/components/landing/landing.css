@@ -505,6 +505,27 @@
   }
 }
 
+.l-iphone-container {
+  position: relative;
+  width: 288px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
+}
+@media (max-width: 480px) {
+  .l-iphone-container {
+    transform: scale(0.85);
+  }
+}
+@media (max-width: 360px) {
+  .l-iphone-container {
+    transform: scale(0.75);
+  }
+}
+
 /* ── iPhone glow ── */
 .l-iphone-wrapper {
   position: relative;

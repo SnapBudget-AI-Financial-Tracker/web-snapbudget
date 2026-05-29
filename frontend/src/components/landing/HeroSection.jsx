@@ -170,8 +170,9 @@ export default function HeroSection() {
               />
               <br />
               <SplitHeading text="Lebih" delay={200} />{" "}
+              <SplitHeading text="Mudah" delay={260} />{" "}
               <span className="l-gradient-text-gold">
-                <SplitHeading text="Cerdas" delay={300} />
+                <SplitHeading text="& Cerdas" delay={320} />
               </span>
             </h1>
 
@@ -210,8 +211,11 @@ export default function HeroSection() {
           {/* ── Right: iPhone Mockup ── */}
           <div
             ref={iphoneRef}
-            className="relative flex items-center justify-center"
-            style={{ minHeight: 520, transform: "translateZ(0)" }}
+            className="relative flex items-center justify-center w-full"
+            style={{
+              minHeight: "clamp(380px, 60vh, 520px)",
+              transform: "translateZ(0)",
+            }}
           >
             {/* Glow rings behind phone */}
             <div
@@ -243,126 +247,130 @@ export default function HeroSection() {
               }}
             />
 
-            <div className="l-iphone-wrapper l-float">
-              <IPhoneMockup />
-              <div className="l-iphone-glow" aria-hidden="true" />
-            </div>
-
-            {/* Floating stat badges */}
-            <div
-              className="l-float-delay"
-              style={{
-                position: "absolute",
-                top: "12%",
-                left: "-5%",
-                background: "var(--l-surface)",
-                border: "1px solid var(--l-border-glow)",
-                borderRadius: 14,
-                padding: "10px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-              }}
-            >
+            <div className="l-iphone-container">
+              <div className="l-iphone-wrapper l-float">
+                <IPhoneMockup />
+                <div className="l-iphone-glow" aria-hidden="true" />
+              </div>
               <div
+                className="l-float-delay"
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: "rgba(0,212,170,0.15)",
+                  position: "absolute",
+                  top: "12%",
+                  left: "-110px",
+                  background: "var(--l-surface)",
+                  border: "1px solid var(--l-border-glow)",
+                  borderRadius: 14,
+                  padding: "10px 16px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
+                  gap: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                  width: "max-content",
                 }}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--l-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                  <circle cx="12" cy="13" r="4" />
-                </svg>
-              </div>
-              <div>
                 <div
                   style={{
-                    fontFamily: "var(--l-font-head)",
-                    fontWeight: 700,
-                    fontSize: "0.85rem",
-                    color: "var(--l-text)",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: "rgba(0,212,170,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
                   }}
                 >
-                  Scan Struk
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--l-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
                 </div>
-                <div style={{ fontSize: "0.7rem", color: "var(--l-primary)" }}>
-                  AI sudah baca
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "var(--l-font-head)",
+                      fontWeight: 700,
+                      fontSize: "0.85rem",
+                      color: "var(--l-text)",
+                    }}
+                  >
+                    Scan Struk
+                  </div>
+                  <div
+                    style={{ fontSize: "0.7rem", color: "var(--l-primary)" }}
+                  >
+                    AI sudah baca
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              className="l-float-slow"
-              style={{
-                position: "absolute",
-                bottom: "14%",
-                right: "-3%",
-                background: "var(--l-surface)",
-                border: "1px solid rgba(245,166,35,0.3)",
-                borderRadius: 14,
-                padding: "10px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-              }}
-            >
               <div
+                className="l-float-slow"
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: "rgba(245,166,35,0.15)",
+                  position: "absolute",
+                  bottom: "14%",
+                  right: "-100px",
+                  background: "var(--l-surface)",
+                  border: "1px solid rgba(245,166,35,0.3)",
+                  borderRadius: 14,
+                  padding: "10px 16px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
+                  gap: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                  width: "max-content",
                 }}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--l-accent)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                  <polyline points="17 6 23 6 23 12" />
-                </svg>
-              </div>
-              <div>
                 <div
                   style={{
-                    fontFamily: "var(--l-font-head)",
-                    fontWeight: 700,
-                    fontSize: "0.85rem",
-                    color: "var(--l-text)",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: "rgba(245,166,35,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
                   }}
                 >
-                  Hemat 30%
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--l-accent)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
                 </div>
-                <div style={{ fontSize: "0.7rem", color: "var(--l-accent)" }}>
-                  rata-rata pengguna
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "var(--l-font-head)",
+                      fontWeight: 700,
+                      fontSize: "0.85rem",
+                      color: "var(--l-text)",
+                    }}
+                  >
+                    Hemat 30%
+                  </div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--l-accent)" }}>
+                    rata-rata pengguna
+                  </div>
                 </div>
               </div>
             </div>
